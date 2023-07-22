@@ -1,10 +1,10 @@
-# Bienvenue sur mon blog !
+# Welcome to my blog !
 
-Merci d'être ici! Je suis ravi de vous accueillir dans mon petit coin du web.
+Thanks to be here! I am delighted to welcome you to my little corner of the web.
 
-Les erreurs sont des opportunités d'apprentissage et le code est poésie. Alors, commençons cette belle histoire ensemble !
+Mistakes are learning opportunities and code is poetry. So, let's start this beautiful story together!
 
-À très bientôt 🙃
+See you very soon 🙃
 
 ---
 
@@ -15,4 +15,3 @@ Les erreurs sont des opportunités d'apprentissage et le code est poésie. Alors
   <a href="https://www.github.com/najx"><img src="https://img.shields.io/badge/GitHub--_.svg?style=social&logo=github" alt="najx"></a>
   <a href="https://www.linkedin.com/in/abdx"><img src="https://img.shields.io/badge/LinkedIn--_.svg?style=social&logo=linkedin" alt="najx"></a>
   <a href="https://stackoverflow.com/users/19588110/najim-abdelmoula"><img src="https://img.shields.io/badge/Stack Overflow--_.svg?style=social&logo=stackoverflow" alt="najx"></a>
-
