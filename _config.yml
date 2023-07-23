@@ -1,59 +1,91 @@
-# Welcome to Jekyll!
-#
-# This config file is meant for settings that affect your whole blog, values
-# which you are expected to set up once and rarely edit after that. If you find
-# yourself editing this file very often, consider using Jekyll's data files
-# feature for the data you need to update frequently.
-#
-# For technical reasons, this file is *NOT* reloaded automatically when you use
-# 'bundle exec jekyll serve'. If you change this file, please restart the server process.
-#
-# If you need help with YAML syntax, here are some quick references for you:
-# https://learn-the-web.algonquindesign.ca/topics/markdown-yaml-cheat-sheet/#yaml
-# https://learnxinyminutes.com/docs/yaml/
-#
 # Site settings
-# These are used to personalize your new site. If you look in the HTML files,
-# you will see them accessed via {{ site.title }}, {{ site.email }}, and so on.
-# You can create any custom variable you would like, and they will be accessible
-# in the templates via {{ site.myvariable }}.
+title: Klise Theme # site title
+description: >- # site description
+  He's writing in Bahasa about web technology and experience as a journal 
+  for documentation things that he learned, meet him <a href="https://github.com/piharpi" target="_blank" rel="noopener">@github</a>.
+lang: en-US # default lang
+timezone: Asia/Jakarta # set your timezone
+image: assets/img/ogp.png # This image used for Open Graph more info https://ogp.me/
+repo: https://github.com/piharpi/jekyll-klise # site repo [optional]
+mode: light # default theme "dark" | "light"
 
-title: "Najim Abdelmoula"
-#email: najim.abdelmoula [at] icloud.fr
-#description: >- # this means to ignore newlines until "baseurl:"
-#  Merci d'être ici! Je suis ravi de vous accueillir dans mon petit coin du web.
-#  Les erreurs sont des opportunités d'apprentissage et le code est poésie.
-#  Alors, commençons cette belle histoire ensemble !
-#  À très bientôt 🙃
-baseurl: "" # the subpath of your site, e.g. /blog
+# Profile settings
+author:
+  name: Najim Abdelmoula # author name
+  bio: >- # tell to the world
+    There is no place like 127.0.0.1
+  username: # general username
+  github: # github username
+  twitter: # twitter username
+  facebook: # facebook username
+  email: # email adress
+  avatar: /assets/img/1627486191670.jpg # change with your own avatar
 
-url: "" # the base hostname & protocol for your site, e.g. http://example.com
+# URL settings
+url: "https://klise.now.sh" #
+baseurl:
+permalink: /:title/
+google_analytics: # leave it blank if not wish
+fb_appid:
 
-linkedin_username:
-twitter_username:
-github_username:
+# Collection setting
+collections:
+  posts:
+    output: true
+
+# Markdown settings
+markdown: kramdown
+highlighter: rouge
+kramdown:
+  syntax_highlighter: rouge
+
+# Default front matter
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: post
+      comments: false
+
+# Jekyll Compose default front matter
+jekyll_compose:
+  post_default_front_matter:
+    modified:
+    tags: []
+    description:
+  draft_default_front_matter:
+    modified:
+    tags: []
+    description:
+
+# Homepage limit posts
+number_of_posts: 5
 
 # Build settings
-theme: minima
+# theme: klise
+sass:
+  style: compressed
+
+include:
+  - _redirects
+  - .htaccess
+
+exclude:
+  - CNAME
+  - Gemfile
+  - Gemfile.lock
+  - LICENSE
+  - CHANGELOG.md
+  - README.md
+  - node_modules
+  - CODE_OF_CONDUCT.md
+  - CONTRIBUTING.md
+  - lighthouse.png
+  - klise-*.gem
+  - klise.gemspec
+
+# Plugins
 plugins:
   - jekyll-feed
-
-# Exclude from processing.
-# The following items will not be processed, by default.
-# Any item listed under the `exclude:` key here will be automatically added to
-# the internal "default list".
-#
-# Excluded items can be processed by explicitly listing the directories or
-# their entries' file path in the `include:` list.
-#
-# exclude:
-#   - .sass-cache/
-#   - .jekyll-cache/
-#   - gemfiles/
-#   - Gemfile
-#   - Gemfile.lock
-#   - node_modules/
-#   - vendor/bundle/
-#   - vendor/cache/
-#   - vendor/gems/
-#   - vendor/ruby/
+  - jekyll-sitemap
+  - jekyll-postfiles
