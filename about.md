@@ -10,6 +10,12 @@ comments: false
 
 My first foray into technology began when I was just a child. Fascinated by computers, It was then that I decided to follow a career in Information Technology.
 
+
+<figure>
+<img src="/assets/img/4773.jpg" alt="little boy">
+<figcaption>1990, born to code.</figcaption>
+</figure>
+
 # The Cloud: A Game Changer
 
 That’s when I came across the cloud. The versatility and wide range of services offered by the Cloud made me realize its potential in the DevOps world. Its ability to scale resources on demand, coupled with its robust set of DevOps tools, convinced me that this was the future I wanted to be part of.

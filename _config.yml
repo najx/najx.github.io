@@ -11,7 +11,7 @@ mode: dark # default theme "dark" | "light"
 
 # Profile settings
 author:
-  name: Najim Abdelmoula # author name
+  name: # author name
   bio: >- # tell to the world
     There is no place like 127.0.0.1
   username: # general username
@@ -19,7 +19,7 @@ author:
   twitter: # twitter username
   facebook: # facebook username
   email: # email adress
-  avatar: /assets/img/1627486191670.jpg # change with your own avatar
+  avatar: /assets/img/4834187.png # change with your own avatar
 
 # URL settings
 url: "https://klise.now.sh" #
