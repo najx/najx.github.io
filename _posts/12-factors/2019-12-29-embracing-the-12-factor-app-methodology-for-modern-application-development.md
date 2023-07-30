@@ -9,7 +9,7 @@ description: As the digital landscape continually evolves, developers are consta
 As the digital landscape continually evolves, developers are constantly tasked with creating applications that are scalable, maintainable, and capable of standing up to a diverse range of operational scenarios. This is where the 12-Factor App methodology comes into play. Created by engineers at Heroku, this framework provides developers with a set of best practices aimed at building software-as-a-service apps that are both scalable and maintainable.
 
 <figure>
-<img src="12factors.png" alt="12 factors for your factory" style="width:50%;height:50%;">
+<img src="/12-factors/12factors.png" alt="12 factors for your factory" style="width:50%;height:50%;">
 </figure>
 
 ## The 12 Factors :
