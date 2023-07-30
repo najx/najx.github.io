@@ -7,7 +7,7 @@ description: Eco-responsible architecture is an increasingly common concept in t
 ---
 
 <figure>
-<img src="/_site/implementing-eco-responsible-architecture-in-azure/forest.jpg" alt="Green forest">
+<img src="forest.jpg" alt="Green forest">
 <figcaption></figcaption>
 </figure>
 
