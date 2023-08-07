@@ -12,4 +12,4 @@ For fear of forgetting some or of being overly comprehensive, I'd rather let the
 
 Hopefully the knowledge that I got from them can be useful, and become a charity for them آمين
 
-Thank you 🫶
+Thank you.
