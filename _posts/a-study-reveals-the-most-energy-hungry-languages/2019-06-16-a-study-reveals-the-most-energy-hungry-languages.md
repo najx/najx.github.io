@@ -2,9 +2,14 @@
 title: A study reveals the most energy-hungry languages
 date: 2019-06-16 11:58:47 +07:00
 modified: 2019-06-16 11:58:47 +07:00
-tags: [Programming]
+tags: [Code 👨‍💻, Eco 🌱]
 description: Which programming languages consume the least energy? This is the question that six researchers from three Portuguese universities sought to answer in a study titled "Energy Efficiency Across Programming Languages". In their research, they examined execution time, memory usage, and most importantly, the energy consumption of 27 well-known programming languages.
 ---
+
+<figure>
+<img src="/assets/img/1/blindgridmakerimage.jpg" alt="">
+<figcaption></figcaption>
+</figure>
 
 **Which programming languages consume the least energy?** This is the question that six researchers from three Portuguese universities sought to answer in a study titled "Energy Efficiency Across Programming Languages". In their research, they examined execution time, memory usage, and most importantly, the energy consumption of 27 well-known programming languages.
 
@@ -15,7 +20,7 @@ The primary goal of their efforts was to understand energy efficiency across var
 To gather a set of comparable, representative, and comprehensive programs written in most of the popular and widely-used programming languages, the researchers turned to the Computer Language Benchmarks Game (CLBG). The CLBG initiative provides a framework to run, test, and compare consistent solutions implemented for a set of well-known and varied programming problems. Its aim is to allow those who wish to compare solutions, whether within the same language or across different programming languages. At the time of their research, the CLBG offered solutions for 13 benchmark problems, ensuring that the solutions to each of these problems adhere to a given algorithm and specific implementation guidelines. Solutions to each problem are expressed in up to 28 different programming languages.
 
 <figure>
-<img src="/assets/img/1/tble02.PNG" alt="">
+<img src="/assets/img/1/tble02.png" alt="">
 <figcaption></figcaption>
 </figure>
 
@@ -39,7 +44,7 @@ After taking all these precautions to ensure relevant results, what did the rese
 The table below presents the overall results (on average) for energy consumption (Energy), execution time (Time), and peak memory usage (Mb), all normalized relative to the most efficient language for the measured criterion. The first column lists the names of the programming languages, prefixed by the letters (c), (i), or (v), indicating respectively whether the language is compiled, interpreted, or is a virtual machine language. For example, in terms of energy consumed, we see that C has a value of 1.00, while Lisp has a value of 2.27. This essentially means that C is the language that consumes the least energy, and Lisp consumes 2.27 times more energy than C.
 
 <figure>
-<img src="/assets/img/1/tble04.PNG" alt="">
+<img src="/assets/img/1/tble04.png" alt="">
 <figcaption></figcaption>
 </figure>
 
@@ -54,7 +59,7 @@ Moving on to the languages that consume the least memory, the gold medal goes to
 The table below presents four rankings by combining various goals: execution time and memory used, energy consumed and execution time, energy consumed and memory used, and finally all three criteria simultaneously. For each ranking, each row represents an optimal Pareto set, meaning a set of languages that are "equivalent" from the combined criteria perspective. The order of each row also represents the rank of the languages in the associated ranking.
 
 <figure>
-<img src="/assets/img/1/tble05.PNG" alt="">
+<img src="/assets/img/1/tble05.png" alt="">
 <figcaption></figcaption>
 </figure>
 
@@ -82,5 +87,11 @@ Researchers closely examined the common assumption that a faster program always 
 
 It's true that "the top five most energy-efficient languages maintain their position when ranked by execution time and with very small differences between energy consumption and execution time scores," but the same observation is not made when considering all languages. Indeed, "only four languages maintain the same rank for energy consumption and execution time (OCaml, Haskell, Racket, and Python), while the others are completely shuffled," the researchers observed.
 
-- Source: [Study Report](https://greenlab.di.uminho.pt/wp-content/uploads/2017/10/sleFinal.pdf)
-- Credit to: Michael Guilloux - [link](https://programmation.developpez.com/actu/253829/Programmation-une-etude-revele-les-langages-les-plus-voraces-en-energie-Perl-Python-et-Ruby-en-tete-C-Rust-et-Cplusplus-les-langages-les-plus-verts/)
+<hr>
+
+<p>
+    <ul style="font-size: 12px;">
+        <li><em>Source: <a href="https://greenlab.di.uminho.pt/wp-content/uploads/2017/10/sleFinal.pdf">Study Report</a></em></li>
+        <li><em>Credit to: <a href="https://programmation.developpez.com/actu/253829/Programmation-une-etude-revele-les-langages-les-plus-voraces-en-energie-Perl-Python-et-Ruby-en-tete-C-Rust-et-Cplusplus-les-langages-les-plus-verts/">Michael Guilloux - Developpez.com</a></em></li>
+    </ul>
+</p>

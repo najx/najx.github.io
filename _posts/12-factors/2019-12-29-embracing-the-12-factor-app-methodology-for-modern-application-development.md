@@ -1,8 +1,8 @@
 ---
-title: Embracing the 12-Factor App Methodology for Modern Application Development
+title: Embracing the 12-Factor app methodology for modern application development
 date: 2019-12-29 11:58:47 +07:00
 modified: 2023-07-23 11:58:47 +07:00
-tags: [DevOps]
+tags: [DevOps 🔄]
 description: As the digital landscape continually evolves, developers are constantly tasked with creating applications that are scalable, maintainable, and capable of standing up to a diverse range of operational scenarios. This is where the 12-Factor App methodology comes into play.
 ---
 

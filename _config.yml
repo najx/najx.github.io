@@ -11,7 +11,7 @@ mode: dark # default theme "dark" | "light"
 
 # Profile settings
 author:
-  name: # author name
+  name: N.A. # author name
   bio: >- # tell to the world
     There is no place like 127.0.0.1
   username: # general username

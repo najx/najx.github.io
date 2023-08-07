@@ -2,7 +2,7 @@
 title: Comparison between AWS, Azure and Google Cloud services
 date: 2023-05-14 19:21:47 +07:00
 modified: 2023-05-14 19:21:47 +07:00
-tags: [Cloud]
+tags: [Cloud ☁️]
 description: This table provides a meticulous comparison of the compute services offered by three of the leading cloud service providers Amazon Web Services (AWS), Microsoft Azure, and Google Cloud Platform (GCP).
 ---
 

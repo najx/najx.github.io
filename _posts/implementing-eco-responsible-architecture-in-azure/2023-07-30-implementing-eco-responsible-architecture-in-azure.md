@@ -1,8 +1,8 @@
 ---
-title: Implementing Eco-Responsible Architecture in Azure
+title: Implementing eco-responsible architecture in Azure
 date: 2023-07-30 09:16:47 +07:00
 modified: 2023-07-30 09:16:47 +07:00
-tags: [Cloud]
+tags: [Cloud ☁️, Eco 🌱]
 description: Eco-responsible architecture is an increasingly common concept in the field of sustainable development. It focuses on optimizing resources, reducing waste, and minimizing environmental footprint, while ensuring system efficiency and performance.
 ---
 

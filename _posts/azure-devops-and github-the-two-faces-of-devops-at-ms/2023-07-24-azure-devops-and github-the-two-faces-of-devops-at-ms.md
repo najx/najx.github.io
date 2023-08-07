@@ -1,8 +1,8 @@
 ---
-title: Azure DevOps and GitHub, The Two Faces of DevOps at Microsoft
+title: Azure DevOps and GitHub, the two Faces of DevOps at Microsoft
 date: 2023-07-23 11:58:47 +07:00
 modified: 2023-07-23 11:58:47 +07:00
-tags: [Azure DevOps, GitHub]
+tags: [DevOps 🔄]
 description: Microsoft presents a range of options with Azure DevOps and GitHub. Each offers its unique strengths, and the good news is, there's no need to restrict yourself to a single tool.
 ---
 

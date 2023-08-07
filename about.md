@@ -33,9 +33,3 @@ Thank you for reading and joining me on this exciting journey. Stay tuned for mo
 ---
 
 You can [report](https://github.com/najx/najx.github.io/issues/new) if there is an broken link(s) or somethings else.
-
-**may u needs ✨**
-
-- <a href="https://github.com/najx/" target="_blank" rel="noopener">GitHub</a>
-- <a href="https://www.linkedin.com/in/abdx/" target="_blank" rel="noopener">LinkedIn</a>
-- <a href="https://stackoverflow.com/users/19588110/najx" target="_blank" rel="noopener">StackOverflow</a>
