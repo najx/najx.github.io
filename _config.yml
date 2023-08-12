@@ -7,7 +7,7 @@ lang: en-US # default lang
 timezone: Europe/Paris # set your timezone
 image: assets/img/ogp.png # This image used for Open Graph more info https://ogp.me/
 repo: https://github.com/najx/najx.github.io # https://github.com/piharpi/jekyll-klise # site repo [optional]
-mode: dark # default theme "dark" | "light"
+mode: light # default theme "dark" | "light"
 
 # Profile settings
 author:
@@ -15,10 +15,10 @@ author:
   bio: >- # tell to the world
     There is no place like 127.0.0.1
   username: # general username
-  github: najx # github username
-  twitter: n_abd_ # twitter username
+  github: # github username
+  twitter: # twitter username
   facebook: # facebook username
-  email: na@najx.dev # email adress
+  email: # email adress
   avatar: /assets/img/100087.png # change with your own avatar
 
 # URL settings
@@ -26,7 +26,7 @@ url: "https://najx.dev" #
 baseurl:
 permalink: /:title/
 google_analytics: # leave it blank if not wish
-fb_appid:
+fb_appid: # leave it blank if not wish
 
 # Collection setting
 collections:

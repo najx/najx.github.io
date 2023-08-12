@@ -1,7 +1,7 @@
 ---
-title: A study reveals the most energy-hungry languages
-date: 2019-06-16 11:58:47 +07:00
-modified: 2019-06-16 11:58:47 +07:00
+title: A Study Reveals the Most Energy-hungry Programming Languages
+date: 2023-06-16 11:58:47 +07:00
+modified: 2023-06-16 11:58:47 +07:00
 tags: [Code 👨‍💻, Eco 🌱]
 description: Which programming languages consume the least energy? This is the question that six researchers from three Portuguese universities sought to answer in a study titled "Energy Efficiency Across Programming Languages". In their research, they examined execution time, memory usage, and most importantly, the energy consumption of 27 well-known programming languages.
 ---

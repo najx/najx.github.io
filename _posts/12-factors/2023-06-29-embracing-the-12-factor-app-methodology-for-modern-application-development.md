@@ -1,7 +1,7 @@
 ---
-title: Embracing the 12-Factor app methodology for modern application development
-date: 2019-12-29 11:58:47 +07:00
-modified: 2023-07-23 11:58:47 +07:00
+title: Embracing the 12-Factor App methodology for Modern Application Development
+date: 2023-06-29 11:58:47 +07:00
+modified: 2023-06-29 11:58:47 +07:00
 tags: [DevOps 🔄]
 description: As the digital landscape continually evolves, developers are constantly tasked with creating applications that are scalable, maintainable, and capable of standing up to a diverse range of operational scenarios. This is where the 12-Factor App methodology comes into play.
 ---
@@ -43,8 +43,10 @@ While the 12-Factor App methodology isn't a silver bullet for all software devel
 
 Remember, the key to a successful application lies not just in its functionality, but also in its ability to perform consistently and reliably under various conditions, and the 12-Factor App methodology provides a tried and tested framework for achieving this. Whether you're a seasoned developer or new to the field, it's worth taking the time to familiarize yourself with these principles and incorporate them into your development practices.
 
----
+<hr>
 
-## Reference
-
-- [12factors's website](https://12factor.net/)
+<p>
+    <ul style="font-size: 12px;">
+        <li><em><a href="https://12factor.net/">12 factors's website</a></em></li>
+    </ul>
+</p>

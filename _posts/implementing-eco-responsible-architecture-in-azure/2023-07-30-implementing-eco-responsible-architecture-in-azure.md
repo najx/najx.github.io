@@ -1,5 +1,5 @@
 ---
-title: Implementing eco-responsible architecture in Azure
+title: Implementing Eco-responsible Architecture in Azure
 date: 2023-07-30 09:16:47 +07:00
 modified: 2023-07-30 09:16:47 +07:00
 tags: [Cloud ☁️, Eco 🌱]
@@ -44,8 +44,10 @@ Finally, while much of Azure's infrastructure is virtual, there is still electro
 
 In conclusion, implementing an eco-responsible architecture in Azure requires a holistic approach, which considers both resource optimization, the use of eco-energy technologies, and responsible waste management. By adopting such an architecture, businesses can not only reduce their environmental impact but also improve their efficiency and profitability.
 
----
+<hr>
 
-# References
-
-- [The carbon benefits of cloud computing](https://download.microsoft.com/download/7/3/9/739BC4AD-A855-436E-961D-9C95EB51DAF9/Microsoft_Cloud_Carbon_Study_2018.pdf)
+<p>
+    <ul style="font-size: 12px;">
+        <li><em><a href="https://download.microsoft.com/download/7/3/9/739BC4AD-A855-436E-961D-9C95EB51DAF9/Microsoft_Cloud_Carbon_Study_2018.pdf">The carbon benefits of cloud computing</a></em></li>
+    </ul>
+</p>
