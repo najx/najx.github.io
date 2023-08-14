@@ -12,7 +12,7 @@ My first foray into technology began when I was just a child. Fascinated by comp
 
 
 <figure>
-<img src="/assets/img/4773.jpg" alt="little boy">
+<img src="/assets/img/about-me.jpg" alt="little boy">
 <figcaption>1990, born to code.</figcaption>
 </figure>
 
