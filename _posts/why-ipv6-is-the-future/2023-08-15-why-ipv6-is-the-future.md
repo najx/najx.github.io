@@ -12,11 +12,11 @@ IPv4, with its 32-bit address space, was created at a time when the internet was
 
 IPv6 not only remedies the address shortage but introduces several improvements:
 
+**Abundant Address Space:** 340 undecillion addresses. This makes subnetting simpler and addresses the needs of future generations.
+
 <figure>
     <img src="/assets/img/6/1.png" alt="" style="width:90%;height:90%;">
 </figure>
-
-**Abundant Address Space:** 340 undecillion addresses. This makes subnetting simpler and addresses the needs of future generations.
 
 **Improved Network Performance:** With simplified header structures, routers can process data packets more swiftly.
 
@@ -24,13 +24,13 @@ IPv6 not only remedies the address shortage but introduces several improvements:
 
 **NAT-Free End-to-End Communication:** With such a vast address space, devices can have unique global addresses, enabling true end-to-end communication without relying on NAT.
 
-**Better Quality of Service (QoS) for Real-Time Apps:** IPv6 allows for better handling of data packets, which is critical for real-time applications like VoIP and online gaming.
-
-**Enhanced Security:** Built-in IPsec features in IPv6 ensure encrypted and authenticated communication, making the network more secure by default.
-
 <figure>
     <img src="/assets/img/6/2.png" alt="" style="width:90%;height:90%;">
 </figure>
+
+**Better Quality of Service (QoS) for Real-Time Apps:** IPv6 allows for better handling of data packets, which is critical for real-time applications like VoIP and online gaming.
+
+**Enhanced Security:** Built-in IPsec features in IPv6 ensure encrypted and authenticated communication, making the network more secure by default.
 
 <hr>
 

@@ -190,35 +190,70 @@
   }
 
   .author-avatar {
-    width: 120px;
-    height: 120px;
-    border-radius: 100%;
+    position: relative;
+    display: inline-block;
+    max-width: 250px;
+    max-height: 250px;
     user-select: none;
     background-color: none;
     -ms-user-select: none;
     -webkit-user-select: none;
     -webkit-animation: 0.5s ease-in forwards fadein;
-    animation: 0.5s ease-in forwards fadein;
+    animation: 0.8s ease-in forwards fadein;
     opacity: 1;
+  }
+  
+  .author-avatar img {
+    width: 100%;
+    height: auto;
+  }
+  
+  .author-avatar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.2);
-}
+    pointer-events: none;
+  }
 
   .author-name {
     font-size: 1.7em;
     margin-bottom: 2px;
   }
 
-  .author-bio {
-    margin: 0 auto;
-    opacity: 0.9;
-    max-width: 393px;
-    line-height: 1.688;
-    user-select: none;
-    -webkit-user-select: none;
-    -webkit-animation: 0.5s ease-in forwards fadein;
-    animation: 1s ease-in forwards fadein;
-    pointer-events: none;
+  //.author-bio {
+  //  margin: 0 auto;
+  //  opacity: 0.9;
+  //  max-width: 393px;
+  //  line-height: 1.688;
+  //  user-select: none;
+  //  -webkit-user-select: none;
+  //  -webkit-animation: 0.5s ease-in forwards fadein;
+  //  animation: 1s ease-in forwards fadein;
+  //  pointer-events: none;
+  //}
+
+  // TEST
+  @keyframes typing {
+    0%, 100% { width: 0; }
+    50% { width: 100%; }
   }
+  
+  .typewriter {
+    display: inline-block;
+    font-family: monospace;
+    font-size: 0.8rem;
+    overflow: hidden;
+    border-right: 2px solid transparent; /* Modifiez la couleur de la bordure à transparent */
+    white-space: nowrap;
+    width: 0;
+    animation: typing 10s steps(60, end) infinite;
+  }
+  // TEST
+
 }
 
 // Content
@@ -255,7 +290,7 @@
     margin: 0;
     border: 0;
     padding: 0;
-    font-size: $base-font-size;
+    font-size: $medium-font-size;
     font-weight: normal;
     letter-spacing: 0.1px;
 

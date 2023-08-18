@@ -1,5 +1,5 @@
 // Fonts preferences
-$sans-family: Roboto, sans-serif;
+$sans-family: monospace;
 $mono-family: Consolas, monospace;
 $base-font-size: 15px;
 $medium-font-size: $base-font-size * 0.938;
@@ -14,8 +14,8 @@ $bold-weight: 700;
 
 //Light Colors
 $text-base-color: #434648;
-$text-link-blue: #003fff;
-$text-link-blue-active: #0036c7;
+$text-link-blue: #a9b204;
+$text-link-blue-active: #d6e107;
 
 $black: #0d122b;
 $light: #ececec;
@@ -25,8 +25,8 @@ $white: #fff;
 
 // Dark Colors
 $dark-text-base-color: #c7bebe;
-$dark-text-link-blue: #ff5277;
-$dark-text-link-blue-active: #ff2957;
+$dark-text-link-blue: #28df2e;
+$dark-text-link-blue-active: #29ff30;
 
 $dark-black: #131418;
 $dark-white: #eaeaea;

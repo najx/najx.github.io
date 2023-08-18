@@ -6,7 +6,7 @@
         draggable="false"
     />
     <h2 class="author-name"></h2>
-    <p class="author-bio">{{ site.author.bio }}</p>
+    <p class="typewriter"></p>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var avatarElem = document.querySelector('.author-avatar');
@@ -17,5 +17,39 @@
                 e.preventDefault();
             });
         });
-    </script>    
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var phrases = [
+                "Bonjour, Hello, سلام عليكم, Hola, Привет, Hallo, Ciao, 你好, こんにちは, Olá, 안녕하세요, Hej, Merhaba, Γειά σας, नमस्ते, Szia, Salut, Hei, नमस्कार, Zdravo, שלום, سلام, สวัสดี, Selamat pagi, Tere, Labas, Cześć, Ahoj, Buna, Sveiki, Здраво, Բարև, Сәлем, გამარჯობა, مرحبا, Chào bạn, Labdien, Здравейте, Hei, నమస్కారం, హలో, ಹಲೋ, ഹലോ, ஹலோ, สวัสดี, Xin chào, ជំរាបសួរ, ສະບາຍດີ, Selamat siang, Selamat pagi, བཀྲ་ཤིས་བདེ་ལེགས།, Salam sejahtera, Halo, Hei, Tjena, Goddag, Dag, Moro, Salve, Saluton, Hej, Bok, Ahoj, Здраво, Pozdrav, Здравейте, Terve, Hei, Buna ziua, Labas rytas, Sveiki, Selamun aleykum, Merhaba, Здравствуйте, Hoi, 안녕, नमस्कार, שָׁלוֹם, مرحبا, صباح الخير, 早上好, おはよう, Bom dia, Goedemorgen, Guten Morgen, Buongiorno, Buenos días",
+                "In theory, theory and practice are the same. In practice, they are not.",
+                "Software and cathedrals are much the same – first we build them, then we pray.",
+                "Hardware eventually fails. Software eventually works.",
+                "Don't worry if it doesn't work right. If everything did, you'd be out of a job.",
+                "Programming can be fun, so can cryptography; however, they should not be combined.",
+                "The most disastrous thing that you can ever learn is your first programming language.",
+                "Most good programmers do programming because it is fun to program.",
+                "The function of good software is to make the complex appear to be simple.",
+                "Good code is its own best documentation.",
+                "The best method for accelerating a computer is the one that boosts it by 9.8 m/s²."
+            ];
+            var typewriterElem = document.querySelector('.typewriter');
+            var phraseIndex = 0;
+    
+            typewriterElem.addEventListener('animationiteration', function() {
+                phraseIndex = (phraseIndex + 1) % phrases.length;
+                typewriterElem.textContent = phrases[phraseIndex];
+            });
+
+            typewriterElem.textContent = phrases[phraseIndex];
+
+            var avatarElem = document.querySelector('.author-avatar');
+            avatarElem.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+            });
+            avatarElem.addEventListener('dragstart', function(e) {
+                e.preventDefault();
+            });
+        });
+    </script>  
 </div>
