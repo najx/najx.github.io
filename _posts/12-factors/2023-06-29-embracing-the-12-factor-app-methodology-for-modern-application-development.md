@@ -1,5 +1,5 @@
 ---
-title: Embracing the 12-Factor App methodology for Modern Application Development
+title: 12-Factor App Methodology for Modern Development
 date: 2023-06-29 11:58:47 +07:00
 modified: 2023-06-29 11:58:47 +07:00
 tags: [DevOps 🔄]
