@@ -4,6 +4,7 @@ date: 2023-08-29 12:06:41 +01:00
 modified: 2023-08-29 12:06:41 +01:00
 tags: [DevOps 🔄]
 description: This article provides an in-depth analysis of common CI/CD anti-patterns that impede DevOps efficiency. It elucidates the causes and consequences of each anti-pattern and offers expanded solutions for optimizing your CI/CD processes.
+comments: true
 ---
 
 The enumeration of CI/CD anti-patterns and their corresponding solutions is a valuable contribution to the body of knowledge surrounding DevOps practices. Below, I provide a detailed analysis of each anti-pattern, elucidating on the causes and consequences of each, and offering expanded recommendations for effective solutions.

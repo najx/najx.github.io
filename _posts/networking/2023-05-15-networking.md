@@ -4,6 +4,7 @@ date: 2023-05-15 21:58:47 +07:00
 modified: 2023-05-15 21:58:47 +07:00
 tags: [Cloud ☁️]
 description: This article serves as an extensive resource for understanding CIDR and Subnet Masks, crucial components in cloud networking. It provides a detailed table to help in quick identification of available IP addresses per subnet.
+comments: true
 ---
 
 You do networking on Cloud like #Azure and you tried to remember CIDR, subnet mask to determine available addresses with no success ?
