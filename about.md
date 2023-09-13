@@ -1,5 +1,5 @@
 ---
-title: Colophon
+title: About
 permalink: /about/
 layout: page
 excerpt: The versatility and wide range of services offered by the Cloud made me realize its potential in the DevOps world. Its ability to scale resources on demand, coupled with its robust set of DevOps tools, convinced me that this was the future I wanted to be part of.
