@@ -2,7 +2,7 @@
 title: Contact
 permalink: /contact/
 layout: page
-excerpt: This little corner is dedicated to the amazing people I have met who believed in me and helped me step out of the ordinary to become great.
+excerpt: Contact page.
 comments: false
 ---
 
@@ -14,7 +14,7 @@ comments: false
 </head>
 <body>
     <div align="center">
-        You can reach me at <b title="Currently not available. Please use LinkedIn.">me [at] najx.dev</b>
+        You can reach me at <name>.<surname> [at] gmail.com
     </div>
 </body>
 </html>
