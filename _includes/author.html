@@ -9,47 +9,44 @@
     <p class="typewriter"></p>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            var avatarElem = document.querySelector('.author-avatar');
-            avatarElem.addEventListener('contextmenu', function(e) {
-                e.preventDefault();
-            });
-            avatarElem.addEventListener('dragstart', function(e) {
-                e.preventDefault();
-            });
+            var typewriterElem = document.querySelector('.typewriter');
+            var firstUpdate = true;
+
+            function getOrdinalSuffix(date) {
+                if (date > 3 && date < 21) return 'th';
+                switch (date % 10) {
+                    case 1:  return "st";
+                    case 2:  return "nd";
+                    case 3:  return "rd";
+                    default: return "th";
+                }
+            }
+
+            function updateTime() {
+                var now = new Date();
+                var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+                var dayName = days[now.getDay()];
+                var month = now.toLocaleString('en-GB', { month: 'long' });
+                var date = now.getDate();
+                var year = now.getFullYear();
+                var hours = now.getHours();
+                var amPm = hours >= 12 ? 'PM' : 'AM';
+                hours = hours % 12 || 12;
+                var minutes = now.getMinutes().toString().padStart(2, '0');
+                var ordinalSuffix = getOrdinalSuffix(date);
+
+                var timeString = "It is " + hours + ":" + minutes + " " + amPm + " on " + dayName + ", " + date + ordinalSuffix + " " + month + " " + year + ". Remember, your time is valuable.";
+            
+                if (firstUpdate) {
+                    typewriterElem.classList.add('typewriter-animate');
+                    firstUpdate = false;
+                }
+
+                typewriterElem.textContent = timeString;
+            }
+
+            setInterval(updateTime, 1000);
+            updateTime();
         });
     </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var phrases = [
-                "Bonjour, Hello, سلام عليكم, Hola, Привет, Hallo, Ciao, 你好, こんにちは, Olá, 안녕하세요, Hej, Merhaba, Γειά σας, नमस्ते, Szia, Salut, Hei, नमस्कार, Zdravo, שלום, سلام, สวัสดี, Selamat pagi, Tere, Labas, Cześć, Ahoj, Buna, Sveiki, Здраво, Բարև, Сәлем, გამარჯობა, مرحبا, Chào bạn, Labdien, Здравейте, Hei, నమస్కారం, హలో, ಹಲೋ, ഹലോ, ஹலோ, สวัสดี, Xin chào, ជំរាបសួរ, ສະບາຍດີ, Selamat siang, Selamat pagi, བཀྲ་ཤིས་བདེ་ལེགས།, Salam sejahtera, Halo, Hei, Tjena, Goddag, Dag, Moro, Salve, Saluton, Hej, Bok, Ahoj, Здраво, Pozdrav, Здравейте, Terve, Hei, Buna ziua, Labas rytas, Sveiki, Selamun aleykum, Merhaba, Здравствуйте, Hoi, 안녕, नमस्कार, שָׁלוֹם, مرحبا, صباح الخير, 早上好, おはよう, Bom dia, Goedemorgen, Guten Morgen, Buongiorno, Buenos días",
-                "In theory, theory and practice are the same. In practice, they are not.",
-                "Software and cathedrals are much the same – first we build them, then we pray.",
-                "Hardware eventually fails. Software eventually works.",
-                "Don't worry if it doesn't work right. If everything did, you'd be out of a job.",
-                "Programming can be fun, so can cryptography; however, they should not be combined.",
-                "The most disastrous thing that you can ever learn is your first programming language.",
-                "Most good programmers do programming because it is fun to program.",
-                "The function of good software is to make the complex appear to be simple.",
-                "Good code is its own best documentation.",
-                "The best method for accelerating a computer is the one that boosts it by 9.8 m/s²."
-            ];
-            var typewriterElem = document.querySelector('.typewriter');
-            var phraseIndex = 0;
-    
-            typewriterElem.addEventListener('animationiteration', function() {
-                phraseIndex = (phraseIndex + 1) % phrases.length;
-                typewriterElem.textContent = phrases[phraseIndex];
-            });
-
-            typewriterElem.textContent = phrases[phraseIndex];
-
-            var avatarElem = document.querySelector('.author-avatar');
-            avatarElem.addEventListener('contextmenu', function(e) {
-                e.preventDefault();
-            });
-            avatarElem.addEventListener('dragstart', function(e) {
-                e.preventDefault();
-            });
-        });
-    </script>  
 </div>
