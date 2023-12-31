@@ -10,7 +10,6 @@ comments: false
 
 My first foray into technology began when I was just a child. Fascinated by computers, It was then that I decided to follow a career in Information Technology.
 
-
 <figure>
 <img src="/assets/img/about-me.jpg" alt="little boy">
 <figcaption>1990, born to code.</figcaption>

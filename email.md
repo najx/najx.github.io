@@ -14,7 +14,8 @@ comments: false
 </head>
 <body>
     <div align="center">
-        You can reach me at <name>.<surname> [at] gmail.com
+        You can contact me at: <b title="najim">[name]</b>.<b title="abdelmoula">[surname]</b><b>@gmail.com</b>
     </div>
 </body>
 </html>
+
