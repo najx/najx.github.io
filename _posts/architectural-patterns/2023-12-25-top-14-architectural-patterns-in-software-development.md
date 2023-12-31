@@ -1,7 +1,7 @@
 ---
 title: "Top 14 Architectural Patterns in Software Development"
-date: 2023-12-30 07:19:15 +01:00
-modified: 2023-12-25 07:19:15 +01:00
+date: 2024-12-30 07:19:15 +01:00
+modified: 2024-12-25 07:19:15 +01:00
 tags: [CODE 👨‍💻]
 description: Explore the essential architectural patterns in software development, their unique roles, and practical applications. From Circuit-breakers enhancing system reliability to Microservices facilitating scalability, this article covers the top 14 patterns pivotal for robust and efficient software design.
 comments: true
