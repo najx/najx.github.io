@@ -1,8 +1,8 @@
-- title: ⬅️
+- title: /home
   url: /
   external: false
 
-- title: 🔍
+- title: /search
   url: /search/
   external: false
 
