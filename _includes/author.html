@@ -1,7 +1,7 @@
 <div class="author">
     <img
         class="author-avatar"
-        src="{{ site.author.avatar[site.time | date: '%-m' | minus: 1] }}"
+        src="{{ site.author.avatar[4] }}"
         alt="{{ site.author.username }}"
         draggable="false"
     />
@@ -13,14 +13,8 @@
             var firstUpdate = true;
 
             function getOrdinalSuffix(date) {
-                if (date > 3 && date < 21) return 'th';
-                var lastDigit = date % 10;
-                switch (lastDigit) {
-                    case 1: return date + 'st';
-                    case 2: return date + 'nd';
-                    case 3: return date + 'rd';
-                    default: return date + 'th';
-                }
+                if (date >= 4 && date <= 20) return 'th';
+                return ['st', 'nd', 'rd'][date % 10 - 1] || 'th';
             }
 
             function updateTime() {
@@ -40,7 +34,7 @@
                 var timeString = `
                     It is ${hours}:${minutes} ${amPm} on 
                     ${dayName}, ${date}${ordinalSuffix} 
-                    ${month} ${year}
+                    ${month} ${year}.
                 `;
 
                 if (firstUpdate) {
