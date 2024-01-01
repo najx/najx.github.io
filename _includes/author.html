@@ -23,20 +23,25 @@
             }
 
             function updateTime() {
-                var now = new Date();
-                var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-                var dayName = days[now.getDay()];
-                var month = now.toLocaleString('en-GB', { month: 'long' });
-                var date = now.getDate();
-                var year = now.getFullYear();
-                var hours = now.getHours();
-                var amPm = hours >= 12 ? 'PM' : 'AM';
-                hours = hours % 12 || 12;
-                var minutes = now.getMinutes().toString().padStart(2, '0');
+                var now           = new Date();
+                var days          = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+                var dayName       = days[now.getDay()];
+                var month         = now.toLocaleString('en-GB', { month: 'long' });
+                var date          = now.getDate();
+                var year          = now.getFullYear();
+                var hours         = now.getHours();
+                var amPm          = hours >= 12 ? 'PM' : 'AM';
+                var minutes       = now.getMinutes().toString().padStart(2, '0');
                 var ordinalSuffix = getOrdinalSuffix(date);
 
-                var timeString = "It is " + hours + ":" + minutes + " " + amPm + " on " + dayName + ", " + date + ordinalSuffix + " " + month + " " + year + ". Remember, your time is valuable.";
-            
+                hours = hours % 12 || 12;
+
+                var timeString = `
+                    It is ${hours}:${minutes} ${amPm} on 
+                    ${dayName}, ${date}${ordinalSuffix} 
+                    ${month} ${year}
+                `;
+
                 if (firstUpdate) {
                     firstUpdate = false;
                 }
