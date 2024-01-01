@@ -19,13 +19,25 @@ author:
   twitter: najx_dev
   facebook: # facebook username
   email: # email adress
-  avatar: /assets/img/img.png # change with your own avatar
+  avatar:
+    - /assets/home/avatar-january.jpg
+    - /assets/home/avatar-february.jpg
+    - /assets/home/avatar-march.jpg
+    - /assets/home/avatar-april.jpg
+    - /assets/home/avatar-may.jpg
+    - /assets/home/avatar-june.jpg
+    - /assets/home/avatar-july.jpg
+    - /assets/home/avatar-august.jpg
+    - /assets/home/avatar-september.jpg
+    - /assets/home/avatar-october.jpg
+    - /assets/home/avatar-november.jpg
+    - /assets/home/avatar-december.jpg
 
 # URL settings
 url: "https://najx.dev" #
 baseurl:
 permalink: /:title/
-google_analytics: # leave it blank if not wish
+google_analytics: G-TESDGR3TCF
 fb_appid: # leave it blank if not wish
 
 # Collection setting

@@ -1,7 +1,7 @@
 <div class="author">
     <img
         class="author-avatar"
-        src="{{ site.author.avatar }}"
+        src="{{ site.author.avatar[site.time | date: '%-m' | minus: 1] }}"
         alt="{{ site.author.username }}"
         draggable="false"
     />
@@ -33,7 +33,7 @@
                 var hours         = now.getHours();
                 var amPm          = hours >= 12 ? 'PM' : 'AM';
                 var minutes       = now.getMinutes().toString().padStart(2, '0');
-                var ordinalSuffix = getOrdinalSuffix(date);
+                var ordinalSuffix = getOrdinalSuffix(date, now.getMonth() + 1);
 
                 hours = hours % 12 || 12;
 
