@@ -2,7 +2,7 @@
 title: Harnessing AI to Supercharge Kubernetes Operations
 date: 2023-09-15 11:58:47 +02:00
 modified: 2023-09-15 11:58:47 +02:00
-tags: [AI 🤖, DevOps 🔄]
+tags: [AI 🤖]
 description: 
 comments: true
 ---
