@@ -20,7 +20,7 @@ author:
   facebook: # facebook username
   email: # email adress
   avatar:
-    - /assets/home/1.jpg
+    #- /assets/home/1.jpg
     - /assets/home/2.jpg
     - /assets/home/3.jpg
     - /assets/home/4.jpg
