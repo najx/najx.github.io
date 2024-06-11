@@ -8,27 +8,28 @@ comments: false
 
 # The Early Days
 
-My first foray into technology began when I was just a child. Fascinated by computers, It was then that I decided to follow a career in Information Technology.
+My journey into the world of technology began in my childhood. Captivated by computers, I knew early on that I wanted to pursue a career in Information Technology.
 
 <figure>
 <img src="/assets/img/about-me.jpg" alt="little boy">
-<figcaption>1990, born to code.</figcaption>
 </figure>
 
-# The Cloud: A Game Changer
+I then followed a conventional educational path before entering the industry, starting in the banking sector with mainframes before gradually opening myself to newer areas.
 
-That’s when I came across the cloud. The versatility and wide range of services offered by the Cloud made me realize its potential especially in the DevOps world. Its ability to scale resources on demand, coupled with its robust set of tools, convinced me that this was the future I wanted to be part of.
+# The Cloud Computing: A Game Changer
 
-I decided to specialize in Azure Cloud. I spent countless hours studying, experimenting, and implementing various services and features Azure had to offer. I obtained my certifications, which reinforced my knowledge and credibility in the field.
+Discovering the Cloud was a pivotal moment in my career. The ability to scale resources on demand, coupled with a robust suite of tools, made me realise this was the future I wanted to be part of.
+
+Countless hours were (and are still) dedicated on studying, experimenting, and implementing various services and features.
 
 # The Present and Beyond
 
-Today, i’m helping businesses leverage the power of the Cloud to streamline their processes, increase efficiency, and drive innovation. The joy of seeing the impact of my work makes it all worthwhile.
+Today, I bring expertise to help businesses leverage the power of the Cloud to streamline their processes, increase efficiency, and drive innovation. The joy of seeing the impact of my work makes it all worthwhile.
 
-Moving forward, I hope to humbly share my experiences, learnings, and insights about Cloud, DevOps and some technologic area with you through this blog. If you have specific topics you’d like me to write about or questions you’d like answered, feel free to leave a comment or a message.
+Moving forward, I hope to humbly share experiences, learnings, and insights about some technologic areas with you through this personal space of the world wide (wild) web. If you have any specific topics you’d like to share me, feel free to leave a message or reach me directly on LinkedIn.
 
 Thank you for reading and joining me on this exciting journey. Stay tuned!
 
 ---
 
-You can [report](https://github.com/najx/najx.github.io/issues/new) if there is an broken link(s) or somethings else.
+You can [report](https://github.com/najx/najx.github.io/issues/new) any broken link(s) or something weird around here.
