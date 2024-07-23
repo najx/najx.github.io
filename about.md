@@ -26,10 +26,10 @@ Countless hours were (and are still) dedicated on studying, experimenting, and i
 
 Today, I bring expertise to help businesses leverage the power of the Cloud to streamline their processes, increase efficiency, and drive innovation. The joy of seeing the impact of my work makes it all worthwhile.
 
-Moving forward, I hope to humbly share experiences, learnings, and insights about some technologic areas with you through this personal space of the world wide (wild) web. If you have any specific topics you’d like to share me, feel free to leave a message or reach me directly on LinkedIn.
+Moving forward, I hope to humbly share experiences, learnings, and insights about some technologic areas with you through this personal space of the world wide (wild) web. If you have any specific topics you’d like to share me, feel free to leave me a message [on LinkedIn](https://ch.linkedin.com/in/abdx/).
 
-Thank you for reading and joining me on this exciting journey. Stay tuned!
+Thanks for reading and joining me on this exciting journey. Stay tuned!
 
 ---
 
-You can [report](https://github.com/najx/najx.github.io/issues/new) any broken link(s) or something weird around here.
+You can [report](https://github.com/najx/najx.github.io/issues/new) any broken link(s) or any weird behaviour.
