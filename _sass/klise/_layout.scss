@@ -190,19 +190,23 @@
   }
 
   .author-avatar {
+    opacity: 1; /* Corrigé pour une opacité normale */
     position: relative;
     display: inline-block;
-    max-width: 250px;
-    max-height: 250px;
+    width: 900px; /* Taille plus grande */
+    height: auto; /* Conserve le ratio d'aspect de l'image */
+    max-width: 100%; /* S'adapte aux conteneurs */
+    border-radius: 15px; /* Coins légèrement arrondis */
     user-select: none;
-    background-color: none;
+    background-color: #fafafa; /* Arrière-plan légèrement éclairci */
+    border: 2px solid #ddd; /* Bordure plus claire */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08); /* Ombre plus visible mais très subtile */
     -ms-user-select: none;
     -webkit-user-select: none;
     -webkit-animation: 0.5s ease-in forwards fadein;
     animation: 0.8s ease-in forwards fadein;
-    opacity: 1;
   }
-  
+
   .author-avatar img {
     width: 100%;
     height: auto;
