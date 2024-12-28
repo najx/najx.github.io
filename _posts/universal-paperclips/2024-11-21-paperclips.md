@@ -7,8 +7,6 @@ description: The video titled "L'horreur existentielle de l'usine à trombones" 
 comments: true
 ---
 
-Video in _french only_ 🇫🇷 ...
-
 A very interesting perspective on the technological challenges ahead
 
 **Visionnage vivement recommandé**
@@ -24,3 +22,5 @@ A very interesting perspective on the technological challenges ahead
     allowfullscreen>
   </iframe>
 </div>
+
+> French speaking video 🇫🇷
