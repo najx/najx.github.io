@@ -4,7 +4,7 @@ date: 2024-07-23 07:19:15 +01:00
 modified: 2024-07-23 07:19:15 +01:00
 tags: [Code 👨‍💻]
 description: On July 19, 2024, a single line of code in a Crowdstrike system driver caused half the world's Windows computers to crash. The issue arose from the driver accessing a reserved memory address (0x00) with system-level privileges, leading to a blue screen of death (BSOD) and forcing a restart. This incident disrupted critical systems in hospitals, railway stations, factories, and more, highlighting the importance of meticulous software testing and the potential widespread impact of minor coding errors.
-comments: true
+comments: false
 ---
 
 <figure>

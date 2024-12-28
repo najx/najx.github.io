@@ -4,7 +4,7 @@ date: 2023-08-14 01:30:28 +01:00
 modified: 2023-08-14 01:30:28 +01:00
 tags: [Cloud ☁️]
 description: Delving into the transformative power of IPv6, this article explores its vast capabilities, from abundant address space to enhanced security. As the digital universe expands, IPv6 paves the way for a seamlessly interconnected world.
-comments: true
+comments: false
 ---
 
 The introduction of IPv6 was not just an expansion of address space but a complete overhaul to meet the demands of modern networking. With an almost inexhaustible number of IP addresses, IPv6 lays the groundwork for an increasingly interconnected world. Its 128-bit addresses ensure that we won't run out of IP addresses anytime soon, considering the explosive growth of devices, often referred to as the Internet of Things (IoT).

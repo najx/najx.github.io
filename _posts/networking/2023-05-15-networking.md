@@ -1,15 +1,15 @@
 ---
 title: CIDR and Subnet Masks in Cloud Networking
 date: 2023-05-15 21:58:47 +07:00
-modified: 2023-05-15 21:58:47 +07:00
+modified: 2024-12-28 13:24:47 +07:00
 tags: [Cloud ☁️]
 description: This article serves as an extensive resource for understanding CIDR and Subnet Masks, crucial components in cloud networking. It provides a detailed table to help in quick identification of available IP addresses per subnet.
-comments: true
+comments: false
 ---
 
-You do networking on Cloud like #Azure and you tried to remember CIDR, subnet mask to determine available addresses with no success ?
+You do networking on Cloud and you try to remember CIDR, subnet mask to determine available addresses with no success ?
 
-Here is THE solution:
+Here is **THE** solution:
 
 | Subnet Mask     | CIDR | Binary Notation                     | Available Addresses Per Subnet |
 | --------------- | ---- | ----------------------------------- | ------------------------------ |
@@ -51,28 +51,20 @@ Here is THE solution:
 | 0.0.0.0         | /00  | 00000000.00000000.00000000.00000000 | 4294967296                     |
 
 # Why Understanding CIDR and Subnet Masks is Crucial ?
-
-### For Resource Allocation
-
+**For Resource Allocation:**
 CIDR and subnet masks play a pivotal role in resource allocation. An improper CIDR block can lead to inadequate or wasteful distribution of IP addresses.
 
-### For Security
-
+**For Security:**
 Understanding these elements is also crucial for configuring firewalls and security groups, ensuring that only authorized traffic is allowed into your network.
 
-### For Cost Optimization
-
+**For Cost Optimization:**
 Using CIDR and subnet masks effectively can lead to cost optimization, particularly in cloud environments where IP address allocation may incur additional charges.
 
 # How to Use the Table ?
-### Quick Reference
-
+**Quick Reference:**
 The table serves as a quick reference to find the number of available addresses for a given CIDR block or subnet mask.
 
-### Planning Network Architecture
-
+**Planning Network Architecture:**
 It can also be useful for planning your network architecture and deciding how to partition your IP address space.
-
-# Summary
 
 Understanding CIDR and subnet masks is critical for anyone involved in network planning, security, and resource allocation, particularly in cloud environments like Azure. This table should serve as a comprehensive guide for quick identification of available IP addresses per subnet, thus aiding in effective network management and optimization.

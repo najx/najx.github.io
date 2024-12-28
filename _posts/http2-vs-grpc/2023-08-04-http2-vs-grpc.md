@@ -4,7 +4,7 @@ date: 2023-08-04 17:57:26 +01:00
 modified: 2023-08-04 17:57:26 +01:00
 tags: [Code 👨‍💻]
 description: Explore the intricacies of HTTP/2 and gRPC, understanding their unique features, benefits, and ideal use-cases. Dive into practical examples and determine which protocol aligns best with your application's needs.
-comments: true
+comments: false
 ---
 
 # HTTP/2

@@ -4,7 +4,7 @@ date: 2023-05-14 19:21:47 +07:00
 modified: 2023-05-14 19:21:47 +07:00
 tags: [Cloud ☁️]
 description: This table provides a meticulous comparison of the compute services offered by three of the leading cloud service providers Amazon Web Services (AWS), Microsoft Azure, and Google Cloud Platform (GCP).
-comments: true
+comments: false
 ---
 
 This table provides a meticulous comparison of the compute services offered by three of the leading cloud service providers: **Amazon Web Services (AWS)**, **Microsoft Azure**, and **Google Cloud Platform (GCP)**. The primary aim is to facilitate users in making informed choices that best fit their unique needs, considering the various aspects of cloud computing resources.

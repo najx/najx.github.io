@@ -4,7 +4,7 @@ date: 2023-07-23 11:58:47 +07:00
 modified: 2023-07-23 11:58:47 +07:00
 tags: [DevOps 🔄]
 description: Microsoft presents a range of options with Azure DevOps and GitHub. Each offers its unique strengths, and the good news is, there's no need to restrict yourself to a single tool.
-comments: true
+comments: false
 ---
 
 Today we delve into the intricate landscape of Microsoft's DevOps services: Azure DevOps and GitHub. One might wonder, "What's the difference between the two? Which one should I choose?" In this discussion, we aim to clarify these questions. Let's begin this exploration.
