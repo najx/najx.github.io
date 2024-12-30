@@ -1,5 +1,5 @@
 ---
-title: About
+title: About me
 permalink: /about/
 layout: page
 excerpt: The versatility and wide range of services offered by the Cloud made me realize its potential in the DevOps world. Its ability to scale resources on demand, coupled with its robust set of DevOps tools, convinced me that this was the future I wanted to be part of.
@@ -24,11 +24,19 @@ Countless hours were (and are still) dedicated on studying, experimenting, and i
 
 # The Present and Beyond
 
-Today, I bring expertise to help businesses leverage the power of the Cloud to streamline their processes, increase efficiency, and drive innovation. The joy of seeing the impact of my work makes it all worthwhile.
+Today, I bring expertise to help businesses harness the power of the Cloud to streamline processes, enhance efficiency, and spark innovation. Seeing the tangible impact of my work is what motivates me every day.
 
-Moving forward, I hope to humbly share experiences, learnings, and insights about some technologic areas with you through this personal space of the world wide (wild) web. If you have any specific topics you’d like to share me, feel free to leave me a message [on LinkedIn](https://ch.linkedin.com/in/abdx/).
+This space is my way of giving back—a place to share insights, experiences, and learnings on various technological topics. It’s also a tribute to the incredible people who have supported and inspired me along the way. Their belief in me has helped me step out of the ordinary and strive for better. Rather than listing names and risking omissions, I hope they’ll recognize themselves in these words.
 
-Thanks for reading and joining me on this exciting journey. Stay tuned!
+As I move forward, I aim to continue sharing knowledge that’s not only useful but also a small way of paying forward the wisdom and kindness I’ve received. If there’s a topic you’d like me to explore, feel free to reach out on [on LinkedIn](https://ch.linkedin.com/in/najx/).
+
+Thank you for reading and for being part of this exciting journey. Stay tuned for what’s to come!
+
+# Links
+
+- <a href="https://github.com/najx/" target="_blank" rel="noopener">GitHub</a>
+- <a href="https://ch.linkedin.com/in/najx/" target="_blank" rel="noopener">LinkedIn</a>
+- <a href="https://stackoverflow.com/users/19588110/najx" target="_blank" rel="noopener">StackOverflow</a>
 
 ---
 
