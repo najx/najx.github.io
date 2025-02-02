@@ -421,3 +421,20 @@
 iframe {
   max-width: 100%;
 }
+
+.home-list-title {
+  display: inline;
+}
+
+.number-of-posts {
+  display: inline;
+  font-weight: normal;
+  color: #ff0000;
+  font-size: 0.9em;
+}
+
+.year-header {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+}

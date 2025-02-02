@@ -3,7 +3,11 @@ layout: default
 home: true
 ---
 
-<h3 class="posts-item-note" aria-label="Most Recent Posts">Most Recent Posts</h3>
+<h3 class="home-list-title" aria-label="Most Recent Posts">
+  Most Recent Posts
+</h3> 
+<span class="number-of-posts">({{ site.number_of_posts }})</span>
+
 {%- for post in site.posts limit: site.number_of_posts -%}
 <article class="post-item">
   <span class="post-item-date">{{ post.date | date: "%b %d, %Y" }}</span>
