@@ -16,19 +16,11 @@ author:
     There is no place like 127.0.0.1
   username: # general username
   github: # github username
-  twitter: najx_dev
+  twitter: # twitter username
   facebook: # facebook username
   email: # email adress
   avatar:
-    - /assets/home/1.jpg
-    - /assets/home/2.jpg
-    - /assets/home/3.jpg
-    - /assets/home/4.jpg
-    - /assets/home/5.jpg
-    - /assets/home/6.jpg
-    - /assets/home/7.jpg
-    - /assets/home/8.jpg
-    - /assets/home/9.jpg
+    - /assets/home/main.jpg
 
 # URL settings
 url: "https://najx.dev" #
@@ -68,7 +60,7 @@ jekyll_compose:
     description:
 
 # Homepage limit posts
-number_of_posts: 5
+number_of_posts: 6
 
 # Build settings
 # theme: klise

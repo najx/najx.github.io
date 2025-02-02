@@ -227,22 +227,6 @@
     font-size: 1.7em;
     margin-bottom: 2px;
   }
-
-  @keyframes typing {
-    from { width: 0; }
-    to { width: 100%; }
-  }
-  
-  .typewriter {
-    display: inline-block;
-    font-family: monospace;
-    font-size: 0.8rem;
-    overflow: hidden;
-    border-right: 2px solid transparent;
-    white-space: nowrap;
-    width: 0;
-    animation: typing 1.8s steps(60, end) forwards;
-  }
 }
 
 // Content
@@ -329,6 +313,22 @@
     color: $gray;
     opacity: 0.8;
   }
+
+  @keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+  }
+
+  .typewriter {
+    font-size: $small-font-size - 1;
+    font-weight: $normal-weight;
+    margin-top: 3px;
+    display: inline-block;
+    color: $gray;
+    overflow: hidden;
+    white-space: nowrap;
+    animation: typing 1.5s steps(60, end) forwards;
+  }
 }
 
 .not-found {
@@ -409,4 +409,15 @@
     border: 1px solid rgba(128, 128, 128, 0.1);
     background-color: rgba(128, 128, 128, 0.1);
   }
+}
+
+.iframe-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+iframe {
+  max-width: 100%;
 }
