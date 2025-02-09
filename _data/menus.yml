@@ -2,7 +2,11 @@
   url: /
   external: false
 
-- title: /search
+- title: /about
+  url: /about/
+  external: false
+
+- title: 🔍
   url: /search/
   external: false
 
