@@ -31,3 +31,8 @@ gem "tzinfo-data", platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 gem "wdm", "~> 0.1.0" if Gem.win_platform?
 
 gem "webrick", "~> 1.7"
+
+# Add these lines to your Gemfile
+gem 'csv'
+gem 'base64'  # Often required alongside CSV in Ruby 3.4+
+gem 'bigdecimal'
