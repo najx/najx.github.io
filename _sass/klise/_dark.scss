@@ -126,10 +126,10 @@ body[data-theme="dark"] {
     .menu {
       a#mode {
         .mode-sunny {
-          display: block;
+          display: none;
         }
         .mode-moon {
-          display: none;
+          display: block;
         }
       }
 
@@ -216,6 +216,13 @@ body[data-theme="dark"] {
     .footer_copyright {
       color: $dark-gray;
       opacity: 1;
+    }
+    .footer_logo {
+      opacity: 0.5;
+      
+      &:hover {
+        opacity: 0.9;
+      }
     }
   }
 
