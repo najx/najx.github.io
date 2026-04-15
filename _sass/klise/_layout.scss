@@ -437,4 +437,9 @@ iframe {
   display: flex;
   align-items: baseline;
   gap: 3px;
+  margin-top: 40px;
+
+  &:first-of-type {
+    margin-top: 60px;
+  }
 }

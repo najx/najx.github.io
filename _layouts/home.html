@@ -3,16 +3,17 @@ layout: default
 home: true
 ---
 
-<h3 class="home-list-title" aria-label="Most Recent Posts">
-  Most Recent Posts
-</h3> 
-<span class="number-of-posts">({{ site.number_of_posts }})</span>
-
-{%- for post in site.posts limit: site.number_of_posts -%}
-<article class="post-item">
-  <span class="post-item-date">{{ post.date | date: "%b %d, %Y" }}</span>
-  <h4 class="post-item-title">
-    <a href="{{ post.url }}">{{ post.title | escape }}</a>
-  </h4>
-</article>
+{%- assign grouped_posts = site.posts | group_by_exp: "post", "post.date | date: '%Y'" -%}
+{%- for year_group in grouped_posts -%}
+  <div class="year-header">
+    <h2>{{ year_group.name }}</h2>
+    <span class="number-of-posts">({{ year_group.size }})</span>
+  </div>
+  {%- for post in year_group.items -%}
+    <article class="post-item">
+      <h3 class="post-item-title">
+        <a href="{{ post.url }}">{{ post.title | escape | language_emoji: post.lang }}</a>
+      </h3>
+    </article>
+  {%- endfor -%}
 {%- endfor -%}
