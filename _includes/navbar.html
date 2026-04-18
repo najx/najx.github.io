@@ -53,12 +53,12 @@
     <div class="trigger">
       <div class="trigger-container">
         {%- assign url = page.url -%}
-        {%- assign menus = site.data.menus -%}
+        {%- assign menus = site.data.menus.header -%}
         {%- if menus %}
-          {%- for menu in menus -%} 
+          {%- for menu in menus -%}
             {%- if url == menu.url -%}
               <a class="menu-link active" href="{{ menu.url }}">{{ menu.title }}</a>
-            {%- else -%} 
+            {%- else -%}
               {%- if menu.external -%}
                 <a
                   class="menu-link"
@@ -69,8 +69,8 @@
                 >
               {%- else -%}
                 <a class="menu-link" href="{{ menu.url }}">{{ menu.title }}</a>
-              {%- endif -%} 
-            {%- endif -%} 
+              {%- endif -%}
+            {%- endif -%}
           {%- endfor -%}
         {%- else -%}
           <a class="menu-link {% if url == '/' %}active{% endif %}" href="/">home</a>

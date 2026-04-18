@@ -1,14 +1,20 @@
-- title: /home
-  url: /
-  external: false
+header:
+  - title: /home
+    url: /
+    external: false
 
-# - title: /about
-#   url: /about/
-#   external: false
+  - title: /search
+    url: /search/
+    external: false
 
-- title: /search
-  url: /search/
-  external: false
+footer:
+  - title: about
+    url: /about/
+    external: false
+
+  - title: charter
+    url: /charter/
+    external: false
 
 # Example:
 # - title: github

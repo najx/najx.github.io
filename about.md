@@ -2,27 +2,30 @@
 title: About
 permalink: /about/
 layout: page
-excerpt: The versatility and wide range of services offered by the Cloud made me realize its potential in the DevOps world. Its ability to scale resources on demand, coupled with its robust set of DevOps tools, convinced me that this was the future I wanted to be part of.
+excerpt: A small web space dedicated to sharing thoughts and personal insights on the tech ecosystem — from Cloud and DevOps to AI and beyond.
 comments: false
 ---
 
-# The Early Days
+# What is this place?
 
-My entry into the tech world started in childhood with an inherent curiosity about computers. After following a standard academic path, I began my professional journey in the banking industry, working with mainframe systems, before gradually transitioning to more contemporary technologies.
+This is a small corner of the web where I'm happy to share thoughts, insights, and learnings about the ever-evolving tech ecosystem. Topics range from Cloud computing and DevOps practices to AI architectures, networking, and emerging technologies. No corporate agenda — just curiosity and ideas.
 
-# The Cloud Computing: A Game Changer
+# Who am I?
 
-Discovering the Cloud was a pivotal moment in my career. The ability to scale resources on demand, coupled with a robust suite of tools, made me realise this was the future I wanted to be part of.
+I'm a tech professional with a background rooted in infrastructure and enterprise systems. My journey started in the banking industry, working with mainframe environments, before evolving toward DevOps, Cloud computing, and platform engineering.
 
-Countless hours were (and are still) dedicated on studying, experimenting, and implementing various services and features.
+Over the years, I've built hands-on expertise across areas such as:
 
-# The Present and Beyond
+- **Cloud & Infrastructure** — designing and operating scalable cloud environments
+- **DevOps & SRE** — building CI/CD pipelines, improving reliability, and bridging the gap between development and operations
+- **Platform Engineering** — crafting internal platforms that empower engineering teams
+- **AI & Emerging Tech** — exploring architectures, open models, and how AI reshapes the way we build software
 
-Today, I bring expertise to help businesses harness the power of the Cloud to streamline processes, enhance efficiency, and spark innovation. Seeing the tangible impact of my work is what motivates me every day.
+I'm driven by the belief that technology is most powerful when shared and understood broadly.
 
-This space is my way of giving back—a place to share insights, experiences, and learnings on various technological topics. It’s also a tribute to the incredible people who have supported and inspired me along the way. Their belief in me has helped me step out of the ordinary and strive for better. Rather than listing names and risking omissions, I hope they’ll recognize themselves in these words.
+# Why this blog?
 
-As I move forward, I aim to continue sharing knowledge that’s not only useful but also a small way of paying forward the wisdom and kindness I’ve received. If there’s a topic you’d like me to explore, feel free to reach out on [on LinkedIn](https://ch.linkedin.com/in/najx/). Thank you for reading and for being part of this exciting journey. Stay tuned for what’s to come!
+Writing helps me structure my thinking. If something I publish is helpful to someone to sparks an idea, save time or what so ever, that's more than enough. Feel free to reach out on [LinkedIn](https://ch.linkedin.com/in/najx/) if you'd like to discuss a topic or suggest one.
 
 # Links
 

@@ -4,7 +4,7 @@ description: >- # site description
   I am delighted to welcome you to my little corner of the web.
   Mistakes are learning opportunities and code is poetry. So, let's start this beautiful story together!
 lang: en-US # default lang
-timezone: Europe/Paris # set your timezone
+timezone: Europe/Zurich # set your timezone
 image: assets/img/najx.png # This image used for Open Graph more info https://ogp.me/
 repo: https://github.com/najx/najx.github.io # https://github.com/piharpi/jekyll-klise # site repo [optional]
 mode: light # default theme "dark" | "light"

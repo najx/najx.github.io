@@ -2,7 +2,7 @@
 title: Introduction to Multi-Agent Architectures in AI
 date: 2025-06-22 11:31:00 +02:00
 modified: 2025-06-22 11:31:00 +02:00
-tags: [AI 🤖, Architecture 🏛️, Development 💻]
+tags: [Architecture 🏛️]
 description: Discover the foundational concepts, core components, and significance of multi-agent architectures in AI—the collaborative approach shaping the future of intelligent systems.
 comments: false
 ---

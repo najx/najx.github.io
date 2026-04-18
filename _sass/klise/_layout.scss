@@ -260,6 +260,38 @@
       }
     }
   }
+
+  .post-item-tags {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: auto;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .post-tag {
+    font-size: 11px;
+    color: #c0392b;
+    background-color: rgba(192, 57, 43, 0.08);
+    border: 1px solid rgba(192, 57, 43, 0.3);
+    border-radius: 4px;
+    padding: 1px 7px;
+    line-height: 1.4;
+  }
+}
+
+// AI Assisted Banner
+.ai-assisted-banner {
+  margin-bottom: 1.5em;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #c0392b;
+  background-color: rgba(192, 57, 43, 0.08);
+  border: 1px solid rgba(192, 57, 43, 0.3);
+  border-radius: 4px;
+  text-align: center;
 }
 
 // Footer
@@ -277,6 +309,10 @@
     font-weight: $bold-weight;
     font-size: $small-font-size;
   }
+  .footer-links {
+    margin-bottom: 10px;
+  }
+
   a.footer_item {
     color: $black;
     opacity: 0.8;

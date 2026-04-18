@@ -1,7 +1,16 @@
 <footer class="footer">
-  <!-- <a class="footer_item" href="/about">about me</a> -->
-  <!-- <a class="footer_item" href="/thanks">credits</a> -->
-  <!-- <a class="footer_item" href="/links">links</a> -->
+  {%- assign footer_menus = site.data.menus.footer -%}
+  {%- if footer_menus -%}
+    <div class="footer-links">
+      {%- for menu in footer_menus -%}
+        {%- if menu.external -%}
+          <a class="footer_item" href="{{ menu.url }}" target="_blank" rel="noopener">{{ menu.title }}</a>
+        {%- else -%}
+          <a class="footer_item" href="{{ menu.url }}">{{ menu.title }}</a>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  {%- endif -%}
   <span class="footer_item">
     <p class="typewriter"></p>
   </span>

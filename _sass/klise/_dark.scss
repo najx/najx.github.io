@@ -172,6 +172,12 @@ body[data-theme="dark"] {
         }
       }
     }
+
+    .post-tag {
+      color: #e74c3c;
+      background-color: rgba(231, 76, 60, 0.1);
+      border-color: rgba(231, 76, 60, 0.3);
+    }
   }
 
   // Post Navigation
@@ -210,7 +216,7 @@ body[data-theme="dark"] {
     span.footer_item {
       color: $dark-white;
     }
-    a.footer_item:not(:last-child) {
+    a.footer_item {
       color: $dark-white;
     }
     .footer_copyright {
@@ -224,6 +230,13 @@ body[data-theme="dark"] {
         opacity: 0.9;
       }
     }
+  }
+
+  // AI Assisted Banner
+  .ai-assisted-banner {
+    color: #e74c3c;
+    background-color: rgba(231, 76, 60, 0.1);
+    border-color: rgba(231, 76, 60, 0.3);
   }
 
   // 404 Page
