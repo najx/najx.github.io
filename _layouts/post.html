@@ -54,9 +54,6 @@ layout: compress
             <span itemprop="author" itemscope itemtype="https://schema.org/Person">
               <span itemprop="name">{{ site.author.name }}</span>
             </span>
-            <span class="post-views" aria-label="Compteur de vues">
-              · <span id="post-view-count">0</span> vues
-            </span>
             <time hidden datetime="{{ page.modified | date_to_xmlschema }}" itemprop="dateModified">
               {{ page.date | date: "%b %d, %Y" }}
             </time>
@@ -99,29 +96,6 @@ layout: compress
     {% include footer.html %}
   </div>
 
-  <script>
-    (function () {
-      var counter = document.getElementById("post-view-count");
-      if (!counter) return;
-
-      var pageKey = encodeURIComponent(window.location.pathname.replace(/\/$/, "") || "home");
-      var endpoint = "https://api.countapi.xyz/hit/najx.dev/" + pageKey;
-
-      fetch(endpoint)
-        .then(function (response) {
-          if (!response.ok) throw new Error("Count API request failed");
-          return response.json();
-        })
-        .then(function (data) {
-          if (typeof data.value === "number") {
-            counter.textContent = data.value.toString();
-          }
-        })
-        .catch(function () {
-          counter.textContent = "-";
-        });
-    })();
-  </script>
 </body>
 
 </html>

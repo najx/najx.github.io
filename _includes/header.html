@@ -55,7 +55,7 @@
     }}"
   />
   <meta name="referrer" content="no-referrer-when-downgrade" />
-  <meta property="fb:app_id" content="{{ site.fb_appid }}" />
+  {% if site.fb_appid %}<meta property="fb:app_id" content="{{ site.fb_appid }}" />{% endif %}
   <meta
     property="og:site_name"
     content="{% if page.title %}{{ page.title | escape }} | {{
@@ -68,14 +68,9 @@
       site.author.name
     }}{% else %}{{ site.title | escape }}{% endif %}"
   />
-  {% if page.location %}
-  <meta property="og:type" content="article" />
-  <meta
-    property="article:publisher"
-    content="https://web.facebook.com/{{ site.author.facebook }}"
-  />
-  {% else %}
-  <meta property="og:type" content="website" />
+  <meta property="og:type" content="{% if page.layout == 'post' %}article{% else %}website{% endif %}" />
+  {% if site.author.facebook and page.layout == 'post' %}
+  <meta property="article:publisher" content="https://web.facebook.com/{{ site.author.facebook }}" />
   {% endif %}
   <meta
     property="og:url"
