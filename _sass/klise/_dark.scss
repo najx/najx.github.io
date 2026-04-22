@@ -85,6 +85,10 @@ body[data-theme="dark"] {
     span[itemprop="author"] {
       border-color: $dark-light;
     }
+
+    .post-views {
+      color: $dark-gray;
+    }
   }
 
   // Link
