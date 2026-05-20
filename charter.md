@@ -12,13 +12,13 @@ In the interest of transparency and out of respect for anyone who takes the time
 
 ## Ethics & Values
 
-This site has no commercial or ideological agenda. Here, we talk about tech — and only the technical challenges matter. The values that guide this space are **sharing**, **kindness**, and **respectful discourse**.
+This site has no commercial/marking or ideological agenda. Here, we're aiming to simply talk about tech, share insights and ideas. Only technical challenges matter. Values that guide this space are **sharing**, **kindness**, and **respect**.
 
 ---
 
 ## Language
 
-My native language is French. I chose to write this blog in English so that its content can reach as wide an audience as possible. I occasionally use [DeepL](https://www.deepl.com) to help me translate texts.
+My native language is French. I chose to write this blog in English so that its content can reach as wide an audience as possible. I may use [DeepL](https://www.deepl.com) to help me translate texts.
 
 ---
 

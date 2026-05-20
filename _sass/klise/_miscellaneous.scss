@@ -39,3 +39,91 @@
     position: absolute;
   }
 }
+
+// Certifications page
+.cert-list {
+  padding: 0;
+  margin: 0 0 1.5rem;
+
+  li {
+    &::before {
+      content: none;
+    }
+  }
+}
+
+.cert-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid $light;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.cert-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  display: block;
+  opacity: 0.85;
+
+  &.cert-icon-badge {
+    width: auto;
+    height: 30px;
+    opacity: 1;
+  }
+}
+
+.cert-name {
+  flex: 1;
+  font-size: $base-font-size;
+  color: $text-base-color;
+}
+
+.cert-tags {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.cert-tag {
+  font-size: 10px;
+  line-height: 1;
+  padding: 2px 5px;
+  border: 1px solid transparent;
+  font-family: $mono-family;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+
+  &.cert-date {
+    border-color: $smoke;
+    color: $gray;
+  }
+
+  &.cert-renewals {
+    border-color: $smoke;
+    color: $gray;
+  }
+
+  &.cert-active {
+    border-color: #3a9b5c;
+    color: #3a9b5c;
+  }
+
+  &.cert-expired {
+    border-color: $smoke;
+    color: $smoke;
+    text-decoration: line-through;
+  }
+
+  &.cert-perpetual {
+    border-color: $smoke;
+    color: $gray;
+    font-style: italic;
+  }
+}

@@ -219,6 +219,9 @@ body[data-theme="dark"] {
     a.footer_item {
       color: $dark-white;
     }
+    a.footer_social_link {
+      color: $dark-white;
+    }
     .footer_copyright {
       color: $dark-gray;
       opacity: 1;
@@ -262,6 +265,37 @@ body[data-theme="dark"] {
       &::-webkit-input-placeholder {
         color: rgba(128,128,128,0.8);
       }
+    }
+  }
+
+  // Certifications page
+  .cert-item {
+    border-color: $dark-light;
+  }
+
+  .cert-name {
+    color: $dark-text-base-color;
+  }
+
+  .cert-icon {
+    opacity: 0.9;
+
+    &.cert-icon-mono {
+      filter: invert(1);
+    }
+  }
+
+  .cert-tag {
+    &.cert-date,
+    &.cert-renewals,
+    &.cert-perpetual {
+      border-color: $dark-smoke;
+      color: $dark-gray;
+    }
+
+    &.cert-expired {
+      border-color: $dark-smoke;
+      color: $dark-smoke;
     }
   }
 }

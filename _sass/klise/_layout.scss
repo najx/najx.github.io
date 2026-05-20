@@ -263,6 +263,36 @@
     margin-bottom: 10px;
   }
 
+  .footer_social {
+    margin-top: 8px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    font-size: $small-font-size;
+  }
+
+  a.footer_social_link {
+    color: $black;
+    opacity: 0.8;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+
+    &:hover {
+      opacity: 1;
+    }
+
+    svg {
+      width: 1em;
+      height: 1em;
+      display: block;
+      fill: currentColor;
+    }
+  }
+
   a.footer_item {
     color: $black;
     opacity: 0.8;
