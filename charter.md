@@ -12,7 +12,7 @@ In the interest of transparency and out of respect for anyone who takes the time
 
 ## Ethics & Values
 
-This site has no commercial/marking or ideological agenda. Here, we're aiming to simply talk about tech, share insights and ideas. Only technical challenges matter. Values that guide this space are **sharing**, **kindness**, and **respect**.
+This site has no commercial/marketing or ideological agenda. Here, we're aiming to simply share insights around tech world. Only technical challenges matter. Values that guide this space are **sharing**, **kindness**, and **respect**.
 
 ---
 

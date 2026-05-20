@@ -52,6 +52,11 @@
   }
 }
 
+.certs-page .cert-list a[target="_blank"]::after {
+  content: none;
+  display: none;
+}
+
 .cert-item {
   display: flex;
   align-items: center;
@@ -82,7 +87,7 @@
 
 .cert-name {
   flex: 1;
-  font-size: $base-font-size;
+  font-size: $small-font-size;
   color: $text-base-color;
 }
 
