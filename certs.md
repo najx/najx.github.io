@@ -65,7 +65,57 @@ comments: false
     <span class="cert-name">GitHub Foundations (<a href="https://learn.microsoft.com/api/credentials/share/fr-fr/NajimAbdelmoula-9173/A8981D5D8CFD0BBA?sharingId=F0D21AE2CC8E49FD" target="_blank" rel="noopener noreferrer">GH-900</a>)</span>
     <div class="cert-tags">
       <span class="cert-tag cert-date">2026</span>
-      <span class="cert-tag cert-perpetual">∞ no expiry</span>
+      <span class="cert-tag cert-active">active</span>
+    </div>
+  </li>
+  <li class="cert-item">
+    <a href="https://learn.microsoft.com/en-us/credentials/certifications/github-administration" target="_blank" rel="noopener noreferrer" aria-label="GitHub Administration (GH-100)">
+      <img src="https://cdn.simpleicons.org/github/181717" class="cert-icon cert-icon-mono" alt="GitHub" />
+    </a>
+    <span class="cert-name">GitHub Administration (<a href="https://learn.microsoft.com/api/credentials/share/fr-fr/NajimAbdelmoula-9173/A8981D5D8CFD0BBA?sharingId=F0D21AE2CC8E49FD" target="_blank" rel="noopener noreferrer">GH-100</a>)</span>
+    <div class="cert-tags">
+      <span class="cert-tag cert-date">2026</span>
+      <span class="cert-tag cert-active">active</span>
+    </div>
+  </li>
+  <li class="cert-item">
+    <a href="https://learn.microsoft.com/en-us/credentials/certifications/github-administration" target="_blank" rel="noopener noreferrer" aria-label="GitHub Actions (GH-200)">
+      <img src="https://cdn.simpleicons.org/github/181717" class="cert-icon cert-icon-mono" alt="GitHub" />
+    </a>
+    <span class="cert-name">GitHub Actions (<a href="https://learn.microsoft.com/api/credentials/share/fr-fr/NajimAbdelmoula-9173/A8981D5D8CFD0BBA?sharingId=F0D21AE2CC8E49FD" target="_blank" rel="noopener noreferrer">GH-200</a>)</span>
+    <div class="cert-tags">
+      <span class="cert-tag cert-date">2026</span>
+      <span class="cert-tag cert-active">active</span>
+    </div>
+  </li>
+  <li class="cert-item">
+    <a href="https://learn.microsoft.com/en-us/credentials/certifications/github-administration" target="_blank" rel="noopener noreferrer" aria-label="GitHub Copilot (GH-300)">
+      <img src="https://cdn.simpleicons.org/github/181717" class="cert-icon cert-icon-mono" alt="GitHub" />
+    </a>
+    <span class="cert-name">GitHub Copilot (<a href="https://learn.microsoft.com/api/credentials/share/fr-fr/NajimAbdelmoula-9173/A8981D5D8CFD0BBA?sharingId=F0D21AE2CC8E49FD" target="_blank" rel="noopener noreferrer">GH-300</a>)</span>
+    <div class="cert-tags">
+      <span class="cert-tag cert-date">2026</span>
+      <span class="cert-tag cert-active">active</span>
+    </div>
+  </li>
+  <li class="cert-item">
+    <a href="https://learn.microsoft.com/en-us/credentials/certifications/github-administration" target="_blank" rel="noopener noreferrer" aria-label="GitHub Advanced Security (GH-500)">
+      <img src="https://cdn.simpleicons.org/github/181717" class="cert-icon cert-icon-mono" alt="GitHub" />
+    </a>
+    <span class="cert-name">GitHub Advanced Security (<a href="https://learn.microsoft.com/api/credentials/share/fr-fr/NajimAbdelmoula-9173/A8981D5D8CFD0BBA?sharingId=F0D21AE2CC8E49FD" target="_blank" rel="noopener noreferrer">GH-500</a>)</span>
+    <div class="cert-tags">
+      <span class="cert-tag cert-date">2026</span>
+      <span class="cert-tag cert-active">active</span>
+    </div>
+  </li>
+  <li class="cert-item">
+    <a href="https://learn.microsoft.com/en-us/credentials/certifications/github-administration" target="_blank" rel="noopener noreferrer" aria-label="GitHub Agentic AI Developer (GH-600)">
+      <img src="https://cdn.simpleicons.org/github/181717" class="cert-icon cert-icon-mono" alt="GitHub" />
+    </a>
+    <span class="cert-name">GitHub Agentic AI Developer (<a href="https://learn.microsoft.com/api/credentials/share/fr-fr/NajimAbdelmoula-9173/A8981D5D8CFD0BBA?sharingId=F0D21AE2CC8E49FD" target="_blank" rel="noopener noreferrer">GH-600</a>)</span>
+    <div class="cert-tags">
+      <span class="cert-tag cert-date">2026</span>
+      <span class="cert-tag cert-active">active</span>
     </div>
   </li>
 </ul>
@@ -106,6 +156,46 @@ comments: false
       <span class="cert-tag cert-active">active</span>
     </div>
   </li>
+  <li class="cert-item">
+    <a href="https://learn.microsoft.com/credentials/certifications/azure-administrator/" target="_blank" rel="noopener noreferrer" aria-label="AI Transformation Leader (AB-731)">
+      <img src="https://learn.microsoft.com/media/learn/certification/badges/microsoft-certified-associate-badge.svg" class="cert-icon cert-icon-badge" alt="Microsoft Certified: Associate" />
+    </a>
+    <span class="cert-name">Microsoft Certified: AI Transformation Leader (<a href="https://learn.microsoft.com/en-us/users/najimabdelmoula-9173/credentials/f09622b8e53a5bd0?ref=https%3A%2F%2Fwww.linkedin.com%2F" target="_blank" rel="noopener noreferrer">AB-731</a>)</span>
+    <div class="cert-tags">
+      <span class="cert-tag cert-date">2026</span>
+      <span class="cert-tag cert-active">active</span>
+    </div>
+  </li>
+  <li class="cert-item">
+    <a href="https://learn.microsoft.com/credentials/certifications/azure-administrator/" target="_blank" rel="noopener noreferrer" aria-label="AI Business Professional (AB-730)">
+      <img src="https://learn.microsoft.com/media/learn/certification/badges/microsoft-certified-associate-badge.svg" class="cert-icon cert-icon-badge" alt="Microsoft Certified: Associate" />
+    </a>
+    <span class="cert-name">Microsoft Certified: AI Business Professional (<a href="https://learn.microsoft.com/en-us/users/najimabdelmoula-9173/credentials/f09622b8e53a5bd0?ref=https%3A%2F%2Fwww.linkedin.com%2F" target="_blank" rel="noopener noreferrer">AB-730</a>)</span>
+    <div class="cert-tags">
+      <span class="cert-tag cert-date">2026</span>
+      <span class="cert-tag cert-active">active</span>
+    </div>
+  </li>
+  <li class="cert-item">
+    <a href="https://learn.microsoft.com/credentials/certifications/azure-administrator/" target="_blank" rel="noopener noreferrer" aria-label="Machine Learning Operations (MLOps) Engineer Associate (AI-300)">
+      <img src="https://learn.microsoft.com/media/learn/certification/badges/microsoft-certified-associate-badge.svg" class="cert-icon cert-icon-badge" alt="Microsoft Certified: Associate" />
+    </a>
+    <span class="cert-name">Microsoft Certified: MLOps Engineer Associate (<a href="https://learn.microsoft.com/en-us/users/najimabdelmoula-9173/credentials/f09622b8e53a5bd0?ref=https%3A%2F%2Fwww.linkedin.com%2F" target="_blank" rel="noopener noreferrer">AI-300</a>)</span>
+    <div class="cert-tags">
+      <span class="cert-tag cert-date">2026</span>
+      <span class="cert-tag cert-active">active</span>
+    </div>
+  </li>
+  <li class="cert-item">
+    <a href="https://learn.microsoft.com/credentials/certifications/azure-administrator/" target="_blank" rel="noopener noreferrer" aria-label="Identity and Access Administrator Associate (SC-300)">
+      <img src="https://learn.microsoft.com/media/learn/certification/badges/microsoft-certified-associate-badge.svg" class="cert-icon cert-icon-badge" alt="Microsoft Certified: Associate" />
+    </a>
+    <span class="cert-name">Microsoft Certified: Identity and Access Administrator Associate (<a href="https://learn.microsoft.com/en-us/users/najimabdelmoula-9173/credentials/f09622b8e53a5bd0?ref=https%3A%2F%2Fwww.linkedin.com%2F" target="_blank" rel="noopener noreferrer">SC-300</a>)</span>
+    <div class="cert-tags">
+      <span class="cert-tag cert-date">2026</span>
+      <span class="cert-tag cert-active">active</span>
+    </div>
+  </li>
 </ul>
 
 ## Azure Role-Based (Expert Level)
@@ -130,6 +220,36 @@ comments: false
     <div class="cert-tags">
       <span class="cert-tag cert-date">2023</span>
       <span class="cert-tag cert-renewals">renewed 2x</span>
+      <span class="cert-tag cert-active">active</span>
+    </div>
+  </li>
+  <li class="cert-item">
+    <a href="https://learn.microsoft.com/credentials/certifications/azure-administrator/" target="_blank" rel="noopener noreferrer" aria-label="AI Agent Builder Associate (SC-300)">
+      <img src="https://learn.microsoft.com/media/learn/certification/badges/microsoft-certified-expert-badge.svg" class="cert-icon cert-icon-badge" alt="Microsoft Certified: Expert" />
+    </a>
+    <span class="cert-name">Microsoft Certified: AI Agent Builder Associate (<a href="https://learn.microsoft.com/en-us/users/najimabdelmoula-9173/credentials/f09622b8e53a5bd0?ref=https%3A%2F%2Fwww.linkedin.com%2F" target="_blank" rel="noopener noreferrer">SC-300</a>)</span>
+    <div class="cert-tags">
+      <span class="cert-tag cert-date">2026</span>
+      <span class="cert-tag cert-active">active</span>
+    </div>
+  </li>
+  <li class="cert-item">
+    <a href="https://learn.microsoft.com/credentials/certifications/azure-administrator/" target="_blank" rel="noopener noreferrer" aria-label="Agentic AI Business Solutions Architect (AB-100)">
+      <img src="https://learn.microsoft.com/media/learn/certification/badges/microsoft-certified-expert-badge.svg" class="cert-icon cert-icon-badge" alt="Microsoft Certified: Expert" />
+    </a>
+    <span class="cert-name">Microsoft Certified: Agentic AI Business Solutions Architect (<a href="https://learn.microsoft.com/en-us/users/najimabdelmoula-9173/credentials/f09622b8e53a5bd0?ref=https%3A%2F%2Fwww.linkedin.com%2F" target="_blank" rel="noopener noreferrer">AB-100</a>)</span>
+    <div class="cert-tags">
+      <span class="cert-tag cert-date">2026</span>
+      <span class="cert-tag cert-active">active</span>
+    </div>
+  </li>
+  <li class="cert-item">
+    <a href="https://learn.microsoft.com/credentials/certifications/azure-administrator/" target="_blank" rel="noopener noreferrer" aria-label="Cybersecurity Architect Expert (SC-100)">
+      <img src="https://learn.microsoft.com/media/learn/certification/badges/microsoft-certified-expert-badge.svg" class="cert-icon cert-icon-badge" alt="Microsoft Certified: Expert" />
+    </a>
+    <span class="cert-name">Microsoft Certified: Cybersecurity Architect Expert (<a href="https://learn.microsoft.com/en-us/users/najimabdelmoula-9173/credentials/f09622b8e53a5bd0?ref=https%3A%2F%2Fwww.linkedin.com%2F" target="_blank" rel="noopener noreferrer">SC-100</a>)</span>
+    <div class="cert-tags">
+      <span class="cert-tag cert-date">2026</span>
       <span class="cert-tag cert-active">active</span>
     </div>
   </li>
