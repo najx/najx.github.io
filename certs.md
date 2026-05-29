@@ -108,7 +108,7 @@ comments: false
       <span class="cert-tag cert-active">active</span>
     </div>
   </li>
-  <li class="cert-item">
+<!--   <li class="cert-item">
     <a href="https://learn.microsoft.com/en-us/credentials/certifications/github-administration" target="_blank" rel="noopener noreferrer" aria-label="GitHub Agentic AI Developer (GH-600)">
       <img src="https://cdn.simpleicons.org/github/181717" class="cert-icon cert-icon-mono" alt="GitHub" />
     </a>
@@ -117,7 +117,7 @@ comments: false
       <span class="cert-tag cert-date">2026</span>
       <span class="cert-tag cert-active">active</span>
     </div>
-  </li>
+  </li> -->
 </ul>
 
 ## Azure Role-Based
@@ -176,6 +176,16 @@ comments: false
       <span class="cert-tag cert-active">active</span>
     </div>
   </li>
+<!--   <li class="cert-item">
+    <a href="https://learn.microsoft.com/credentials/certifications/azure-administrator/" target="_blank" rel="noopener noreferrer" aria-label="AI Agent Builder Associate (SC-300)">
+      <img src="https://learn.microsoft.com/media/learn/certification/badges/microsoft-certified-associate-badge.svg" class="cert-icon cert-icon-badge" alt="Microsoft Certified: Associate" />
+    </a>
+    <span class="cert-name">Microsoft Certified: AI Agent Builder Associate (<a href="https://learn.microsoft.com/en-us/users/najimabdelmoula-9173/credentials/f09622b8e53a5bd0?ref=https%3A%2F%2Fwww.linkedin.com%2F" target="_blank" rel="noopener noreferrer">AB-620</a>)</span>
+    <div class="cert-tags">
+      <span class="cert-tag cert-date">2026</span>
+      <span class="cert-tag cert-active">active</span>
+    </div>
+  </li> -->
   <li class="cert-item">
     <a href="https://learn.microsoft.com/credentials/certifications/azure-administrator/" target="_blank" rel="noopener noreferrer" aria-label="Machine Learning Operations (MLOps) Engineer Associate (AI-300)">
       <img src="https://learn.microsoft.com/media/learn/certification/badges/microsoft-certified-associate-badge.svg" class="cert-icon cert-icon-badge" alt="Microsoft Certified: Associate" />
@@ -220,16 +230,6 @@ comments: false
     <div class="cert-tags">
       <span class="cert-tag cert-date">2023</span>
       <span class="cert-tag cert-renewals">renewed 2x</span>
-      <span class="cert-tag cert-active">active</span>
-    </div>
-  </li>
-  <li class="cert-item">
-    <a href="https://learn.microsoft.com/credentials/certifications/azure-administrator/" target="_blank" rel="noopener noreferrer" aria-label="AI Agent Builder Associate (SC-300)">
-      <img src="https://learn.microsoft.com/media/learn/certification/badges/microsoft-certified-expert-badge.svg" class="cert-icon cert-icon-badge" alt="Microsoft Certified: Expert" />
-    </a>
-    <span class="cert-name">Microsoft Certified: AI Agent Builder Associate (<a href="https://learn.microsoft.com/en-us/users/najimabdelmoula-9173/credentials/f09622b8e53a5bd0?ref=https%3A%2F%2Fwww.linkedin.com%2F" target="_blank" rel="noopener noreferrer">SC-300</a>)</span>
-    <div class="cert-tags">
-      <span class="cert-tag cert-date">2026</span>
       <span class="cert-tag cert-active">active</span>
     </div>
   </li>
