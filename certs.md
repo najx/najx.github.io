@@ -88,6 +88,26 @@ comments: false
       <span class="cert-tag cert-active">active</span>
     </div>
   </li>
+  <li class="cert-item">
+    <a href="https://learn.microsoft.com/en-us/credentials/certifications/github-administration" target="_blank" rel="noopener noreferrer" aria-label="GitHub Copilot (GH-300)">
+      <img src="https://cdn.simpleicons.org/github/181717" class="cert-icon cert-icon-mono" alt="GitHub" />
+    </a>
+    <span class="cert-name">GitHub Copilot (<a href="https://learn.microsoft.com/api/credentials/share/fr-fr/NajimAbdelmoula-9173/B7B33B9EA62D6AC8?sharingId=F0D21AE2CC8E49FD" target="_blank" rel="noopener noreferrer">GH-300</a>)</span>
+    <div class="cert-tags">
+      <span class="cert-tag cert-date">2026</span>
+      <span class="cert-tag cert-active">active</span>
+    </div>
+  </li>
+<!--   <li class="cert-item">
+    <a href="https://learn.microsoft.com/en-us/credentials/certifications/github-administration" target="_blank" rel="noopener noreferrer" aria-label="GitHub Advanced Security (GH-500)">
+      <img src="https://cdn.simpleicons.org/github/181717" class="cert-icon cert-icon-mono" alt="GitHub" />
+    </a>
+    <span class="cert-name">GitHub Advanced Security (<a href="https://learn.microsoft.com/api/credentials/share/fr-fr/NajimAbdelmoula-9173/A8981D5D8CFD0BBA?sharingId=F0D21AE2CC8E49FD" target="_blank" rel="noopener noreferrer">GH-500</a>)</span>
+    <div class="cert-tags">
+      <span class="cert-tag cert-date">2026</span>
+      <span class="cert-tag cert-active">active</span>
+    </div>
+  </li> -->
 </ul>
 
 ## Azure Role-Based
