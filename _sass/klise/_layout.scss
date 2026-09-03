@@ -455,3 +455,104 @@ iframe {
     margin-top: 60px;
   }
 }
+
+// AI news ticker
+.ticker {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  display: flex;
+  align-items: stretch;
+  height: 34px;
+  background-color: $white;
+  border-top: 1px solid $light;
+  overflow: hidden;
+
+  &[hidden] {
+    display: none;
+  }
+
+  &:not([hidden]) ~ .wrapper {
+    padding-bottom: 54px;
+  }
+}
+
+.ticker-label {
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  border-right: 1px solid $light;
+  color: $text-link-blue;
+  font-size: 11px;
+  font-weight: $bold-weight;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.ticker-viewport {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.ticker-track {
+  display: flex;
+  width: max-content;
+  animation: ticker-scroll 60s linear infinite;
+}
+
+.ticker:hover .ticker-track,
+.ticker:focus-within .ticker-track {
+  animation-play-state: paused;
+}
+
+.ticker-group {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  padding-right: 40px;
+}
+
+.ticker-item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  color: $text-base-color;
+  font-size: $small-font-size;
+  text-decoration: none;
+  white-space: nowrap;
+
+  &::before {
+    content: "▸";
+    color: $text-link-blue;
+  }
+
+  &:hover,
+  &:focus {
+    color: $text-link-blue;
+  }
+}
+
+.ticker-date {
+  color: $gray;
+  font-size: 10px;
+}
+
+@keyframes ticker-scroll {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track {
+    animation: none;
+  }
+
+  .ticker-viewport {
+    overflow-x: auto;
+  }
+}

@@ -298,4 +298,32 @@ body[data-theme="dark"] {
       color: $dark-smoke;
     }
   }
+
+  // AI news ticker
+  .ticker {
+    background-color: $dark-black;
+    border-color: $dark-light;
+  }
+
+  .ticker-label {
+    border-color: $dark-light;
+    color: $dark-text-link-blue;
+  }
+
+  .ticker-item {
+    color: $dark-text-base-color;
+
+    &::before {
+      color: $dark-text-link-blue;
+    }
+
+    &:hover,
+    &:focus {
+      color: $dark-text-link-blue;
+    }
+  }
+
+  .ticker-date {
+    color: $dark-gray;
+  }
 }

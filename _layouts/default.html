@@ -27,6 +27,7 @@ layout: compress
   </script>
 
   {% include navbar.html %}
+  {% if page.layout == 'home' %}{% include ticker.html %}{% endif %}
   <div class="wrapper">
     <main aria-label="Content">
       {{ content }}
