@@ -1,5 +1,5 @@
 ---
-title: "L'odyssée d'une requête : ce qui se passe vraiment quand vous tapez une URL"
+title: "L'odyssée d'une requête : Lorsque vous tapez une URL"
 date: 2026-09-03 10:00:00 +02:00
 modified: 2026-09-03 10:00:00 +02:00
 tags: [Architecture 🏛️]
