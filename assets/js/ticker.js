@@ -2,12 +2,10 @@
   var ticker = document.getElementById("ai-ticker");
   if (!ticker) return;
 
-  // Feeds are tried in order; all of them must allow cross-origin requests
-  // (Access-Control-Allow-Origin), which is why the list is hand-picked.
-  var FEEDS = [
-    "https://www.wired.com/feed/tag/ai/latest/rss",
-    "https://simonwillison.net/atom/everything/",
-  ];
+  // WIRED is one of the few mainstream AI feeds whose RSS allows
+  // cross-origin requests (Access-Control-Allow-Origin), so it can be
+  // fetched straight from the browser without a proxy.
+  var FEED = "https://www.wired.com/feed/tag/ai/latest/rss";
   var MAX_ITEMS = 10;
   var SPEED = 55; // scroll speed, px per second
 
@@ -19,16 +17,11 @@
     for (var i = 0; i < nodes.length && items.length < MAX_ITEMS; i++) {
       var node = nodes[i];
       var titleEl = node.querySelector("title");
-      var linkEl = node.querySelector("link");
       var dateEl = node.querySelector("pubDate, updated, published");
       var title = titleEl ? titleEl.textContent.trim() : "";
-      var link = linkEl
-        ? (linkEl.getAttribute("href") || linkEl.textContent).trim()
-        : "";
-      if (title && link) {
+      if (title) {
         items.push({
           title: title,
-          link: link,
           date: dateEl ? new Date(dateEl.textContent) : null,
         });
       }
@@ -48,21 +41,17 @@
     group.className = "ticker-group";
     if (isCopy) group.setAttribute("aria-hidden", "true");
     items.forEach(function (item) {
-      var link = document.createElement("a");
-      link.className = "ticker-item";
-      link.href = item.link;
-      link.target = "_blank";
-      link.rel = "noopener";
-      if (isCopy) link.tabIndex = -1;
+      var el = document.createElement("span");
+      el.className = "ticker-item";
       var date = formatDate(item.date);
       if (date) {
         var dateEl = document.createElement("span");
         dateEl.className = "ticker-date";
         dateEl.textContent = date;
-        link.appendChild(dateEl);
+        el.appendChild(dateEl);
       }
-      link.appendChild(document.createTextNode(item.title));
-      group.appendChild(link);
+      el.appendChild(document.createTextNode(item.title));
+      group.appendChild(el);
     });
     return group;
   }
@@ -78,23 +67,15 @@
     track.style.animationDuration = Math.max(20, Math.round(distance / SPEED)) + "s";
   }
 
-  function load(index) {
-    // Every feed failed: the ticker simply stays hidden.
-    if (index >= FEEDS.length) return;
-    fetch(FEEDS[index])
-      .then(function (response) {
-        if (!response.ok) throw new Error(response.status);
-        return response.text();
-      })
-      .then(function (text) {
-        var items = parseFeed(text);
-        if (!items.length) throw new Error("empty feed");
-        render(items);
-      })
-      .catch(function () {
-        load(index + 1);
-      });
-  }
-
-  load(0);
+  // If the feed fails, the ticker simply stays hidden.
+  fetch(FEED)
+    .then(function (response) {
+      if (!response.ok) throw new Error(response.status);
+      return response.text();
+    })
+    .then(function (text) {
+      var items = parseFeed(text);
+      if (items.length) render(items);
+    })
+    .catch(function () {});
 })();

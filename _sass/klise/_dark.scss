@@ -316,14 +316,14 @@ body[data-theme="dark"] {
     &::before {
       color: $dark-text-link-blue;
     }
-
-    &:hover,
-    &:focus {
-      color: $dark-text-link-blue;
-    }
   }
 
   .ticker-date {
+    color: $dark-gray;
+  }
+
+  .ticker-source {
+    border-color: $dark-light;
     color: $dark-gray;
   }
 }
