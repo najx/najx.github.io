@@ -2,15 +2,18 @@
 title: Search
 permalink: /search/
 layout: page
-excerpt: All post.
+description: Find articles about cloud computing, DevOps, networking, security and AI.
 comments: false
 ---
-
-<div class="search-article">
-  <label for="search-input" aria-hidden="true">
-    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(128,128,128,0.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-  </label>
-  <input type="search" id="search-input" placeholder="Keyword" aria-label="Search">
+<label class="search-label" for="search-input">Search by title, topic or keyword</label>
+<input class="search-input" type="search" id="search-input" placeholder="Try Kubernetes, IPv6, agents…" autocomplete="off" aria-controls="search-results" aria-describedby="search-status" disabled>
+<p id="search-status" class="search-status" role="status">All articles are listed below. Enable JavaScript to filter them.</p>
+<div id="search-results">
+{% for post in site.posts %}
+<article class="search-result" data-search="{{ post.title | append: ' ' | append: post.description | append: ' ' | escape }}{{ post.tags | join: ' ' | escape }}">
+  <h2><a href="{{ post.url | relative_url }}" lang="{{ post.lang | default: 'en' }}">{{ post.title | escape }}</a></h2>
+  <p>{{ post.description | strip_html | truncatewords: 25 | escape }}</p>
+</article>
+{% endfor %}
 </div>
-
-<ul id="search-results"></ul>
+<script src="{{ '/assets/js/search.js' | relative_url }}" defer></script>

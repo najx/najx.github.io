@@ -8,6 +8,12 @@
   var FEED = "https://www.wired.com/feed/tag/ai/latest/rss";
   var MAX_ITEMS = 10;
   var SPEED = 55; // scroll speed, px per second
+  var pause = ticker.querySelector('button');
+  pause.addEventListener('click', function () {
+    var paused = ticker.classList.toggle('is-paused');
+    pause.setAttribute('aria-pressed', String(paused));
+    pause.textContent = paused ? 'Resume' : 'Pause';
+  });
 
   function parseFeed(text) {
     var doc = new DOMParser().parseFromString(text, "text/xml");

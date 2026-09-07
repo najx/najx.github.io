@@ -1,4 +1,5 @@
 ---
+image: /assets/img/6/1.svg
 title: "IPv6: The Evolutionary Step in Modern Networking"
 date: 2023-08-14 01:30:28 +01:00
 modified: 2023-08-14 01:30:28 +01:00
@@ -16,7 +17,7 @@ IPv6 not only remedies the address shortage but introduces several improvements:
 **Abundant Address Space:** 340 undecillion addresses. This makes subnetting simpler and addresses the needs of future generations.
 
 <figure>
-    <img src="/assets/img/6/1.png" alt="" style="width:90%;height:90%;">
+    <img src="{{ '/assets/img/6/1.svg' | relative_url }}" alt="IPv4 &amp; IPv6 address space" width="960" height="540" loading="lazy" decoding="async">
 </figure>
 
 **Improved Network Performance:** With simplified header structures, routers can process data packets more swiftly.
@@ -26,7 +27,7 @@ IPv6 not only remedies the address shortage but introduces several improvements:
 **NAT-Free End-to-End Communication:** With such a vast address space, devices can have unique global addresses, enabling true end-to-end communication without relying on NAT.
 
 <figure>
-    <img src="/assets/img/6/2.png" alt="" style="width:90%;height:90%;">
+    <img src="{{ '/assets/img/6/2.svg' | relative_url }}" alt="Inside an IPv4 address" width="960" height="540" loading="lazy" decoding="async">
 </figure>
 
 **Better Quality of Service (QoS) for Real-Time Apps:** IPv6 allows for better handling of data packets, which is critical for real-time applications like VoIP and online gaming.
@@ -36,7 +37,7 @@ IPv6 not only remedies the address shortage but introduces several improvements:
 <hr>
 
 <figure>
-    <img src="/assets/img/6/3.png" alt="" style="width:90%;height:90%;">
+    <img src="{{ '/assets/img/6/3.svg' | relative_url }}" alt="Inside an IPv6 address" width="960" height="540" loading="lazy" decoding="async">
 </figure>
 
 

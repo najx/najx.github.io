@@ -1,4 +1,5 @@
 ---
+image: /assets/img/8/1.svg
 title: Introduction to Multi-Agent Architectures in AI
 date: 2025-06-22 11:31:00 +02:00
 modified: 2025-06-22 11:31:00 +02:00
@@ -10,7 +11,7 @@ comments: false
 2025 marks a pivotal year for artificial intelligence, with multi-agent architectures emerging as the dominant framework for complex, real-world problem-solving. As organizations push beyond basic AI implementations, the limitations of single-agent systems have become increasingly evident. This article serves as your primer to multi-agent systems—setting the stage for deeper exploration and equipping you with a solid foundation for future innovations.
 
 <figure>
-  <img src="/assets/img/8/1.png" alt="Source: Quality Measurement Challenges for Artificial Intelligence Software" style="width:100%;height:100%;">
+  <img src="{{ '/assets/img/8/1.svg' | relative_url }}" alt="A society of agents" width="960" height="540" loading="lazy" decoding="async">
 </figure>
 
 ## What Are Multi-Agent Systems?

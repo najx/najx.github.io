@@ -1,11 +1,11 @@
 # Site settings
 title: najx
 description: >- # site description
-  I am delighted to welcome you to my little corner of the web.
-  Mistakes are learning opportunities and code is poetry. So, let's start this beautiful story together!
+  Notes and practical guides on cloud computing, DevOps, platform engineering,
+  networking and AI. A personal technology blog by N.A.
 lang: en-US # default lang
 timezone: Europe/Zurich # set your timezone
-image: assets/img/najx.png # This image used for Open Graph more info https://ogp.me/
+image: /assets/img/najx.svg
 repo: https://github.com/najx/najx.github.io # https://github.com/piharpi/jekyll-klise # site repo [optional]
 mode: light # default theme "dark" | "light"
 
@@ -20,7 +20,7 @@ author:
   facebook: # facebook username
   email: # email adress
   avatar:
-    - /assets/home/main.jpg
+    - /assets/home/main.svg
 
 # URL settings
 url: "https://najx.dev" #
@@ -72,7 +72,6 @@ include:
   - .htaccess
 
 exclude:
-  - CNAME
   - Gemfile
   - Gemfile.lock
   - LICENSE
@@ -81,7 +80,9 @@ exclude:
   - node_modules
   - CODE_OF_CONDUCT.md
   - CONTRIBUTING.md
-  - lighthouse.png
+  - scripts
+  - docs
+  - vendor
   - klise-*.gem
   - klise.gemspec
 

@@ -1,4 +1,5 @@
 ---
+image: /assets/img/10/1.svg
 title: "Multi-Agent Architectures in AI"
 date: 2025-07-29 11:31:00 +02:00
 modified: 2025-07-29 11:31:00 +02:00
@@ -9,7 +10,7 @@ ai_assisted: true
 ---
 
 <figure>
-  <img src="/assets/img/10/1.png" alt="Multi-Agent Architecture Patterns" style="width:100%;height:100%;">
+  <img src="{{ '/assets/img/10/1.svg' | relative_url }}" alt="Four ways to connect agents" width="960" height="540" loading="lazy" decoding="async">
   <figcaption>Overview of multi-agent architecture patterns in modern AI systems.</figcaption>
 </figure>
 
@@ -17,7 +18,7 @@ ai_assisted: true
 
 The shift from single-agent to multi-agent thinking mirrors a broader evolution in software engineering: from monoliths to microservices, from centralized control to distributed intelligence. And just like that transition, multi-agent systems come with their own set of patterns, trade-offs, and best practices.
 
-# What Are Multi-Agent Architectures?
+## What Are Multi-Agent Architectures?
 
 Multi-Agent Systems (MAS) are exactly what they sound like — multiple AI agents working together to complete tasks that would be difficult or impossible for a single agent to handle efficiently. These architectures provide standardized ways for Large Language Models (LLMs) to collaborate via <b title="Talebirad, Y., & Nadiri, A. (2023). Multi-Agent Collaboration: Harnessing the Power of Intelligent LLM Agents">structured pattern [approaches](https://arxiv.org/abs/2306.03314)</b>.
 
@@ -25,7 +26,7 @@ In practical terms, multi-agent architectures allow you to build fully integrate
 
 This concept isn't entirely new. The academic field of [multi-agent systems](https://en.wikipedia.org/wiki/Multi-agent_system) has been studied for decades in distributed AI research. What's changed is that **LLMs have made these systems dramatically more capable and accessible** — turning theoretical frameworks into production-ready architectures.
 
-# Core Components of Multi-Agent Systems
+## Core Components of Multi-Agent Systems
 
 Every effective multi-agent system relies on three essential components:
 
@@ -35,7 +36,7 @@ Every effective multi-agent system relies on three essential components:
 
 **Communication Protocols:** Standardized ways for agents to exchange information and intentions form the backbone of any multi-agent system. Without clear communication channels, even the most sophisticated agents will fail to coordinate effectively. Anthropic's [Model Context Protocol (MCP)](https://modelcontextprotocol.io) and Google's [Agent-to-Agent (A2A) protocol](https://google.github.io/A2A/) are two emerging standards aiming to solve this interoperability challenge.
 
-# Multi-Agent System Patterns
+## Multi-Agent System Patterns
 
 Let's explore the key patterns that define how agents can work together. Each pattern comes with distinct strengths and trade-offs — choosing the right one depends on your problem's structure.
 
@@ -81,7 +82,7 @@ A manager-worker structure handles complexity through delegated subtasks. The ma
 
 _Example:_ A software development team simulation where a "Project Manager" agent breaks down a feature request, assigns tasks to a "Frontend" agent, a "Backend" agent, and a "QA" agent, then integrates their outputs.
 
-# Frameworks Powering Multi-Agent Systems
+## Frameworks Powering Multi-Agent Systems
 
 The ecosystem of multi-agent frameworks has matured significantly in 2025. Here's a comparison of the leading options:
 
@@ -95,7 +96,7 @@ The ecosystem of multi-agent frameworks has matured significantly in 2025. Here'
 
 Each framework makes different trade-offs between **control** (explicit orchestration) and **autonomy** (agents deciding their own workflow). The right choice depends on how predictable you need your agent behavior to be.
 
-# Real-World Applications
+## Real-World Applications
 
 Multi-agent architectures aren't just theoretical concepts — they're being deployed across numerous industries with impressive results:
 
@@ -109,7 +110,7 @@ Multi-agent architectures aren't just theoretical concepts — they're being dep
 
 **Software Engineering:** Perhaps the most visible application in 2025 — AI coding assistants increasingly use multi-agent architectures. Tools like [GitHub Copilot](https://github.com/features/copilot), [Cursor](https://cursor.sh), and [Devin](https://devin.ai) leverage specialized agents for code generation, testing, debugging, and deployment in orchestrated workflows.
 
-# Why Choose Multi-Agent Over Single-Agent Systems?
+## Why Choose Multi-Agent Over Single-Agent Systems?
 
 Multi-agent systems offer several significant advantages over monolithic approaches:
 
@@ -120,7 +121,7 @@ Multi-agent systems offer several significant advantages over monolithic approac
 
 However, multi-agent systems also introduce **additional complexity**: inter-agent communication overhead, potential coordination failures, and the difficulty of debugging distributed behavior. As with any architecture, **the added complexity must be justified by the problem's requirements**.
 
-# When To Use Multi-Agent Systems
+## When To Use Multi-Agent Systems
 
 Multi-agent systems are particularly valuable when:
 
@@ -133,7 +134,7 @@ Multi-agent systems are particularly valuable when:
 
 Conversely, **avoid multi-agent architectures when a single well-prompted agent can solve the problem**. Over-engineering with unnecessary agents adds latency, cost, and debugging complexity.
 
-# Conclusion
+## Conclusion
 
 As we progress through 2025, multi-agent architectures continue to demonstrate their power in tackling complex AI challenges. By understanding the different patterns available — parallel, sequential, loop, router, aggregator, network, and hierarchical — and how they can be combined, you can design systems that precisely match your specific needs.
 

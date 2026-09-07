@@ -1,4 +1,5 @@
 ---
+image: /assets/img/1/3.svg
 title: "Understand the great CrowdStrike-Windows meltdown"
 date: 2024-07-23 07:19:15 +01:00
 modified: 2024-07-23 07:19:15 +01:00
@@ -8,13 +9,13 @@ comments: false
 ---
 
 <figure>
-<img src="/assets/img/1/3.jpg" alt="blue screen">
-<figcaption>Blue Screens of Death in Indira Gandhi International Airport. Photo by Kabir Jhangiani / NurPhoto via Getty Images</figcaption>
+<img src="{{ '/assets/img/1/3.svg' | relative_url }}" alt="When one update reaches everyone" width="960" height="540" loading="lazy" decoding="async">
+<figcaption>Conceptual diagram of the July 2024 outage and its affected services.</figcaption>
 </figure>
 
 On July 19, 2024, a developer unintentionally caused half the world's Windows computers to crash with a single line of code. The incident left people worldwide puzzled and concerned, wondering how such a thing could happen. Here’s a detailed breakdown of the events and technicalities that led to this global disruption.
 
-# The Culprit: Crowdstrike's System Driver
+## The Culprit: Crowdstrike's System Driver
 
 Crowdstrike, an American cybersecurity company, was at the heart of the problem. Their system driver, which had a critical flaw, was the source of the chaos.
 
@@ -55,18 +56,18 @@ On that fateful Friday, half of the Windows computers globally experienced sudde
 - Other critical infrastructures
 
 <figure>
-<img src="/assets/img/1/2.jpg" alt="blue screen">
-<figcaption>Blue screens at John F. Kennedy International Airport in New York.</figcaption>
+<img src="{{ '/assets/img/1/2.svg' | relative_url }}" alt="An airport without its systems" width="960" height="540" loading="lazy" decoding="async">
+<figcaption>Original illustration of unavailable airport systems.</figcaption>
 </figure>
 
 The cascading effect of this malfunction caused significant disruptions for businesses, governments, and individuals worldwide.
 
 <figure>
-<img src="/assets/img/1/1.jpg" alt="blue screen">
-<figcaption>Unusable self-checkout terminals of a supermarket in Sydney, Australia. Photo by SAEED KHAN/AFP via Getty Images</figcaption>
+<img src="{{ '/assets/img/1/1.svg' | relative_url }}" alt="The impact reaches everyday life" width="960" height="540" loading="lazy" decoding="async">
+<figcaption>Original illustration of unavailable checkout terminals.</figcaption>
 </figure>
 
-# Conclusion
+## Conclusion
 
 The Crowdstrike incident is a stark reminder of the importance of rigorous software testing and the potential widespread impact of seemingly minor coding errors. By understanding the intricate details of how memory and privilege levels work, we can better appreciate the complexity and the critical need for caution in software development.
 

@@ -14,17 +14,17 @@ ai_assisted: true
 ---
 
 <style>
-.odyssee-fig{--bg:#fff;--muted:#6b7886;--accent:#ff0000;--accent-soft:rgba(255,0,0,.06);border:1px solid #ececec;border-radius:4px;padding:18px 18px 10px;margin:2em 0;overflow-x:auto}
+.odyssee-fig{--bg:#fff;--muted:#596572;--accent:#b52f38;--accent-soft:rgba(181,47,56,.06);border:1px solid #dce2e8;border-radius:8px;padding:18px 18px 10px;margin:2em 0;overflow-x:auto}
 .odyssee-fig svg{display:block;width:100%;height:auto;min-width:600px}
 .odyssee-fig figcaption{margin-top:12px;text-align:left;font-style:italic;line-height:1.6}
-body[data-theme="dark"] .odyssee-fig{--bg:#131418;--muted:#767f87;--accent-soft:rgba(255,0,0,.12);border-color:#2a2c35}
+body[data-theme="dark"] .odyssee-fig{--bg:#111820;--muted:#a4b0bc;--accent:#ff9196;--accent-soft:rgba(255,145,150,.12);border-color:#33404d}
 </style>
 
 Ce geste, vous le faites cent fois par jour. Une adresse, la touche **Entrée**, une page. Rien de plus banal — et pourtant, sous ce clic se cache l'une des plus belles cathédrales que l'ingénierie ait jamais construites : des dizaines de machines, des milliers de kilomètres de fibre optique, une cinquantaine d'années de protocoles empilés les uns sur les autres, et du silicium cadencé à plusieurs milliards de battements par seconde.
 
 Cet article raconte ce voyage **dans l'ordre chronologique**, de la pression physique sur la touche jusqu'aux pixels allumés à l'écran. À chaque étape, on descendra ou remontera dans la pile : tantôt dans le matériel (clavier, processeur, mémoire, carte réseau), tantôt dans le logiciel (système d'exploitation, navigateur), tantôt dans ce qui les relie — DNS, TCP, TLS, HTTP, serveurs web. Les durées indiquées en tête de chapitre sont des ordres de grandeur réalistes pour une connexion fibre en France vers un site correctement hébergé ; elles servent de fil conducteur, pas de chronomètre.
 
-<figure class="odyssee-fig">
+<figure class="odyssee-fig" tabindex="0">
 <svg viewBox="0 0 960 262" role="img" aria-label="Vue d'ensemble du trajet : votre machine, la box, le réseau du fournisseur d'accès, Internet, puis le serveur ; la requête part dans un sens, la réponse revient dans l'autre.">
 <defs>
 <marker id="o-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
@@ -99,7 +99,7 @@ Sur un clavier USB, ce rapport est déposé dans une file que le contrôleur hô
 
 Le pilote clavier du noyau traduit le code HID en code de touche générique, l'estampille et le publie comme événement d'entrée. Le serveur d'affichage (WindowServer sous macOS, Wayland ou X11 sous Linux, DWM sous Windows) détermine quelle fenêtre a le focus — le navigateur — et lui transmet l'événement. Là, il atterrit dans la **boucle d'événements** du processus principal, qui le dispatche au champ actif : la barre d'adresse. Touche `Enter`, champ validé. L'odyssée commence.
 
-<figure class="odyssee-fig">
+<figure class="odyssee-fig" tabindex="0">
 <svg viewBox="0 0 940 150" role="img" aria-label="Chaîne de la frappe : le clavier envoie un code via USB, le contrôleur lève une interruption vers le noyau, qui publie un événement transmis par le serveur d'affichage au navigateur.">
 <defs><marker id="o-arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
 <g font-family="monospace">
@@ -189,7 +189,7 @@ La quête suit une chaîne de caches. Le navigateur a le sien. Le système d'exp
 
 Si le récursif n'a pas la réponse en cache, il remonte la hiérarchie depuis le sommet. Les **serveurs racine** — 13 adresses logiques, démultipliées en plus d'un millier d'instances physiques par la magie de l'*anycast* (une même IP annoncée depuis des dizaines d'endroits ; le routage vous amène à la plus proche) — ne connaissent pas `example.com`, mais savent qui gère `.com`. Les serveurs du **TLD** `.com` savent quels serveurs font autorité pour `example.com`. Et le serveur **autoritatif**, enfin, détient la réponse.
 
-<figure class="odyssee-fig">
+<figure class="odyssee-fig" tabindex="0">
 <svg viewBox="0 0 920 330" role="img" aria-label="Résolution DNS : la machine interroge un résolveur récursif, qui questionne successivement un serveur racine, le serveur du TLD .com et le serveur autoritatif, puis renvoie l'adresse IP.">
 <defs>
 <marker id="o-arr3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
@@ -286,7 +286,7 @@ En TLS 1.3 (2018), la négociation tient en un seul aller-retour. Le navigateur 
 
 Reste la question de confiance : pourquoi croire ce certificat ? Parce qu'il est signé par une **autorité de certification** (Let's Encrypt, DigiCert…), elle-même signée par une autorité racine dont la clé publique est pré-installée dans votre OS et votre navigateur — le *magasin de confiance*, une centaine d'organisations qui portent, littéralement, la confiance du web. Le navigateur vérifie la chaîne complète, le nom, les dates, et la présence du certificat dans les journaux publics de *Certificate Transparency*. Bonus élégant : les clés de session étant éphémères, même un attaquant qui volerait plus tard la clé privée du serveur ne pourrait pas déchiffrer les conversations passées — la **confidentialité persistante** (*forward secrecy*).
 
-<figure class="odyssee-fig">
+<figure class="odyssee-fig" tabindex="0">
 <svg viewBox="0 0 760 470" role="img" aria-label="Diagramme de séquence : poignée de main TCP en trois messages, puis poignée de main TLS 1.3 en un aller-retour, puis envoi de la requête HTTP chiffrée.">
 <defs>
 <marker id="o-arr4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
@@ -389,7 +389,7 @@ Notre navigateur, prévenu par l'ALPN du chapitre précédent, parle ici HTTP/2.
 
 Ce qui circule sur le câble n'est pas « une requête » : c'est une **poupée russe**. La requête HTTP est chiffrée dans un enregistrement TLS, découpé en segments TCP, chacun glissé dans un paquet IP, lui-même emballé dans une trame adaptée au support physique. Chaque couche a son en-tête, ses adresses, son rôle — et chaque équipement du chemin ne lit que la couche qui le concerne.
 
-<figure class="odyssee-fig">
+<figure class="odyssee-fig" tabindex="0">
 <svg viewBox="0 0 900 290" role="img" aria-label="Encapsulation : la requête HTTP est enveloppée dans TLS, puis TCP, puis IP, puis une trame Ethernet ou Wi-Fi, chaque couche ajoutant son en-tête.">
 <g font-family="monospace" font-size="11">
 <text x="20" y="46" fill="var(--muted)" font-size="10.5">APPLICATION</text>
@@ -453,7 +453,7 @@ Là, premier verdict : le **cache**. Si la ressource est statique et présente s
 
 nginx transmet enfin à l'**application** — du code Node.js, Python, Go, PHP, Java… — qui fait le vrai travail métier : valider la session portée par le cookie, interroger la **base de données** (elle-même précédée d'un cache mémoire type Redis, car même 5 ms de requête SQL sont une éternité à cette échelle), assembler le HTML. Puis tout redescend : compression Brotli, chiffrement TLS, segments TCP, paquets IP — la pile entière, dans l'autre sens.
 
-<figure class="odyssee-fig">
+<figure class="odyssee-fig" tabindex="0">
 <svg viewBox="0 0 940 250" role="img" aria-label="Chaîne côté serveur : le point de présence CDN sert les caches immédiatement ; sinon la requête traverse répartiteur de charge, reverse proxy, application et base de données.">
 <defs>
 <marker id="o-arr5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
@@ -523,7 +523,7 @@ Le CSS, parsé de son côté, devient le **CSSOM** : l'ensemble des règles, ré
 
 DOM et CSSOM fusionnent en **arbre de rendu** (les éléments visibles, avec leurs styles calculés). Le **layout** résout alors le système de contraintes — flexbox, grilles, flux de texte — et assigne à chaque boîte une position et une taille au pixel près. Le **paint** convertit ces boîtes en listes d'instructions de dessin, rastérisées par couches. Enfin le **compositeur** — sur son propre fil d'exécution, aidé du processus GPU — assemble les couches à l'écran. C'est lui qui rend le défilement fluide : faire glisser des couches déjà peintes ne coûte presque rien au **GPU**, pendant que le fil principal reste libre.
 
-<figure class="odyssee-fig">
+<figure class="odyssee-fig" tabindex="0">
 <svg viewBox="0 0 940 280" role="img" aria-label="Pipeline de rendu : HTML vers DOM, CSS vers CSSOM, JavaScript pouvant modifier les deux ; fusion en arbre de rendu, puis layout, paint, compositing GPU et affichage.">
 <defs>
 <marker id="o-arr6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
@@ -592,7 +592,7 @@ Dernier maillon, purement matériel : le compositeur livre ses images au rythme 
 
 Récapitulons le voyage, en vraie grandeur :
 
-<figure class="odyssee-fig">
+<figure class="odyssee-fig" tabindex="0">
 <svg viewBox="0 0 960 336" role="img" aria-label="Frise chronologique de 0 à 300 millisecondes : résolution DNS, poignée de main TCP, poignée de main TLS, attente de la réponse, téléchargement, parsing et scripts, layout et paint, premier rendu vers 300 millisecondes.">
 <g font-family="monospace" font-size="10.5">
 <g stroke="currentColor" stroke-opacity="0.15">

@@ -1,22 +1,15 @@
 header:
-  - title: /home
+  - title: Articles
     url: /
-    external: false
-
-  - title: /search
+  - title: Topics
+    url: /tags/
+  - title: Search
     url: /search/
-    external: false
+  - title: About
+    url: /about/
 
 footer:
-  - title: about
+  - title: About
     url: /about/
-    external: false
-
-  - title: charter
+  - title: Editorial charter
     url: /charter/
-    external: false
-
-# Example:
-# - title: github
-#   url: https://github.com/piharpi/jekyll-klise
-#   external: true

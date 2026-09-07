@@ -1,4 +1,5 @@
 ---
+image: /assets/img/9/anthropic-claude-opus_0780043801723380.svg
 title: "Claude Mythos: Too Powerful or Just Hype?"
 date: 2026-04-17 10:00:00 +02:00
 modified: 2026-04-17 10:00:00 +02:00
@@ -9,7 +10,7 @@ ai_assisted: true
 ---
 
 <figure>
-  <img src="/assets/img/9/anthropic-claude-opus_0780043801723380.webp" alt="Claude Mythos - Anthropic AI" style="width:100%;height:100%;">
+  <img src="{{ '/assets/img/9/anthropic-claude-opus_0780043801723380.svg' | relative_url }}" alt="Capability, access &amp; evidence" width="960" height="540" loading="lazy" decoding="async">
   <figcaption>Illustration: AI between power and responsibility.</figcaption>
 </figure>
 

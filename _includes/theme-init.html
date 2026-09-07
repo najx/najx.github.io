@@ -1,0 +1,7 @@
+<script>
+  (() => {
+    let theme = document.body.dataset.theme;
+    try { theme = localStorage.getItem('theme') || theme; } catch (_) {}
+    document.body.dataset.theme = theme === 'dark' ? 'dark' : 'light';
+  })();
+</script>

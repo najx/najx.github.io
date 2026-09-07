@@ -6,11 +6,11 @@ excerpt: A small web space dedicated to sharing thoughts and personal insights o
 comments: false
 ---
 
-# What is this place?
+## What is this place?
 
 This is a small corner of the web where I'm happy to humbly share thoughts, insights, and learnings about the ever-evolving tech ecosystem. Topics range from Cloud computing and DevOps practices to AI architectures, networking, and emerging technologies. No corporate agenda — just curiosity and ideas.
 
-# Who am I?
+## Who am I?
 
 I'm a tech professional whom journey started in the banking industry, working with mainframe environments, before evolving toward DevOps, Cloud computing, and platform engineering.
 
@@ -23,7 +23,7 @@ Over the years, I've built hands-on expertise across areas such as:
 
 I'm driven by the belief that technology is most powerful when shared and understood broadly.
 
-# Why this blog?
+## Why this blog?
 
 Writing helps me structure my thinking. If something I publish is helpful to someone to sparks an idea, save time or what so ever, that's more than enough. Feel free to reach out on [LinkedIn](https://ch.linkedin.com/in/najx/) if you'd like to discuss a topic or suggest one.
 
