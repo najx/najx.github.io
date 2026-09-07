@@ -2,25 +2,34 @@
 layout: default
 home: true
 ---
-
-{%- assign grouped_posts = site.posts | group_by_exp: "post", "post.date | date: '%Y'" -%}
-{%- for year_group in grouped_posts -%}
-  <div class="year-header">
-    <h2>{{ year_group.name }}</h2>
-    <span class="number-of-posts">({{ year_group.size }})</span>
-  </div>
-  {%- for post in year_group.items -%}
-    <article class="post-item">
-      <h3 class="post-item-title">
-        <a href="{{ post.url }}">{{ post.title | escape | language_emoji: post.lang }}</a>
-      </h3>
-      {%- if post.tags.size > 0 -%}
-        <div class="post-item-tags">
-          {%- for tag in post.tags -%}
-            <span class="post-tag">{{ tag | downcase }}</span>
-          {%- endfor -%}
-        </div>
-      {%- endif -%}
-    </article>
-  {%- endfor -%}
-{%- endfor -%}
+<section class="home-intro" aria-labelledby="home-title">
+  <p class="eyebrow">N.A. / Notes from the field</p>
+  <h1 id="home-title">A journey through<br><span>cloud, code &amp; AI.</span></h1>
+  <p>Ideas, practical guides and lessons learned in Cloud, DevOps, platform engineering and AI. Written along the way.</p>
+  <a class="intro-link" href="{{ '/about/' | relative_url }}">About this blog <span aria-hidden="true">↗</span></a>
+</section>
+<nav class="topic-nav" aria-label="Explore topics">
+  <span class="eyebrow">Explore</span>
+  {% assign sorted_tags = site.tags | sort %}
+  {% for tag in sorted_tags %}
+  <a href="{{ '/tags/' | relative_url }}#{{ tag[0] | downcase | slugify }}">{{ tag[0] | escape }}</a>
+  {% endfor %}
+</nav>
+<div class="archive-heading"><h2>Articles</h2><span>{{ site.posts.size }} notes · EN / FR</span></div>
+{% assign grouped_posts = site.posts | group_by_exp: "post", "post.date | date: '%Y'" %}
+{% for year_group in grouped_posts %}
+<section class="post-year" aria-labelledby="year-{{ year_group.name }}">
+  <div class="year-header"><h3 id="year-{{ year_group.name }}">{{ year_group.name }}</h3><span class="number-of-posts">{{ year_group.size }} {% if year_group.size == 1 %}article{% else %}articles{% endif %}</span></div>
+  {% for post in year_group.items %}
+  <article class="post-item">
+    <div class="post-item-meta"><time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%d %b" }}</time><span class="language-label">{{ post.lang | default: 'en' | upcase }}</span></div>
+    <div class="post-item-content">
+      <h4 class="post-item-title"><a href="{{ post.url | relative_url }}" lang="{{ post.lang | default: 'en' }}">{{ post.title | escape }}</a></h4>
+      <p class="post-item-description" lang="{{ post.lang | default: 'en' }}">{{ post.description | strip_html | truncatewords: 24 | escape }}</p>
+      <div class="post-item-tags">{% for tag in post.tags %}<a class="post-tag" href="{{ '/tags/' | relative_url }}#{{ tag | downcase | slugify }}">{{ tag | escape }}</a>{% endfor %}</div>
+    </div>
+    <span class="post-item-arrow" aria-hidden="true">↗</span>
+  </article>
+  {% endfor %}
+</section>
+{% endfor %}

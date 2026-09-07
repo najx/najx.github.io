@@ -1,27 +1,21 @@
 ---
-title: Tags
+title: Topics
 permalink: /tags/
 layout: page
-excerpt: Sorted article by tags.
+description: Browse articles by topic, from cloud computing and code to security and AI architecture.
 ---
-
-<div class="archive-tags">
-  <a class="tag-item" href="#">all</a>
-  {%- for tag in site.tags -%} 
-    {% capture name %}{{ tag | first }}{% endcapture %}
-    <a class="tag-item" href="#{{name}}">{{ name }}</a> 
-  {%- endfor -%}
-</div>
-
-{%- for tag in site.tags -%}
-  {%- capture name -%}{{ tag | first }}{%- endcapture -%}
-  <h2 id="{{ name }}">{{ name | upcase }}</h2>
-  {%- for post in site.tags[name] -%}
-    <article class="post-item" id="results-container">
-      <span class="post-item-date">{{ post.date | date: "%b %d, %Y" }}</span>
-      <h3 class="post-item-title">
-        <a href="{{ post.url }}">{{ post.title | escape | language_emoji: post.lang }}</a>
-      </h3> 
-    </article>
-  {%- endfor -%}
-{%- endfor -%}
+{% assign sorted_tags = site.tags | sort %}
+<nav class="topic-nav" aria-label="Jump to a topic">
+{% for tag in sorted_tags %}<a href="#{{ tag[0] | downcase | slugify }}">{{ tag[0] | escape }} <span>({{ tag[1].size }})</span></a>{% endfor %}
+</nav>
+{% for tag in sorted_tags %}
+<section class="topic-section">
+  <h2 id="{{ tag[0] | downcase | slugify }}">{{ tag[0] | escape }}</h2>
+  {% for post in tag[1] %}
+  <article class="search-result">
+    <h3><a href="{{ post.url | relative_url }}" lang="{{ post.lang | default: 'en' }}">{{ post.title | escape }}</a></h3>
+    <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%d %b %Y" }}</time>
+  </article>
+  {% endfor %}
+</section>
+{% endfor %}

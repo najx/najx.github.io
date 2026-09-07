@@ -50,7 +50,7 @@ Here is **THE** solution:
 | 128.0.0.0       | /01  | 10000000.00000000.00000000.00000000 | 2147483648                     |
 | 0.0.0.0         | /00  | 00000000.00000000.00000000.00000000 | 4294967296                     |
 
-# Why Understanding CIDR and Subnet Masks is Crucial ?
+## Why Understanding CIDR and Subnet Masks is Crucial ?
 **For Resource Allocation:**
 CIDR and subnet masks play a pivotal role in resource allocation. An improper CIDR block can lead to inadequate or wasteful distribution of IP addresses.
 
@@ -60,7 +60,7 @@ Understanding these elements is also crucial for configuring firewalls and secur
 **For Cost Optimization:**
 Using CIDR and subnet masks effectively can lead to cost optimization, particularly in cloud environments where IP address allocation may incur additional charges.
 
-# How to Use the Table ?
+## How to Use the Table ?
 **Quick Reference:**
 The table serves as a quick reference to find the number of available addresses for a given CIDR block or subnet mask.
 

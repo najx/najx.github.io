@@ -1,4 +1,5 @@
 ---
+image: /assets/img/11/myth1.svg
 title: "What Your Internet Box, Router, and ISP Really Know About You"
 date: 2026-05-20 09:00:00 +02:00
 modified: 2026-05-20 09:00:00 +02:00
@@ -21,8 +22,8 @@ The good news is that this does not mean "everything is visible" or that privacy
 ## Myth 1 — My ISP can see everything I do
 
 <figure>
-  <img src="/assets/img/11/myth1.png" alt="Myth 1 - My ISP can see everything I do online" style="width:100%;height:100%;">
-  <figcaption>Illustration generated with Google Nano Banana 2.</figcaption>
+  <img src="{{ '/assets/img/11/myth1.svg' | relative_url }}" alt="HTTPS hides content, not all metadata" width="960" height="540" loading="lazy" decoding="async">
+  <figcaption>Original SVG diagram illustrating the privacy model described below.</figcaption>
 </figure>
 
 This is one of the most common assumptions, and it is too broad to be true. Modern encryption protects a lot of content in transit, which means your provider does not automatically get a readable copy of every page, message, or file.
@@ -47,8 +48,8 @@ A simple example makes this clear. Even if no one can read the exact content of 
 ## Myth 2 — My router is just a passive device
 
 <figure>
-  <img src="/assets/img/11/myth2.png" alt="Myth 2 - My router is just a passive device" style="width:100%;height:100%;">
-  <figcaption>Illustration generated with Google Nano Banana 2.</figcaption>
+  <img src="{{ '/assets/img/11/myth2.svg' | relative_url }}" alt="The router sits at the junction" width="960" height="540" loading="lazy" decoding="async">
+  <figcaption>Original SVG diagram illustrating the privacy model described below.</figcaption>
 </figure>
 
 Many people think of the router or internet box as a neutral piece of hardware: it connects the home to the web, and that is all. In reality, it often sits at the center of the home network and can observe a lot.
@@ -66,8 +67,8 @@ That matters more today than it did a decade ago. Smart TVs, speakers, cameras, 
 ## Myth 3 — HTTPS means I'm fully private
 
 <figure>
-  <img src="/assets/img/11/myth3.png" alt="Myth 3 - HTTPS means I'm fully private" style="width:100%;height:100%;">
-  <figcaption>Illustration generated with Google Nano Banana 2.</figcaption>
+  <img src="{{ '/assets/img/11/myth3.svg' | relative_url }}" alt="A secure connection is not anonymity" width="960" height="540" loading="lazy" decoding="async">
+  <figcaption>Original SVG diagram illustrating the privacy model described below.</figcaption>
 </figure>
 
 [HTTPS](https://developer.mozilla.org/en-US/docs/Glossary/HTTPS) is essential, and it is one of the best improvements the web has made for privacy and security. It protects the content of your traffic while it travels between you and a website.
@@ -85,8 +86,8 @@ That is why privacy on the web is layered. You can have encrypted traffic and st
 ## Myth 4 — A VPN solves the problem
 
 <figure>
-  <img src="/assets/img/11/myth4.png" alt="Myth 4 - A VPN solves all privacy problems" style="width:100%;height:100%;">
-  <figcaption>Illustration generated with Google Nano Banana 2.</figcaption>
+  <img src="{{ '/assets/img/11/myth4.svg' | relative_url }}" alt="A VPN moves the point of trust" width="960" height="540" loading="lazy" decoding="async">
+  <figcaption>Original SVG diagram illustrating the privacy model described below.</figcaption>
 </figure>
 
 A VPN is often marketed as a single solution to online privacy, which makes it easy to overestimate. It can be useful, especially for hiding traffic from your ISP on some networks or for improving security on public Wi‑Fi.

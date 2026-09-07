@@ -1,7 +1,7 @@
 // Fonts preferences
-$sans-family: monospace;
+$sans-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 $mono-family: Consolas, monospace;
-$base-font-size: 13px;
+$base-font-size: 16px;
 $medium-font-size: $base-font-size * 0.938;
 $small-font-size: $base-font-size * 0.875;
 $base-line-height: 1.85;
@@ -14,7 +14,7 @@ $bold-weight: 700;
 
 //Light Colors
 $text-base-color: #555555;
-$text-link-blue: #ff0000;
+$text-link-blue: #b52f38;
 $text-link-blue-active: #b10000;
 
 $black: #0d122b;
@@ -25,8 +25,8 @@ $white: #fff;
 
 // Dark Colors
 $dark-text-base-color: #c7bebe;
-$dark-text-link-blue: #ff0000;
-$dark-text-link-blue-active: #b10000;
+$dark-text-link-blue: #ff9196;
+$dark-text-link-blue-active: #ffbfc2;
 
 $dark-black: #131418;
 $dark-white: #eaeaea;
@@ -60,4 +60,4 @@ $on-widescreen: 1152px;
 
 // Import sass files
 @import "klise/fonts", "klise/base", "klise/layout", "klise/post",
-  "klise/miscellaneous", "klise/syntax", "klise/dark";
+  "klise/miscellaneous", "klise/syntax", "klise/dark", "klise/refinements";

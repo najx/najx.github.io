@@ -6,14 +6,12 @@
         {%- if menu.external -%}
           <a class="footer_item" href="{{ menu.url }}" target="_blank" rel="noopener">{{ menu.title }}</a>
         {%- else -%}
-          <a class="footer_item" href="{{ menu.url }}">{{ menu.title }}</a>
+          <a class="footer_item" href="{{ menu.url | relative_url }}">{{ menu.title }}</a>
         {%- endif -%}
       {%- endfor -%}
     </div>
   {%- endif -%}
-  <span class="footer_item">
-    <p class="typewriter"></p>
-  </span>
+  <p class="typewriter"></p>
   <div class="footer_social" aria-label="Social links">
     <a class="footer_social_link" href="https://github.com/najx/" target="_blank" rel="noopener" aria-label="GitHub">
       <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
@@ -34,11 +32,11 @@
   <small class="footer_copyright">
     © najx.dev
     <br>
-    <img src="/assets/img/na.png" alt="najx logo" class="footer_logo" />
+    <img src="{{ '/assets/img/na.svg' | relative_url }}" alt="najx eight-dot mark" width="120" height="120" loading="lazy" decoding="async" class="footer_logo">
   </small>
 </footer>
-<script src="/assets/js/main.js" defer="defer"></script>
-{%- if site.google_analytics -%}
+<script src="{{ '/assets/js/main.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
+{%- if site.google_analytics and jekyll.environment == 'production' -%}
   <!-- Google tag (gtag.js) -->
   <script
   async
@@ -52,16 +50,6 @@
     gtag("js", new Date());
 
     gtag("config", "{{ site.google_analytics }}");
-  </script>
-{%- endif -%}
-{%- if page.url == '/search/' -%}
-  <script src="/assets/js/search.min.js"></script>
-  <script>
-    var sjs = SimpleJekyllSearch({
-      searchInput: document.getElementById('search-input'),
-      resultsContainer: document.getElementById('search-results'),
-      json: '/assets/search.json',
-    });
   </script>
 {%- endif -%}
 
@@ -102,7 +90,7 @@
             typewriterElem.textContent = timeString;
         }
 
-        setInterval(updateTime, 1000);
+        setInterval(updateTime, 60000);
         updateTime();
     });
 </script>

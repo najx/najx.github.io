@@ -8,7 +8,7 @@ comments: false
 ai_assisted: true
 ---
 
-# HTTP/2
+## HTTP/2
 
 HTTP/2 was designed to address several issues and limitations of the HTTP/1.1 protocol, such as connection overhead, latency, and inefficient handling of requests. Here are some additional details about its key features:
 
@@ -26,7 +26,7 @@ HTTP/2 was designed to address several issues and limitations of the HTTP/1.1 pr
 
 **Browser-Server Communication:** If you're dealing with browser-server communication for web applications, you might use HTTP/2 to leverage its features for faster loading times and reduced latency.
 
-# gRPC
+## gRPC
 
 gRPC is a technology that builds on top of HTTP/2 but goes beyond simple web content delivery. It's a remote communication framework aimed at making remote procedure calls (RPCs) between distributed applications more efficient and flexible. Here are some additional points to consider regarding gRPC:
 
@@ -58,7 +58,7 @@ In many cases, gRPC is chosen because it provides a more structured and efficien
 
 Ultimately, the choice between gRPC and HTTP/2 depends on your application's requirements, architecture, and goals. It's also worth noting that some applications might even use both in different parts of their ecosystem based on the specific needs of each component.
 
-# Example of gRPC Implementation:
+## Example of gRPC Implementation:
 
 Let's say you want to create a user management system using gRPC. Here's how it could be implemented using Python and the Protocol Buffers (protobuf) interface definition language:
 
@@ -110,7 +110,7 @@ if __name__ == '__main__':
     serve()
 ```
 
-# Example of Using HTTP/2:
+## Example of Using HTTP/2:
 
 Let's say you have a web server that serves resources via HTTP/2. Here's how you might implement a simple HTTP/2 server using Python's http.server module:
 

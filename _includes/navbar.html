@@ -1,102 +1,19 @@
-<div class="navbar" role="navigation">
-  <nav class="menu">
-    <input type="checkbox" id="menu-trigger" class="menu-trigger" />
-    <label for="menu-trigger">
-      <span class="menu-icon">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 512 512"
-        >
-          <path
-            d="M64,384H448V341.33H64Zm0-106.67H448V234.67H64ZM64,128v42.67H448V128Z"
-          />
-        </svg>
-      </span>
-    </label>
-    <a id="mode">
-      <svg
-        class="mode-sunny"
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <title>Switch to dark mode</title>
-        <circle cx="12" cy="12" r="5" />
-        <line x1="12" y1="1" x2="12" y2="3" />
-        <line x1="12" y1="21" x2="12" y2="23" />
-        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-        <line x1="1" y1="12" x2="3" y2="12" />
-        <line x1="21" y1="12" x2="23" y2="12" />
-        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-      </svg>
-      <svg
-        class="mode-moon"
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="currentColor"
-        stroke="none"
-      >
-        <title>Switch to light mode</title>
-        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-      </svg>
+<header class="site-nav">
+  <nav class="nav-inner" aria-label="Main navigation">
+    <a class="site-brand" href="{{ '/' | relative_url }}" aria-label="najx home">
+      <img src="{{ '/assets/img/na.svg' | relative_url }}" alt="" width="30" height="30">
+      <span>najx<span class="brand-suffix">.dev</span></span>
     </a>
-    <div class="trigger">
-      <div class="trigger-container">
-        {%- assign url = page.url -%}
-        {%- assign menus = site.data.menus.header -%}
-        {%- if menus %}
-          {%- for menu in menus -%}
-            {%- if url == menu.url -%}
-              <a class="menu-link active" href="{{ menu.url }}">{{ menu.title }}</a>
-            {%- else -%}
-              {%- if menu.external -%}
-                <a
-                  class="menu-link"
-                  href="{{ menu.url }}"
-                  target="_blank"
-                  rel="noopener"
-                  >{{ menu.title }}</a
-                >
-              {%- else -%}
-                <a class="menu-link" href="{{ menu.url }}">{{ menu.title }}</a>
-              {%- endif -%}
-            {%- endif -%}
-          {%- endfor -%}
-        {%- else -%}
-          <a class="menu-link {% if url == '/' %}active{% endif %}" href="/">home</a>
-          <a class="menu-link {% if url == '/about/' %}active{% endif %}" href="/about">about</a>
-        {%- endif -%}
-        <a class="menu-link rss" href="/feed.xml">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="17"
-            height="17"
-            viewBox="0 0 512 512"
-            fill="#ED812E"
-          >
-            <title>RSS</title>
-            <path
-              d="M108.56,342.78a60.34,60.34,0,1,0,60.56,60.44A60.63,60.63,0,0,0,108.56,342.78Z"
-            />
-            <path
-              d="M48,186.67v86.55c52,0,101.94,15.39,138.67,52.11s52,86.56,52,138.67h86.66C325.33,312.44,199.67,186.67,48,186.67Z"
-            />
-            <path
-              d="M48,48v86.56c185.25,0,329.22,144.08,329.22,329.44H464C464,234.66,277.67,48,48,48Z"
-            />
-          </svg>
-        </a>
-      </div>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links" hidden>Menu</button>
+    <div class="nav-links" id="nav-links">
+      {% for menu in site.data.menus.header %}
+      <a href="{% if menu.external %}{{ menu.url }}{% else %}{{ menu.url | relative_url }}{% endif %}"{% if page.url == menu.url %} aria-current="page"{% endif %}{% if menu.external %} target="_blank" rel="noopener"{% endif %}>{{ menu.title | escape }}</a>
+      {% endfor %}
+      <a href="{{ '/feed.xml' | relative_url }}" aria-label="Subscribe via RSS">RSS <span aria-hidden="true">↗</span></a>
     </div>
+    <button id="mode" class="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false" hidden>
+      <svg class="mode-sunny" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg>
+      <svg class="mode-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M20.5 14A8.5 8.5 0 0 1 10 3.5 8.5 8.5 0 1 0 20.5 14Z"/></svg>
+    </button>
   </nav>
-</div>
+</header>

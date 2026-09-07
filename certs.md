@@ -8,7 +8,7 @@ comments: false
 
 <div class="certs-page" markdown="1">
 
-# Microsoft
+## Microsoft
 
 ## Azure Fundamentals
 
@@ -175,7 +175,7 @@ comments: false
   </li>
 </ul>
 
-# Others
+## Others
 
 ## Kubernetes
 

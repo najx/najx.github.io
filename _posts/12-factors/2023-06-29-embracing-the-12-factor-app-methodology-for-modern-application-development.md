@@ -1,4 +1,5 @@
 ---
+image: /assets/img/5/1.svg
 title: 12-Factor App Methodology for Modern Development
 date: 2023-06-29 11:58:47 +07:00
 modified: 2023-06-29 11:58:47 +07:00
@@ -10,7 +11,7 @@ comments: false
 As the digital landscape continually evolves, developers are constantly tasked with creating applications that are scalable, maintainable, and capable of standing up to a diverse range of operational scenarios. This is where the 12-Factor App methodology comes into play. Created by engineers at Heroku, this framework provides developers with a set of best practices aimed at building software-as-a-service apps that are both scalable and maintainable.
 
 <figure>
-<img src="/assets/img/5/1.png" alt="" style="width:50%;height:50%;">
+<img src="{{ '/assets/img/5/1.svg' | relative_url }}" alt="The twelve-factor application" width="960" height="540" loading="lazy" decoding="async">
 </figure>
 
 ## The 12 Factors :

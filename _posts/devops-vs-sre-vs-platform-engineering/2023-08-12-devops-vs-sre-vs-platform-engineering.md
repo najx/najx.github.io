@@ -1,4 +1,5 @@
 ---
+image: /assets/img/4/1.svg
 title: "Exploring Differences: DevOps, SRE, and Platform Engineering"
 date: 2023-08-12 07:19:15 +01:00
 modified: 2023-08-12 07:19:15 +01:00
@@ -22,14 +23,14 @@ The SRE role, which originated at Google, zeroes in on ensuring software systems
 Platform Engineers are the backbone of the software engineering process. They're tasked with building and maintaining the essential tools and infrastructure that enable software development, deployment, and ongoing management. This includes everything from managing cloud resources to setting up robust CI/CD pipelines.
 
 <figure>
-<img src="/assets/img/4/1.png" alt="" style="width:50%;height:50%;">
+<img src="{{ '/assets/img/4/1.svg' | relative_url }}" alt="DevOps, SRE &amp; platform engineering" width="960" height="540" loading="lazy" decoding="async">
 </figure>
 
 - **1.** Continuous Monitoring & Alerting. Continuous Improvements.
 - **2.** Deployment Automation. Cloud Infrastructure Management.
 - **3.** Performance Optimization. Capacity Planning.
 
-# My Personal Perspective
+## My Personal Perspective
 
 Having worked in the industry, I've observed that many organizations grapple with defining these roles. This ambiguity often results in role overlap, which can sometimes lead to conflicts.
 
@@ -39,6 +40,6 @@ However, a few forward-thinking organizations stand out, having effectively deli
 
 **For Businesses:** While it's crucial to understand these roles, it's equally important to be flexible. Tailor roles and responsibilities according to what aligns best with your organizational objectives. Remember, the ultimate goal is to enhance efficiency.
 
-# Closing Thoughts
+## Closing Thoughts
 
 The ever-evolving tech landscape means roles and responsibilities are continually shifting. But, amidst this flux, one thing remains constant: the need for efficiency. As we navigate these roles, let's not lose sight of the bigger picture.
