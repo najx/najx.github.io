@@ -12,7 +12,11 @@ permissions:
   id-token: write
 
 concurrency:
-  group: "pages"
+  # Keyed, not a single shared "pages" group. GitHub keeps only one pending run
+  # per group, so with every PR and every push in the same group a queued PR
+  # build evicts a pending main deploy — and that deploy is the one that puts
+  # the site live.
+  group: pages-${{ github.event_name == 'push' && 'main' || github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -47,6 +51,14 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     needs: build
+    # Only a real push to main publishes. Today the github-pages environment
+    # already refuses anything but main/master, so a PR's deploy job shows up
+    # as "skipped" — and before that policy existed it showed up as a failed
+    # check (three red runs on 2026-09-03). Stating the rule here puts it in
+    # the repository instead of in a setting no reader of this file can see,
+    # keeps PR checks clean, and holds if the environment policy is ever
+    # relaxed. Pull requests still run `build`, which is what validates them.
+    if: github.event_name == 'push'
     steps:
       - name: Deploy to GitHub Pages
         id: deployment

@@ -3,12 +3,13 @@
 Delighted to welcome you to my little corner of the web.
 
 ## Pre-requisites
-- Ruby 2.7.x
+- Ruby 3.2.x — the same version the GitHub Actions build uses
+  (`.github/workflows/jekyll.yml`), so local builds match CI.
 
-Installation of Ruby version 2.7.8:
+Installation of Ruby version 3.2:
 ```
-rvm install 2.7.8
-rvm use 2.7.8 --default
+rvm install 3.2
+rvm use 3.2 --default
 ```
 
 ## Build & Test locally:
