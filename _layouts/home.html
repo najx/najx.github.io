@@ -3,24 +3,61 @@ layout: default
 home: true
 ---
 
-{%- assign grouped_posts = site.posts | group_by_exp: "post", "post.date | date: '%Y'" -%}
-{%- for year_group in grouped_posts -%}
+{%- comment -%}
+  /ai-news — the daily AI watch, ranked by Jev and written to _data/news.json
+  by the newsbot workflow. Rendered at build time: no client-side fetch, no
+  CORS, no empty banner when a feed is down. If the file is missing or empty
+  the section simply disappears.
+{%- endcomment -%}
+{%- assign news = site.data.news -%}
+{%- if news.items and news.items.size > 0 -%}
   <div class="year-header">
-    <h2>{{ year_group.name }}</h2>
-    <span class="number-of-posts">({{ year_group.size }})</span>
+    <h2>/ai-news</h2>
+    <span class="number-of-posts">({{ news.items.size }})</span>
   </div>
-  {%- for post in year_group.items -%}
-    <article class="post-item">
-      <h3 class="post-item-title">
-        <a href="{{ post.url }}">{{ post.title | escape | language_emoji: post.lang }}</a>
-      </h3>
-      {%- if post.tags.size > 0 -%}
-        <div class="post-item-tags">
-          {%- for tag in post.tags -%}
-            <span class="post-tag">{{ tag | downcase }}</span>
-          {%- endfor -%}
-        </div>
-      {%- endif -%}
-    </article>
+  {%- for item in news.items -%}
+    {%- comment -%}
+      These titles and links come off the open web, so nothing here is trusted.
+      Every interpolation is escaped, and the href is dropped unless the URL
+      starts with http:// or https:// — escaping alone would still happily
+      render a javascript: link.
+    {%- endcomment -%}
+    {%- assign is_http = false -%}
+    {%- if item.url %}{% if item.url contains "://" %}
+      {%- assign scheme = item.url | split: "://" | first | downcase -%}
+      {%- if scheme == "http" or scheme == "https" %}{% assign is_http = true %}{% endif -%}
+    {% endif %}{% endif -%}
+    {%- if item.title and is_http -%}
+      <article class="post-item">
+        <h3 class="post-item-title">
+          <a href="{{ item.url | escape }}" target="_blank" rel="noopener nofollow">{{ item.title | escape }}</a>
+        </h3>
+        {%- if item.source -%}
+          <div class="post-item-tags">
+            <span class="post-tag">{{ item.source | downcase | escape }}</span>
+          </div>
+        {%- endif -%}
+      </article>
+    {%- endif -%}
   {%- endfor -%}
+{%- endif -%}
+
+{%- comment -%} The three latest articles; the heading links to the full archive. {%- endcomment -%}
+<div class="year-header">
+  <h2><a href="/blog/">/blog</a></h2>
+  <span class="number-of-posts">({{ site.posts.size }})</span>
+</div>
+{%- for post in site.posts limit: 3 -%}
+  <article class="post-item">
+    <h3 class="post-item-title">
+      <a href="{{ post.url }}">{{ post.title | escape | language_emoji: post.lang }}</a>
+    </h3>
+    {%- if post.tags.size > 0 -%}
+      <div class="post-item-tags">
+        {%- for tag in post.tags -%}
+          <span class="post-tag">{{ tag | downcase }}</span>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+  </article>
 {%- endfor -%}

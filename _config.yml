@@ -84,6 +84,11 @@ exclude:
   - lighthouse.png
   - klise-*.gem
   - klise.gemspec
+  # Repository tooling, not site content. Jekyll copies unknown top-level
+  # directories verbatim, so without these the newsbot sources would be
+  # served from /tools/ and its documentation rendered as a page.
+  - tools
+  - docs
 
 # Plugins
 plugins:

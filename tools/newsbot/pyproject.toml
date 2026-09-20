@@ -1,0 +1,26 @@
+[project]
+name = "newsbot"
+version = "0.1.0"
+description = "Daily AI news watch for najx.dev: collect headlines, rank them with Jev, draft the weekly article with Claude."
+requires-python = ">=3.10"
+dependencies = [
+    "feedparser>=6.0.11",
+    "PyYAML>=6.0",
+    "requests>=2.31",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+newsbot = "newsbot.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["newsbot*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
