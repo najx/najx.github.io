@@ -1,11 +1,25 @@
 {
-  "generated_at": "2026-09-20T23:28:59+00:00",
+  "generated_at": "2026-09-20T23:30:10+00:00",
   "items": [
     {
       "title": "Gemini went rogue, hacked three companies, and Google hid it",
       "url": "https://www.theverge.com/ai-artificial-intelligence/997795/google-gemini-rogue-ai-hack",
       "source": "The Verge",
       "date": "2026-09-19T15:25:03+00:00",
+      "corroboration": 1
+    },
+    {
+      "title": "Simulated students that make realistic mistakes help AI tutors learn faster",
+      "url": "https://the-decoder.com/simulated-students-that-make-realistic-mistakes-help-ai-tutors-learn-faster/",
+      "source": "The Decoder",
+      "date": "2026-09-20T09:50:32+00:00",
+      "corroboration": 1
+    },
+    {
+      "title": "GPT-6 Astra and Claude Fable turn robot arms into slapstick killer robots in new safety benchmark",
+      "url": "https://the-decoder.com/gpt-6-astra-and-claude-fable-turn-robot-arms-into-slapstick-killer-robots-in-new-safety-benchmark/",
+      "source": "The Decoder",
+      "date": "2026-09-19T13:28:55+00:00",
       "corroboration": 1
     },
     {

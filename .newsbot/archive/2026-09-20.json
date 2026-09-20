@@ -1,5 +1,5 @@
 {
-  "collected_at": "2026-09-20T23:28:59+00:00",
+  "collected_at": "2026-09-20T23:30:10+00:00",
   "failures": {},
   "items": [
     {
@@ -9,7 +9,7 @@
       "published": "2026-09-19T05:48:28+00:00",
       "summary": "Imitation is the sincerest form of Flattery",
       "also": [],
-      "score": 0.0618,
+      "score": 0.0603,
       "gate": null,
       "flags": [
         "low-confidence"
@@ -44,7 +44,7 @@
       "published": "2026-09-19T11:00:00+00:00",
       "summary": "AI labs are toying with an industry-wide pact to slow development. Meanwhile, widely available AI chatbots are already helping uncover a tidal wave of security flaws.",
       "also": [],
-      "score": 0.298,
+      "score": 0.3054,
       "gate": null,
       "flags": []
     },
@@ -55,7 +55,29 @@
       "published": "2026-09-19T13:00:00+00:00",
       "summary": "At the start of this week, the who's-who of AI seemed - at least tentatively - on the side of AI regulation. Over the weekend, Anthropic CEO Dario Amodei had proposed a three-step plan for slowing AI development, including by embedding third-party evaluators in labs, coordinating across the domestic industry, and forging international agreements potentially […]",
       "also": [],
-      "score": 0.0412,
+      "score": 0.0385,
+      "gate": null,
+      "flags": []
+    },
+    {
+      "title": "GPT-6 Astra and Claude Fable turn robot arms into slapstick killer robots in new safety benchmark",
+      "url": "https://the-decoder.com/gpt-6-astra-and-claude-fable-turn-robot-arms-into-slapstick-killer-robots-in-new-safety-benchmark/",
+      "source": "The Decoder",
+      "published": "2026-09-19T13:28:55+00:00",
+      "summary": "Leading AI models usually attempt dangerous tasks rather than refuse them when controlling a robot, according to the RoboHarm benchmark. GPT-6 Astra stabbed a baby doll in 17 of 20 trials, while Claude Fable 5.1 put a can of compressed air on a burning stove.",
+      "also": [],
+      "score": 0.4628,
+      "gate": null,
+      "flags": []
+    },
+    {
+      "title": "Unity launches official plugins for Claude Code and OpenAI Codex to stop AI agents from using outdated tutorials",
+      "url": "https://the-decoder.com/unity-launches-official-plugins-for-claude-code-and-openai-codex-to-stop-ai-agents-from-using-outdated-tutorials/",
+      "source": "The Decoder",
+      "published": "2026-09-19T13:31:46+00:00",
+      "summary": "Unity has released official plugins for Claude Code and OpenAI's Codex. The article Unity launches official plugins for Claude Code and OpenAI Codex to stop AI agents from using outdated tutorials appeared first on The Decoder .",
+      "also": [],
+      "score": 0.2534,
       "gate": null,
       "flags": []
     },
@@ -66,7 +88,18 @@
       "published": "2026-09-19T14:00:00+00:00",
       "summary": "Today on Decoder, we’ve got the first of a two-part series on the future of business, and I’m talking with Jonathan Kanter, the former antitrust chief for the US Department of Justice in the Biden administration. These days, he’s both a professor of law at WashU and professor of technology policy at Carnegie Mellon.",
       "also": [],
-      "score": 0.0176,
+      "score": 0.0179,
+      "gate": null,
+      "flags": []
+    },
+    {
+      "title": "Qwen3.8-Omni-Flash undercuts Google's Gemini Flash pricing while matching its multimodal benchmarks",
+      "url": "https://the-decoder.com/qwen3-8-omni-flash-undercuts-gemini-flash-pricing-while-matching-its-multimodal-benchmarks/",
+      "source": "The Decoder",
+      "published": "2026-09-19T14:30:57+00:00",
+      "summary": "Qwen3.8-Omni-Flash is Qwen's first multimodal model designed for AI agents. It processes audio and video together and independently uses tools to edit vlogs, translate clips, or summarize movies.",
+      "also": [],
+      "score": 0.1739,
       "gate": null,
       "flags": []
     },
@@ -77,7 +110,7 @@
       "published": "2026-09-19T15:25:03+00:00",
       "summary": "In May, Gemini broke containment and hacked three different companies, but Google didn't disclose the incident until the Wall Street Journal approached the company. The hacks happened during a test of the model's cybersecurity capabilities run by third-party Irregular, which was also involved in similar incidents involving Meta and OpenAI.",
       "also": [],
-      "score": 0.748,
+      "score": 0.7653,
       "gate": null,
       "flags": []
     },
@@ -88,7 +121,7 @@
       "published": "2026-09-19T15:42:20+00:00",
       "summary": "An “AI moderate’s” view on recent events and the trajectory of frontier models.",
       "also": [],
-      "score": 0.0845,
+      "score": 0.0823,
       "gate": null,
       "flags": []
     },
@@ -99,8 +132,54 @@
       "published": "2026-09-19T20:44:40+00:00",
       "summary": "Meta's Muse is apparently an effective AI assistant, but one that's a little creepy. Part of that is because of its new Mac app, which can access Messages, Calendar, and Notes.",
       "also": [],
-      "score": 0.1985,
+      "score": 0.204,
       "gate": null,
+      "flags": []
+    },
+    {
+      "title": "Following OpenAI, Anthropic is also reportedly postponing its IPO",
+      "url": "https://the-decoder.com/following-openai-anthropic-is-also-reportedly-postponing-its-ipo/",
+      "source": "The Decoder",
+      "published": "2026-09-20T08:35:25+00:00",
+      "summary": "Anthropic is reportedly delaying its IPO from October to November 2026 to present strong Q3 results. Investors expect a roughly $2 trillion valuation, but rising infrastructure costs, including $1.25 billion a month for its SpaceX deal alone, and unresolved security risks complicate the listing.",
+      "also": [],
+      "score": 0.0196,
+      "gate": null,
+      "flags": []
+    },
+    {
+      "title": "Trump announces \"AI Force\" and plans for an \"AI czar\" as he pushes unchecked AI growth",
+      "url": "https://the-decoder.com/trump-announces-ai-force-and-plans-for-an-ai-czar-as-he-pushes-unchecked-ai-growth/",
+      "source": "The Decoder",
+      "published": "2026-09-20T08:52:06+00:00",
+      "summary": "Trump announces an \"AI Force\" modeled after the Space Force and plans to appoint an \"AI czar\" with a \"high IQ.\" He claims AI could reach 25 percent of US economic output, rejects new regulation, and frames criticism of data centers as a left-wing attack. The article Trump announces \"AI Force\" and plans for an \"AI czar\" as he pushes unchecked AI growth appeared first on The Decoder .",
+      "also": [
+        "The Verge"
+      ],
+      "score": 0.0167,
+      "gate": null,
+      "flags": []
+    },
+    {
+      "title": "Simulated students that make realistic mistakes help AI tutors learn faster",
+      "url": "https://the-decoder.com/simulated-students-that-make-realistic-mistakes-help-ai-tutors-learn-faster/",
+      "source": "The Decoder",
+      "published": "2026-09-20T09:50:32+00:00",
+      "summary": "Microsoft and the University of Illinois built StudentSim to replicate individual students from limited data and give AI tutors fast, low-cost feedback. In tests covering 60 students across chess, English, and math, it outperformed GPT-5.4.",
+      "also": [],
+      "score": 0.4744,
+      "gate": null,
+      "flags": []
+    },
+    {
+      "title": "Daily AI usage in the U.S. has more than doubled in just six months",
+      "url": "https://the-decoder.com/daily-ai-usage-in-the-u-s-has-more-than-doubled-in-just-six-months/",
+      "source": "The Decoder",
+      "published": "2026-09-20T10:03:29+00:00",
+      "summary": "Surveys by Epoch AI and Ipsos suggest AI is becoming part of everyday life for more Americans. The share of US adults using AI almost daily more than doubled between March and August 2026, rising from 8 percent to 19 percent.",
+      "also": [],
+      "score": 0.0,
+      "gate": "off_beat",
       "flags": []
     },
     {
@@ -110,7 +189,7 @@
       "published": "2026-09-20T10:30:00+00:00",
       "summary": "The Muse app continues Meta’s trend of opting users into data collection for AI training. It also nudges you to share your bank account, email, and passport information.",
       "also": [],
-      "score": 0.3529,
+      "score": 0.3449,
       "gate": null,
       "flags": []
     },
@@ -121,7 +200,18 @@
       "published": "2026-09-20T10:30:00+00:00",
       "summary": "The president has doubled down on data centers and AI. His base is running in the opposite direction.",
       "also": [],
-      "score": 0.0278,
+      "score": 0.0276,
+      "gate": null,
+      "flags": []
+    },
+    {
+      "title": "Runway wants to turn AI video generation into a live stream you control in real time",
+      "url": "https://the-decoder.com/runway-wants-to-turn-ai-video-generation-into-a-live-stream-you-control-in-real-time/",
+      "source": "The Decoder",
+      "published": "2026-09-20T11:56:59+00:00",
+      "summary": "Runway wants to stream AI video as users prompt it, rather than make them wait for finished clips. The approach builds on GWM-1, its world model that generates video frame by frame.",
+      "also": [],
+      "score": 0.1705,
       "gate": null,
       "flags": []
     },
@@ -132,7 +222,7 @@
       "published": "2026-09-20T12:00:00+00:00",
       "summary": "Before recent high-profile hacks raised the specter of AI possibly \"killing all humans,\" our energy systems were already disturbingly vulnerable to cyberattack - and the risk is growing. \"We were always prey.",
       "also": [],
-      "score": 0.1157,
+      "score": 0.1186,
       "gate": null,
       "flags": []
     },
@@ -142,8 +232,27 @@
       "source": "The Verge",
       "published": "2026-09-20T15:39:22+00:00",
       "summary": "The president posted on Truth Social that he wanted to appoint an \"AI czar\" to lead a new \"AI force.\" He made the announcement amid growing calls from across the political spectrum and even within the industry to pump the brakes on AI development. He posted that his administration \"will not in any way hinder […]",
+      "also": []
+    },
+    {
+      "title": "Tencent's Gander aims to keep talking while it works in the background",
+      "url": "https://the-decoder.com/tencents-gander-aims-to-keep-talking-while-it-works-in-the-background/",
+      "source": "The Decoder",
+      "published": "2026-09-20T15:41:30+00:00",
+      "summary": "Tencent's Gander processes speech, images, and text while handling tasks in the background. A \"cerebellum\" keeps the conversation going, while a swappable \"brain\" searches files, writes code, or tackles other complex work.",
       "also": [],
-      "score": 0.0138,
+      "score": 0.315,
+      "gate": null,
+      "flags": []
+    },
+    {
+      "title": "Alibaba's open-weight Qwen-Image-2.1 claims to beat closed models in image generation with just 7 billion parameters",
+      "url": "https://the-decoder.com/alibabas-open-weight-qwen-image-2-1-claims-to-beat-closed-models-in-image-generation-with-just-7-billion-parameters/",
+      "source": "The Decoder",
+      "published": "2026-09-20T16:10:52+00:00",
+      "summary": "Alibaba's Qwen team has released Qwen-Image-2.1, an open-weight model that generates and edits images on powerful consumer GPUs, with support for transparency and up to ten reference images at once. Its research license bars commercial use, which requires a separate Qwen license.",
+      "also": [],
+      "score": 0.1324,
       "gate": null,
       "flags": []
     },
@@ -154,7 +263,7 @@
       "published": "2026-09-20T18:50:18+00:00",
       "summary": "The man who may stand to make the most money from the AI boom seems to think he knows better than anyone else, including researchers who have studied and worked on AI for decades. In an interview with CBS Sunday Morning, he claimed there was a \"0% chance\" of AI being the end of the […]",
       "also": [],
-      "score": 0.0633,
+      "score": 0.0646,
       "gate": null,
       "flags": []
     }

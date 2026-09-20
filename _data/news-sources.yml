@@ -18,6 +18,10 @@ sources:
     url: https://www.technologyreview.com/topic/artificial-intelligence/feed
   - name: The Register
     url: https://www.theregister.com/software/ai_ml/headlines.atom
+  - name: The Decoder
+    url: https://the-decoder.com/feed/
+  - name: IEEE Spectrum
+    url: https://spectrum.ieee.org/feeds/topic/artificial-intelligence.rss
 
   # --- Labs and vendors ---------------------------------------------------
   - name: OpenAI
@@ -48,6 +52,17 @@ sources:
     url: https://www.interconnects.ai/feed
   - name: BAIR Berkeley
     url: https://bair.berkeley.edu/blog/feed.xml
+
+  # --- Weighed and left out -----------------------------------------------
+  # Measured over a 48h window against the live rubric, alongside the feeds
+  # above. Kept here so the next person does not re-test them.
+  #   TechCrunch AI   13 items, 1 published, mean 0.070 — funding rounds,
+  #                   conference promotion, entertainment
+  #   The Guardian AI 18 items, 2 published, mean 0.114 — general-interest
+  #                   framing; did surface one strong story
+  #   CNBC, Engadget, Wired Business, 404 Media, ZDNET, Platformer — either
+  #                   general tech rather than AI, or nothing in 72h
+  #   Stanford HAI, Allen Institute, Axios, Semafor — feed dead or empty
 
   # --- Dropped ------------------------------------------------------------
   # Link blogs and quote-of-the-day feeds index other people's work rather
