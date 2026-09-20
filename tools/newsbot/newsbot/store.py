@@ -101,12 +101,21 @@ class Store:
     def save_state(self, state: dict) -> None:
         self._write_json(self.state_json, state)
 
-    def save_archive(self, day: datetime, items: list[Item], failures: dict) -> Path:
-        """Keep the day's distinct stories, summaries included.
+    def save_archive(
+        self,
+        day: datetime,
+        items: list[Item],
+        failures: dict,
+        scores: dict[str, dict] | None = None,
+    ) -> Path:
+        """Keep the day's distinct stories, summaries and judgements included.
 
-        This is what the weekly article ranks over, so it holds the windowed
-        and deduplicated set — not the raw feed haul.
+        This is what the weekly article ranks over — seven days of it — so it
+        holds the windowed and deduplicated set with each story's score and
+        the reason it was gated, not the raw feed haul and not just the
+        fifteen that reached the home page.
         """
+        scores = scores or {}
         path = self.archive_for(day)
         self._write_json(
             path,
@@ -115,7 +124,7 @@ class Store:
                 .replace(microsecond=0)
                 .isoformat(),
                 "failures": failures,
-                "items": [i.to_dict() for i in items],
+                "items": [{**i.to_dict(), **scores.get(i.url, {})} for i in items],
             },
         )
         return path

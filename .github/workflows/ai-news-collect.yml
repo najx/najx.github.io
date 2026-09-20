@@ -57,6 +57,9 @@ jobs:
 
       - name: Collect
         env:
+          # Jev ranks the day's stories. Without it the collection still
+          # publishes, newest first, and says so in the log.
+          TYPESAFE_API_KEY: ${{ secrets.TYPESAFE_API_KEY }}
           # Through the environment, never interpolated into the script body:
           # ${{ }} is substituted before the shell sees the line, so a dispatch
           # input could otherwise run arbitrary commands on the runner.

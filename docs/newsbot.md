@@ -8,7 +8,7 @@ page. Lives in [`tools/newsbot`](../tools/newsbot); driven by
 
 | when | what | writes |
 |---|---|---|
-| daily, 05:17 UTC | fetch every feed, window, deduplicate, cluster | `_data/news.json`, `.newsbot/archive/<date>.json` |
+| daily, 05:17 UTC | fetch every feed, window, deduplicate, cluster, rank with Jev | `_data/news.json`, `.newsbot/archive/<date>.json` |
 
 The home page renders `_data/news.json` at build time. There is no
 client-side fetch: no CORS to satisfy, no empty section when a feed is down,
@@ -113,11 +113,58 @@ code lives, because the workflow installs the package non-editably. Set
 being moved into place. A malformed file there would fail the Jekyll build
 and take the site down — too steep a price for a feed hiccup.
 
+## Ranking with Jev
+
+Seven questions about one story, batched into a single request. The rubrics
+are long on purpose: *Literal Reading* is the first failure mode TypeSafe
+documents — Jev answers the question you wrote, not the one you meant — so
+each level spells out its boundary cases rather than trusting a short phrase.
+
+| question | type | what it decides |
+|---|---|---|
+| `domain_fit` | Score 0-4 | how close the subject is to the blog's five beats |
+| `story_type` | Choice | incident, engineering report, research, release, feature, essay, policy, digest, notice |
+| `mechanism_depth` | Score 0-4 | how much machinery the text actually hands an author |
+| `practitioner_stakes` | Score 0-3 | whether a reader would go and check their own systems |
+| `is_promo_or_admin` | Noul | event, hire, call for papers, housekeeping |
+| `state_is_informative` | Noul | do the fields say enough to know what this is about |
+| `injection_present` | Noul | is the text addressing whatever reads it |
+
+Three hard gates, each reading its own question against its own threshold —
+the *Structural Invariants* warning says a Noul probability and a Score
+position are not comparable, so they never meet in one inequality. Then a
+weighted merit, a soft confidence gate, and a ceiling from
+`state_is_informative`. Every weight lives in `judge.py`, not in a rubric:
+changing a weight changes what we do with an answer, changing a criterion
+changes what Jev is asked.
+
+`domain_fit` is read as an expectation over its **probability distribution**,
+not from `.score`. The Score guide says neighbouring levels are not assumed
+adjacent, so a weighted position is meaningless when the mass splits between
+level 0 and level 4 — which is exactly what an ambiguous headline produces.
+
+A `same_story` Noul settles the clustering band: pairs from different outlets
+whose headlines overlap between 0.20 and 0.60. Two such pairs came up in a
+real day, one of which was the same Gemini break-in written up twice, taking
+two of the top three slots.
+
+**Measured on the day's real corpus**: all eight noise items the unranked list
+was publishing are gated; the Gemini break-in and the nuclear-hallucination
+story land first and fifth. Without `TYPESAFE_API_KEY` the collection still
+publishes, newest first, and says so in the log.
+
+### Tuning
+
+`PUBLISH_FLOOR` (0.12) decides how thin a thin day is allowed to be — on the
+corpus above it let 7 of 28 stories through. `MAX_PER_SOURCE` (2) stops one
+outlet taking the page. Slots are never back-filled with gated stories.
+
 ## Required secrets
 
 | secret | why |
 |---|---|
 | `NEWSBOT_TOKEN` | fine-grained PAT, Contents: read and write. A commit pushed with the default `GITHUB_TOKEN` does **not** trigger other workflows, so `jekyll.yml` would never rebuild and the home page would keep showing yesterday's headlines. |
+| `TYPESAFE_API_KEY` | the ranking. Optional: without it the list is chronological. Measured cost, $0.042 per million input tokens: **0.0000190 $ per story**, about 0.025 $/month. |
 
-The workflow checks for it first and fails with that explanation rather than
-running and silently publishing nothing.
+The workflow checks for `NEWSBOT_TOKEN` first and fails with that explanation
+rather than running and silently publishing nothing.

