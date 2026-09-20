@@ -16,15 +16,30 @@ home: true
     <span class="number-of-posts">({{ news.items.size }})</span>
   </div>
   {%- for item in news.items -%}
-    <article class="post-item">
-      <span class="post-item-date">{{ item.date | date: "%b %d" }}</span>
-      <h3 class="post-item-title">
-        <a href="{{ item.url }}" target="_blank" rel="noopener nofollow">{{ item.title | escape }}</a>
-      </h3>
-      <div class="post-item-tags">
-        <span class="post-tag">{{ item.source | downcase }}</span>
-      </div>
-    </article>
+    {%- comment -%}
+      These titles and links come off the open web, so nothing here is trusted.
+      Every interpolation is escaped, and the href is dropped unless the URL
+      starts with http:// or https:// — escaping alone would still happily
+      render a javascript: link.
+    {%- endcomment -%}
+    {%- assign is_http = false -%}
+    {%- if item.url %}{% if item.url contains "://" %}
+      {%- assign scheme = item.url | split: "://" | first | downcase -%}
+      {%- if scheme == "http" or scheme == "https" %}{% assign is_http = true %}{% endif -%}
+    {% endif %}{% endif -%}
+    {%- if item.title and is_http -%}
+      <article class="post-item">
+        <span class="post-item-date">{{ item.date | date: "%b %d" }}</span>
+        <h3 class="post-item-title">
+          <a href="{{ item.url | escape }}" target="_blank" rel="noopener nofollow">{{ item.title | escape }}</a>
+        </h3>
+        {%- if item.source -%}
+          <div class="post-item-tags">
+            <span class="post-tag">{{ item.source | downcase | escape }}</span>
+          </div>
+        {%- endif -%}
+      </article>
+    {%- endif -%}
   {%- endfor -%}
 {%- endif -%}
 
