@@ -72,6 +72,7 @@ def _rank(stories, now, args):
             "score": round(a.score, 4),
             "gate": a.gate,
             "flags": a.flags,
+            **a.detail,
             **({"error": a.error} if a.error else {}),
         }
         for a in assessed
@@ -132,6 +133,86 @@ def cmd_collect(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_article(args: argparse.Namespace) -> int:
+    """Draft the week's article: pick, fetch, write, check, render."""
+    from . import fetch, pick, render, verify, write
+
+    store = Store(repo_root())
+    now = datetime.now(timezone.utc)
+
+    candidates = pick.load_week(store.archive, now, days=args.days)
+    if not candidates:
+        print(f"no scored stories in the last {args.days} days — run collect first",
+              file=sys.stderr)
+        return 1
+
+    winner, report, strict = pick.choose(candidates, store.root / "_posts",
+                                         index=args.candidate)
+    if winner is None:
+        print("nothing cleared the bar, even relaxed; publishing nothing this week.",
+              file=sys.stderr)
+        _print_report(report)
+        return 2
+
+    bar = "the weekly bar" if strict else "the relaxed fallback bar"
+    print(f"subject ({bar}): {winner.item.title}  [{winner.item.source}] "
+          f"score {winner.score:.3f} x{winner.item.corroboration}", file=sys.stderr)
+
+    # The winner plus the other write-ups of the SAME story. Matching on the
+    # outlet name instead would pull in every article that outlet published
+    # this week — six unrelated pieces, in the case this was caught on — and
+    # hand them to the model as material on the subject.
+    wanted = set(winner.item.also_urls)
+    cluster = [winner.item] + [c.item for c in candidates
+                               if c.item.url in wanted]
+    sources = fetch.fetch_sources(cluster)
+    print(f"fetched {len(sources)}/{len(cluster)} source articles", file=sys.stderr)
+    if not sources:
+        print("no source article could be fetched; refusing to write from the "
+              "headline alone.", file=sys.stderr)
+        return 3
+
+    guide, examples = write.load_style(store.root)
+    draft = write.draft(winner.item, sources, cluster[1:], guide, examples)
+    if draft.refused:
+        print(f"the model declined this subject ({draft.refusal_reason}); "
+              f"nothing written.", file=sys.stderr)
+        return 4
+    print(f"drafted {len(draft.markdown.split())} words, "
+          f"{draft.input_tokens} in / {draft.output_tokens} out, "
+          f"${draft.cost_usd:.3f}", file=sys.stderr)
+
+    checks = verify.Report() if args.no_verify else verify.verify(draft.markdown, sources)
+    if checks.error:
+        print(f"citation check unavailable: {checks.error}", file=sys.stderr)
+    else:
+        print(f"checked {checks.checked} claims, "
+              f"{len(checks.unsupported)} unsupported", file=sys.stderr)
+
+    post = render.parse_draft(draft.markdown)
+    out_root = Path(args.out) if args.out else store.root
+    path = render.write_post(out_root, post, datetime.now(timezone.utc),
+                             _model_name(draft.model), checks.checked,
+                             len(checks.unsupported))
+    print(f"wrote {path}", file=sys.stderr)
+
+    if checks.unsupported:
+        print("\nclaims the sources do not bear out:", file=sys.stderr)
+        for f in checks.unsupported[:12]:
+            print(f"  [{f.best_support:.2f}] {f.sentence[:100]}", file=sys.stderr)
+    return 0
+
+
+def _model_name(model_id: str) -> str:
+    return {"claude-opus-5": "Claude Opus 5"}.get(model_id, model_id)
+
+
+def _print_report(report: list[dict]) -> None:
+    for row in report[:12]:
+        print(f"  {row['score']:.3f}  {row['title'][:56]:58s} "
+              f"{'; '.join(row['rejected_for'])}", file=sys.stderr)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="newsbot", description=__doc__)
     parser.add_argument("-v", "--verbose", action="store_true")
@@ -151,6 +232,16 @@ def main(argv: list[str] | None = None) -> int:
     collect.add_argument("--no-rank", action="store_true",
                          help="skip Jev and publish newest first")
     collect.set_defaults(func=cmd_collect)
+
+    article = sub.add_parser("article", help="draft the week's article")
+    article.add_argument("--days", type=int, default=7,
+                         help="how far back to look for a subject (default: 7)")
+    article.add_argument("--candidate", type=int, default=0,
+                         help="take the Nth eligible subject instead of the first")
+    article.add_argument("--out", help="write the post under this root instead")
+    article.add_argument("--no-verify", action="store_true",
+                         help="skip the Jev citation check")
+    article.set_defaults(func=cmd_article)
 
     args = parser.parse_args(argv)
     _setup_logging(args.verbose)
