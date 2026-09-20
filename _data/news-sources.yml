@@ -49,10 +49,6 @@ sources:
   - name: BAIR Berkeley
     url: https://bair.berkeley.edu/blog/feed.xml
 
-  # --- Community ----------------------------------------------------------
-  - name: Hacker News
-    url: https://hnrss.org/frontpage?points=150
-
   # --- Dropped ------------------------------------------------------------
   # Link blogs and quote-of-the-day feeds index other people's work rather
   # than reporting anything; their entries are titles like "Quoting voxium"
@@ -61,6 +57,16 @@ sources:
     url: https://simonwillison.net/atom/everything/
     enabled: false
     note: link blog — indexes rather than reports
+
+  - name: Hacker News
+    url: https://hnrss.org/frontpage?points=150
+    enabled: false
+    note: >-
+      a link aggregator, so its front page is whatever a general programming
+      audience upvoted that day. Over a 72h sample it produced RSA-896,
+      "English: A vs. An", "Brood War Bench" and a filesystem benchmark
+      round-up — the gates caught them, but the feed was never reporting AI
+      news in the first place.
 
   # --- No usable feed -----------------------------------------------------
   # These publish nothing machine-readable; they are the candidates for the
