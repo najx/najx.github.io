@@ -1,0 +1,72 @@
+# Feeds the newsbot reads every morning.
+#
+# Every entry needs a `name` (shown as the tag on the home page) and a `url`
+# pointing at an RSS or Atom feed. `enabled: false` keeps an entry documented
+# without fetching it. Add a source here and nothing else needs to change.
+#
+# Feeds are verified with: newsbot probe
+
+sources:
+  # --- General tech press -------------------------------------------------
+  - name: WIRED
+    url: https://www.wired.com/feed/tag/ai/latest/rss
+  - name: Ars Technica
+    url: https://arstechnica.com/ai/feed/
+  - name: The Verge
+    url: https://www.theverge.com/rss/ai-artificial-intelligence/index.xml
+  - name: MIT Tech Review
+    url: https://www.technologyreview.com/topic/artificial-intelligence/feed
+  - name: The Register
+    url: https://www.theregister.com/software/ai_ml/headlines.atom
+
+  # --- Labs and vendors ---------------------------------------------------
+  - name: OpenAI
+    url: https://openai.com/news/rss.xml
+  - name: Google DeepMind
+    url: https://deepmind.google/blog/rss.xml
+  - name: Google Research
+    url: https://research.google/blog/rss/
+  - name: Google AI
+    url: https://blog.google/technology/ai/rss/
+  - name: Microsoft Research
+    url: https://www.microsoft.com/en-us/research/feed/
+  - name: Meta Engineering
+    url: https://engineering.fb.com/feed/
+  - name: NVIDIA
+    url: https://blogs.nvidia.com/blog/category/generative-ai/feed/
+  - name: Hugging Face
+    url: https://huggingface.co/blog/feed.xml
+
+  # --- Practitioners and analysis ----------------------------------------
+  - name: Simon Willison
+    url: https://simonwillison.net/atom/everything/
+  - name: Import AI
+    url: https://importai.substack.com/feed
+  - name: Sebastian Raschka
+    url: https://magazine.sebastianraschka.com/feed
+  - name: Latent Space
+    url: https://www.latent.space/feed
+  - name: Interconnects
+    url: https://www.interconnects.ai/feed
+  - name: BAIR Berkeley
+    url: https://bair.berkeley.edu/blog/feed.xml
+
+  # --- Community ----------------------------------------------------------
+  - name: Hacker News
+    url: https://hnrss.org/frontpage?points=150
+
+  # --- No usable feed -----------------------------------------------------
+  # These publish nothing machine-readable; they are the candidates for the
+  # Apify adapter. Left here so the gap stays visible.
+  - name: Anthropic
+    url: https://www.anthropic.com/news
+    enabled: false
+    note: no RSS endpoint; /news/rss.xml and /feed.xml both 404
+  - name: Mistral
+    url: https://mistral.ai/news
+    enabled: false
+    note: no RSS endpoint
+  - name: VentureBeat
+    url: https://venturebeat.com/category/ai/feed/
+    enabled: false
+    note: feed exists but answers 429 to datacenter IPs

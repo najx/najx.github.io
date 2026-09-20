@@ -5,3 +5,9 @@ _site/
 _drafts
 klise-*.gem
 Gemfile.lock
+
+# Python tooling (tools/newsbot)
+__pycache__/
+*.egg-info/
+.venv/
+.pytest_cache/

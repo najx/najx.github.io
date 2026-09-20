@@ -1,0 +1,77 @@
+name: AI news — daily collect
+
+on:
+  schedule:
+    # 05:17 UTC. An odd minute on purpose: GitHub's scheduler queues every
+    # cron set to the top of the hour together, and runs can drift 5-30
+    # minutes at those peaks.
+    - cron: "17 5 * * *"
+  workflow_dispatch:
+    inputs:
+      window:
+        description: "Hours of history to keep"
+        required: false
+        default: "48"
+      dry_run:
+        description: "Print the result instead of committing it"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ai-news-collect
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check the push token is configured
+        env:
+          NEWSBOT_TOKEN: ${{ secrets.NEWSBOT_TOKEN }}
+        run: |
+          if [ -z "$NEWSBOT_TOKEN" ]; then
+            echo "::error::NEWSBOT_TOKEN is not set. A commit pushed with the" \
+                 "default GITHUB_TOKEN does not trigger other workflows, so" \
+                 "jekyll.yml would never rebuild and the home page would keep" \
+                 "showing yesterday's headlines. Create a fine-grained PAT with" \
+                 "Contents: read and write on this repository and save it as" \
+                 "the NEWSBOT_TOKEN secret."
+            exit 1
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.NEWSBOT_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install newsbot
+        run: pip install ./tools/newsbot
+
+      - name: Collect
+        run: |
+          newsbot -v collect \
+            --window "${{ inputs.window || '48' }}" \
+            ${{ inputs.dry_run && '--dry-run' || '' }}
+
+      - name: Commit
+        if: ${{ !inputs.dry_run }}
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add _data/news.json .newsbot
+          if git diff --cached --quiet; then
+            echo "No change in the headlines; nothing to commit."
+            exit 0
+          fi
+          git commit -m "AI news: $(date -u +%Y-%m-%d) collection
+
+          Automated run of .github/workflows/ai-news-collect.yml."
+          git push
