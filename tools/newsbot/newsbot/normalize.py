@@ -18,9 +18,14 @@ from .models import Item
 
 # Query parameters that identify the referrer rather than the document.
 TRACKING_PREFIXES = ("utm_", "at_", "mc_", "pk_", "ref_")
+# Only keys that are unambiguously about the referrer. "s", "sh", "source" and
+# "ref" were here too and had to go: they carry content on real sites (?s= is
+# a search query on WordPress), so stripping them merged genuinely different
+# URLs into one. Failing to merge a duplicate is cosmetic; dropping a distinct
+# story is data loss.
 TRACKING_EXACT = {
-    "fbclid", "gclid", "igshid", "mkt_tok", "ref", "referrer", "source",
-    "cmpid", "ncid", "sh", "s", "_hsenc", "_hsmi", "guccounter",
+    "fbclid", "gclid", "igshid", "mkt_tok", "referrer",
+    "cmpid", "ncid", "_hsenc", "_hsmi", "guccounter",
 }
 
 # Words carrying no topical signal, dropped before comparing two headlines.
@@ -49,7 +54,12 @@ def canonical_url(url: str) -> str:
     Tracking parameters, fragments, `www.` and a trailing slash all vary
     between feeds carrying the same link, so none of them survive.
     """
-    parts = urlsplit(url.strip())
+    try:
+        parts = urlsplit(url.strip())
+    except ValueError:
+        # "Invalid IPv6 URL" and friends. One malformed link in one feed must
+        # not abort the day's collection.
+        return url.strip()
     host = parts.netloc.lower()
     if host.startswith("www."):
         host = host[4:]
@@ -91,19 +101,24 @@ def jaccard(a: frozenset[str], b: frozenset[str]) -> float:
 
 
 def dedupe(items: list[Item]) -> list[Item]:
-    """Drop entries pointing at the same document or repeating a headline.
+    """Drop entries pointing at the same document. The earliest one wins.
 
-    The earliest publication of a duplicate wins: whoever ran it first is the
-    one worth linking to.
+    Deliberately keyed on the canonical URL alone. An earlier version also
+    keyed on the normalised title, which broke two ways: outlets running the
+    same wire headline were discarded before cluster() could count them, so
+    the strongest corroboration signal in the whole pipeline was destroyed
+    exactly when it was strongest; and any headline with no ASCII word
+    characters normalises to "", so every non-Latin headline collapsed onto a
+    single key and all but the first vanished. Identical titles are now merged
+    by cluster(), which scores them at Jaccard 1.0 and keeps their sources.
     """
     seen: set[str] = set()
     kept: list[Item] = []
     for item in sorted(items, key=lambda i: i.published):
         url_key = canonical_url(item.url)
-        title_key = "t:" + normalize_title(item.title)
-        if url_key in seen or title_key in seen:
+        if url_key in seen:
             continue
-        seen.update((url_key, title_key))
+        seen.add(url_key)
         kept.append(item)
     return kept
 

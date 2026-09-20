@@ -13,6 +13,7 @@ Two destinations, deliberately separate:
 from __future__ import annotations
 
 import json
+import os
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -22,12 +23,23 @@ HOME_ITEMS = 15
 
 
 def repo_root(start: Path | None = None) -> Path:
-    """Walk up to the directory holding _config.yml."""
-    here = (start or Path(__file__)).resolve()
+    """Walk up from the working directory to the one holding _config.yml.
+
+    Anchored on where newsbot was *invoked*, not on where its code lives. The
+    workflow installs the package with a plain `pip install ./tools/newsbot`,
+    so __file__ sits in site-packages and walking up from there reaches / and
+    finds nothing — which made every scheduled run die before fetching a feed.
+    NEWSBOT_ROOT overrides, for running from outside the checkout.
+    """
+    override = os.environ.get("NEWSBOT_ROOT")
+    here = Path(override).resolve() if override else (start or Path.cwd()).resolve()
     for candidate in [here, *here.parents]:
         if (candidate / "_config.yml").is_file():
             return candidate
-    raise RuntimeError("not inside the Jekyll site (no _config.yml found)")
+    raise RuntimeError(
+        f"no _config.yml at or above {here} — run newsbot from inside the "
+        f"Jekyll site, or set NEWSBOT_ROOT to it"
+    )
 
 
 class Store:
@@ -65,8 +77,13 @@ class Store:
         text = json.dumps(payload, indent=2, ensure_ascii=False) + "\n"
         json.loads(text)  # parse what we are about to commit
         tmp = path.with_suffix(path.suffix + ".tmp")
-        tmp.write_text(text)
-        tmp.replace(path)
+        try:
+            # ensure_ascii=False means the payload carries real non-ASCII, so
+            # the encoding cannot be left to the platform default.
+            tmp.write_text(text, encoding="utf-8")
+            tmp.replace(path)
+        finally:
+            tmp.unlink(missing_ok=True)
 
     def load_state(self) -> dict:
         """Which stories already became an article, and when.
@@ -79,7 +96,7 @@ class Store:
         """
         if not self.state_json.is_file():
             return {"covered": [], "last_article": None}
-        return json.loads(self.state_json.read_text())
+        return json.loads(self.state_json.read_text(encoding="utf-8"))
 
     def save_state(self, state: dict) -> None:
         self._write_json(self.state_json, state)

@@ -56,10 +56,18 @@ jobs:
         run: pip install ./tools/newsbot
 
       - name: Collect
+        env:
+          # Through the environment, never interpolated into the script body:
+          # ${{ }} is substituted before the shell sees the line, so a dispatch
+          # input could otherwise run arbitrary commands on the runner.
+          WINDOW: ${{ inputs.window || '48' }}
+          DRY_RUN: ${{ inputs.dry_run && '1' || '' }}
         run: |
-          newsbot -v collect \
-            --window "${{ inputs.window || '48' }}" \
-            ${{ inputs.dry_run && '--dry-run' || '' }}
+          set -euo pipefail
+          case "$WINDOW" in
+            ''|*[!0-9]*) echo "::error::window must be a whole number of hours"; exit 1 ;;
+          esac
+          newsbot -v collect --window "$WINDOW" ${DRY_RUN:+--dry-run}
 
       - name: Commit
         if: ${{ !inputs.dry_run }}
@@ -74,4 +82,16 @@ jobs:
           git commit -m "AI news: $(date -u +%Y-%m-%d) collection
 
           Automated run of .github/workflows/ai-news-collect.yml."
-          git push
+
+          # Fetching twenty feeds takes a few minutes, so main may have moved
+          # since checkout. This job only ever touches _data/news.json and
+          # .newsbot/, so replaying it on top of whatever landed is safe.
+          for attempt in 1 2 3; do
+            if git push; then
+              exit 0
+            fi
+            echo "push rejected (attempt $attempt); rebasing onto origin/main"
+            git pull --rebase --autostash origin main
+          done
+          echo "::error::could not push after three attempts"
+          exit 1

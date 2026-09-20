@@ -88,3 +88,44 @@ class TestArchive:
         payload = json.loads(path.read_text())
         assert payload["failures"] == {"Dead Feed": "HTTPError: 500"}
         assert payload["items"][0]["summary"] == "kept here"
+
+
+class TestRegressions:
+    def test_repo_root_is_found_from_the_working_directory(self, tmp_path, monkeypatch):
+        """The workflow installs the package non-editably, so __file__ lives in
+        site-packages and walking up from it never reaches the site."""
+        site = tmp_path / "site"
+        (site / "deep" / "nested").mkdir(parents=True)
+        (site / "_config.yml").write_text("title: t\n")
+        monkeypatch.chdir(site / "deep" / "nested")
+        assert repo_root() == site.resolve()
+
+    def test_newsbot_root_env_var_overrides(self, tmp_path, monkeypatch):
+        site = tmp_path / "site"
+        site.mkdir()
+        (site / "_config.yml").write_text("title: t\n")
+        elsewhere = tmp_path / "elsewhere"
+        elsewhere.mkdir()
+        monkeypatch.chdir(elsewhere)
+        monkeypatch.setenv("NEWSBOT_ROOT", str(site))
+        assert repo_root() == site.resolve()
+
+    def test_error_names_the_directory_it_searched(self, tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        monkeypatch.delenv("NEWSBOT_ROOT", raising=False)
+        with pytest.raises(RuntimeError, match="NEWSBOT_ROOT"):
+            repo_root()
+
+    def test_no_temp_file_left_when_the_write_fails(self, store, monkeypatch):
+        import pathlib
+
+        def boom(self, target):
+            raise OSError("disk full")
+
+        monkeypatch.setattr(pathlib.Path, "replace", boom)
+        with pytest.raises(OSError):
+            store.save_home([
+                Item("A", "https://a.com/1", "X",
+                     datetime(2026, 9, 20, tzinfo=timezone.utc))
+            ])
+        assert list(store.data.glob("*.tmp")) == []

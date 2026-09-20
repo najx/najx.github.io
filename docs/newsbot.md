@@ -89,7 +89,25 @@ article ranks on.
 
 **A feed that fails does not fail the run.** Failures are collected, logged,
 and written into the day's archive, so a source going dark shows up in the
-job log instead of quietly shrinking the list.
+job log instead of quietly shrinking the list. The same applies to a single
+malformed link: `canonical_url` hands back anything `urlsplit` rejects rather
+than raising.
+
+**Deduplication keys on the canonical URL alone, never the title.** Two
+outlets running the same wire headline are two documents, and collapsing them
+here would destroy the corroboration that `cluster()` exists to count —
+precisely when corroboration is strongest. It would also have collapsed every
+non-Latin headline onto one key, since they normalise to the empty string.
+
+**Nothing published is trusted.** Titles and links come off the open web. The
+home template escapes every interpolation and renders a link only for
+`http://` and `https://` URLs; feed text is decoded to a fixed point and then
+stripped of markup, in that order, so doubly-encoded input cannot reappear as
+tags after the strip.
+
+**`newsbot` finds the site from the working directory**, not from where its
+code lives, because the workflow installs the package non-editably. Set
+`NEWSBOT_ROOT` to run it from elsewhere.
 
 **`_data/news.json` is written through a temporary file** and parsed before
 being moved into place. A malformed file there would fail the Jekyll build

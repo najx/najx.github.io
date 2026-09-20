@@ -65,12 +65,15 @@ class TestDedupe:
         ]
         assert dedupe(items)[0].title == "Early"
 
-    def test_identical_headline_different_url_kept_once(self, make_item):
+    def test_identical_headline_at_different_urls_both_survive(self, make_item):
+        """dedupe keys on the URL alone. Two outlets running the same wire
+        headline are two documents; collapsing them here would hide the
+        corroboration that cluster() exists to count."""
         items = [
-            make_item("Same headline", "https://a.com/1"),
-            make_item("Same headline", "https://b.com/2", minutes_ago=5),
+            make_item("Same headline", "https://a.com/1", source="Reuters"),
+            make_item("Same headline", "https://b.com/2", source="AP", minutes_ago=5),
         ]
-        assert len(dedupe(items)) == 1
+        assert len(dedupe(items)) == 2
 
     def test_distinct_stories_survive(self, make_item):
         items = [make_item("Alpha ships"), make_item("Beta ships")]
@@ -123,3 +126,49 @@ class TestCluster:
 
     def test_band_sits_below_the_certain_threshold(self):
         assert CLUSTER_BAND_LOW < CLUSTER_CERTAIN
+
+
+class TestRegressions:
+    """One test per defect the adversarial review demonstrated."""
+
+    def test_wire_headline_from_several_outlets_counts_as_corroboration(self, make_item):
+        """dedupe used to key on the title too, which discarded the other
+        outlets before cluster() could count them — killing the corroboration
+        signal exactly when it was strongest."""
+        headline = "OpenAI signs chip supply deal with Broadcom"
+        stories = cluster(dedupe([
+            make_item(headline, "https://reuters.com/a", source="Reuters", minutes_ago=90),
+            make_item(headline, "https://theverge.com/b", source="The Verge", minutes_ago=60),
+            make_item(headline, "https://arstechnica.com/c", source="Ars Technica", minutes_ago=30),
+        ]))
+        assert len(stories) == 1
+        assert stories[0].corroboration == 3
+        assert stories[0].source == "Reuters"
+
+    def test_non_latin_headlines_are_not_collapsed(self, make_item):
+        """Every title with no ASCII word characters normalised to "", so they
+        all shared one dedupe key and all but the first disappeared."""
+        items = [
+            make_item("Искусственный интеллект в России", "https://ria.ru/1"),
+            make_item("人工知能の最新動向", "https://nikkei.com/2", minutes_ago=10),
+            make_item("인공지능 반도체", "https://chosun.com/3", minutes_ago=20),
+        ]
+        assert len(dedupe(items)) == 3
+
+    def test_malformed_url_does_not_abort_the_run(self, make_item):
+        """urlsplit raises ValueError on an unbalanced bracket in the host."""
+        assert canonical_url("https://foo]bar/a") == "https://foo]bar/a"
+        assert canonical_url("https://[::1/a") == "https://[::1/a"
+        kept = dedupe([
+            make_item("Good story", "https://ok.com/1"),
+            make_item("Bad link", "https://[::1/a", minutes_ago=5),
+        ])
+        assert len(kept) == 2
+
+    def test_content_bearing_query_keys_survive(self):
+        """?s= is a search term on WordPress, not a tracker; stripping it
+        merged genuinely different pages."""
+        a = canonical_url("https://blog.example/?s=kubernetes")
+        b = canonical_url("https://blog.example/?s=terraform")
+        assert a != b
+        assert canonical_url("https://x.com/p?utm_source=rss&fbclid=z") == "https://x.com/p"

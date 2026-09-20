@@ -9,10 +9,11 @@ sit disabled in the YAML until then.
 from __future__ import annotations
 
 import concurrent.futures as cf
+import html
 import logging
 import re
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import feedparser
@@ -38,7 +39,7 @@ class Source:
 
 def load_sources(path: Path) -> list[Source]:
     """Read _data/news-sources.yml. Disabled entries are kept out."""
-    data = yaml.safe_load(path.read_text()) or {}
+    data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
     out = []
     for raw in data.get("sources", []):
         source = Source(
@@ -52,12 +53,42 @@ def load_sources(path: Path) -> list[Source]:
     return out
 
 
+# Feeds get this wrong often enough to matter, and a headline stamped in 2034
+# would sit at the top of the home page until someone noticed.
+FUTURE_TOLERANCE = timedelta(hours=6)
+
+
 def _entry_date(entry) -> datetime | None:
     for key in ("published_parsed", "updated_parsed"):
         parsed = entry.get(key)
-        if parsed:
-            return datetime(*parsed[:6], tzinfo=timezone.utc)
+        if not parsed:
+            continue
+        when = datetime(*parsed[:6], tzinfo=timezone.utc)
+        if when > datetime.now(timezone.utc) + FUTURE_TOLERANCE:
+            return None
+        return when
     return None
+
+
+def clean_text(raw: str) -> str:
+    """Decode entities to a fixed point, strip markup, collapse whitespace.
+
+    Order matters: decoding AFTER the strip would turn doubly-encoded input
+    such as &amp;lt;script&amp;gt; back into markup the regex has already walked past.
+
+    Both the title and the summary need this. feedparser decodes once, which
+    is not enough for feeds that double-encode — The Verge ships titles
+    carrying a literal &#8217;, and since Liquid escapes on output, that
+    reaches the reader as the characters "&#8217;" rather than an apostrophe.
+    """
+    text = raw
+    for _ in range(3):
+        decoded = html.unescape(text)
+        if decoded == text:
+            break
+        text = decoded
+    text = re.sub(r"<[^>]+>", " ", text)
+    return re.sub(r"\s+", " ", text).strip()
 
 
 def _entry_summary(entry, limit: int = 400) -> str:
@@ -66,9 +97,7 @@ def _entry_summary(entry, limit: int = 400) -> str:
     Jev loses accuracy on state padded with detail that no question asks
     about, so the summary is trimmed here rather than passed on whole.
     """
-    raw = entry.get("summary") or entry.get("description") or ""
-    text = re.sub(r"<[^>]+>", " ", raw)
-    text = re.sub(r"\s+", " ", text).strip()
+    text = clean_text(entry.get("summary") or entry.get("description") or "")
     sentences = re.split(r"(?<=[.!?])\s+", text)
     return " ".join(sentences[:2])[:limit].strip()
 
@@ -93,7 +122,7 @@ def fetch(source: Source, session: requests.Session | None = None) -> list[Item]
             continue
         items.append(
             Item(
-                title=" ".join(title.split()),
+                title=clean_text(title),
                 url=link,
                 source=source.name,
                 published=published,
