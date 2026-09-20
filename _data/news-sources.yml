@@ -38,8 +38,6 @@ sources:
     url: https://huggingface.co/blog/feed.xml
 
   # --- Practitioners and analysis ----------------------------------------
-  - name: Simon Willison
-    url: https://simonwillison.net/atom/everything/
   - name: Import AI
     url: https://importai.substack.com/feed
   - name: Sebastian Raschka
@@ -54,6 +52,15 @@ sources:
   # --- Community ----------------------------------------------------------
   - name: Hacker News
     url: https://hnrss.org/frontpage?points=150
+
+  # --- Dropped ------------------------------------------------------------
+  # Link blogs and quote-of-the-day feeds index other people's work rather
+  # than reporting anything; their entries are titles like "Quoting voxium"
+  # or "llm-keys-ui 0.1", which is not what this watch is for.
+  - name: Simon Willison
+    url: https://simonwillison.net/atom/everything/
+    enabled: false
+    note: link blog — indexes rather than reports
 
   # --- No usable feed -----------------------------------------------------
   # These publish nothing machine-readable; they are the candidates for the

