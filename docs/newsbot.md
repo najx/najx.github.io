@@ -159,12 +159,70 @@ publishes, newest first, and says so in the log.
 corpus above it let 7 of 28 stories through. `MAX_PER_SOURCE` (2) stops one
 outlet taking the page. Slots are never back-filled with gated stories.
 
+## The weekly article
+
+| when | what | writes |
+|---|---|---|
+| Sunday, 06:17 UTC | pick a subject, fetch its sources, draft, check, open a PR | a branch and a pull request — never `main` |
+
+Five steps, and the bar at each one is deliberately higher than the home
+page's: a mis-ordered row on the front page is replaced tomorrow, a badly
+chosen subject wastes the week.
+
+1. **Pick** (`pick.py`) — the best-scoring story of the last seven days that
+   clears every clause: score, informative state, no injection suspicion, a
+   subject squarely on topic with confidence behind it, a genre that reports
+   a development rather than discussing one, and no overlap with a title
+   already published. If nothing clears it, a relaxed bar runs; if nothing
+   clears that either, the week publishes nothing and the job says so. That
+   is a normal quiet week, not a failure.
+2. **Fetch** (`fetch.py`) — the source articles, extracted with trafilatura.
+   Nothing fetched is ever committed; storing other outlets' prose in a public
+   repository is not ours to do. If no source loads, the run stops rather than
+   writing from a headline.
+3. **Draft** (`write.py`) — Claude Opus 5, streamed, effort high. Each source
+   arrives wrapped in a `<source>` element tagged with a per-run nonce, and
+   the system prompt says only an element carrying that nonce is part of the
+   instructions — so a page that opens its own `<source>` or addresses the
+   model is reported on, not obeyed. `fallbacks` is on: a policy decline would
+   otherwise leave the week empty, and security incidents are this blog's
+   staple.
+4. **Check** (`verify.py`) — Jev reads every sentence back against the sources,
+   in two passes. The first separates checkable claims from the author's own
+   reasoning, because asking "is this supported" of an argument produces a
+   confident no and a report full of noise. The second asks, for each claim
+   and each source, whether the source bears it out.
+5. **Render and open a PR** (`render.py`) — the house front matter with
+   `ai_assisted: true`, which the theme turns into its banner, plus the
+   disclosure line naming both models, which `charter.md` promises.
+
+### What the report means
+
+On a real run: 80 sentences, 27 checkable claims, 6 flagged. The six were the
+author's own framing rather than fabrications — read the list as *look at
+these*, not as *these are wrong*. When a claim is genuinely invented the
+separation is stark: measured against a real source, two true claims scored
+0.94 and 0.75 and four planted ones 0.07 and below, including a plausible
+"the first known case of…" that the source never claims.
+
+Cost of one article, measured: **$0.16** — about 9,400 tokens in and 4,700 out
+on Claude Opus 5, plus a few cents of Jev. Roughly $0.70 a month.
+
+### Running it by hand
+
+```bash
+newsbot article --out /tmp/preview      # write the post somewhere else
+newsbot article --candidate 1           # take the runner-up subject
+newsbot article --days 14 --no-verify   # wider window, skip the check
+```
+
 ## Required secrets
 
 | secret | why |
 |---|---|
 | `NEWSBOT_TOKEN` | fine-grained PAT, Contents: read and write. A commit pushed with the default `GITHUB_TOKEN` does **not** trigger other workflows, so `jekyll.yml` would never rebuild and the home page would keep showing yesterday's headlines. |
-| `TYPESAFE_API_KEY` | the ranking. Optional: without it the list is chronological. Measured cost, $0.042 per million input tokens: **0.0000190 $ per story**, about 0.025 $/month. |
+| `TYPESAFE_API_KEY` | the ranking and the citation check. Optional for the daily list — without it the collection publishes chronologically — required for the weekly article. Measured: **$0.0000190 per story**, about $0.025/month. |
+| `ANTHROPIC_API_KEY` | the weekly draft. Claude Opus 5, measured at **$0.16 per article**. |
 
 The workflow checks for `NEWSBOT_TOKEN` first and fails with that explanation
 rather than running and silently publishing nothing.

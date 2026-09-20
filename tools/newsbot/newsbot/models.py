@@ -21,6 +21,12 @@ class Item:
     # and it is counted here rather than asked of a model.
     also: list[str] = field(default_factory=list)
 
+    # The URLs of those other write-ups. `also` holds outlet names, which are
+    # fine for display and for counting but must never be used to find the
+    # articles again: an outlet publishes many stories a week, and matching on
+    # its name pulls every one of them into the drafting prompt.
+    also_urls: list[str] = field(default_factory=list)
+
     @property
     def corroboration(self) -> int:
         """How many distinct outlets carried this story, this one included."""
@@ -45,4 +51,5 @@ class Item:
             published=published,
             summary=d.get("summary", ""),
             also=list(d.get("also", [])),
+            also_urls=list(d.get("also_urls", [])),
         )

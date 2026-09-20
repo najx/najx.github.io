@@ -17,7 +17,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from .models import Item
-from .normalize import jaccard, title_tokens
+from .normalize import canonical_url, jaccard, title_tokens
 
 log = logging.getLogger(__name__)
 
@@ -81,7 +81,16 @@ def load_week(archive_dir: Path, now: datetime, days: int = WINDOW_DAYS) -> list
                          if k in raw}
             if "score" in judgement:
                 out.append(Candidate(item=item, judgement=judgement))
-    return out
+
+    # The daily collection keeps a 48h window, so almost every story lands in
+    # two consecutive archives — without this, a week reads as thirteen days
+    # and --candidate 1 returns the same story as --candidate 0.
+    best: dict[str, Candidate] = {}
+    for c in out:
+        key = canonical_url(c.item.url)
+        if key not in best or c.score > best[key].score:
+            best[key] = c
+    return sorted(best.values(), key=lambda c: -c.score)
 
 
 def _archive_overlap(title: str, published_titles: list[str]) -> float:

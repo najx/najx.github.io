@@ -155,5 +155,6 @@ def cluster(items: list[Item], threshold: float = CLUSTER_CERTAIN) -> list[Item]
     for members in groups.values():
         head, rest = members[0], members[1:]
         head.also = sorted({m.source for m in rest} - {head.source})
+        head.also_urls = [m.url for m in rest]
         out.append(head)
     return sorted(out, key=lambda i: i.published, reverse=True)

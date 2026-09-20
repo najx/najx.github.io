@@ -8,6 +8,8 @@ the banner from that flag, and the disclosure line below names the models.
 
 from __future__ import annotations
 
+import hashlib
+import json
 import re
 import unicodedata
 from dataclasses import dataclass
@@ -29,7 +31,12 @@ class Post:
         folded = unicodedata.normalize("NFKD", self.title)
         folded = "".join(c for c in folded if not unicodedata.combining(c))
         folded = re.sub(r"[^a-zA-Z0-9]+", "-", folded).strip("-").lower()
-        return folded[:70].rstrip("-")
+        # A title with no ASCII alphanumerics folds to "", and an empty slug
+        # would write the post directly into _posts/ as "<date>-.md", where
+        # the next one overwrites it.
+        return folded[:70].rstrip("-") or (
+            "article-" + hashlib.sha1(self.title.encode()).hexdigest()[:8]
+        )
 
 
 def parse_draft(markdown: str) -> Post:
@@ -86,14 +93,18 @@ def render(post: Post, when: datetime, model: str, checked: int, unsupported: in
            lang: str = "en") -> str:
     stamp = when.strftime("%Y-%m-%d %H:%M:%S %z")
     stamp = stamp[:-2] + ":" + stamp[-2:] if stamp[-5] in "+-" else stamp
-    title = post.title.replace('"', "'")
+    # json.dumps produces a valid YAML double-quoted scalar and escapes the
+    # quotes, backslashes and control characters that would otherwise make the
+    # front matter unparseable — and an unparseable front matter fails the
+    # site build. A model-written description containing a colon-space is
+    # enough to do it.
     return (
         "---\n"
-        f'title: "{title}"\n'
+        f"title: {json.dumps(post.title, ensure_ascii=False)}\n"
         f"date: {stamp}\n"
         f"modified: {stamp}\n"
         f"tags: [{post.tag}]\n"
-        f"description: {post.description}\n"
+        f"description: {json.dumps(post.description, ensure_ascii=False)}\n"
         "comments: false\n"
         f"lang: {lang}\n"
         "ai_assisted: true\n"

@@ -525,6 +525,8 @@ def resolve_band(
         head.also = sorted(
             ({m.source for m in rest} | set(head.also)) - {head.source}
         )
+        head.also_urls = sorted(set(head.also_urls) | {m.url for m in rest}
+                                | {u for m in rest for u in m.also_urls})
         out.append(head)
     return sorted(out, key=lambda s: s.published, reverse=True)
 

@@ -77,9 +77,14 @@ jobs:
           GH_TOKEN: ${{ secrets.NEWSBOT_TOKEN }}
         run: |
           set -euo pipefail
-          post=$(git status --porcelain _posts | awk '{print $2}' | head -1)
+          # Ask git for the file, not for `git status --porcelain`, which
+          # collapses an untracked directory to "?? _posts/" and would make
+          # every branch feat/auto-article-. on every run.
+          post=$(git ls-files --others --exclude-standard -- '_posts/**/*.md' | head -1)
           [ -n "$post" ] || { echo "::error::the draft step wrote no post"; exit 1; }
           slug=$(basename "$(dirname "$post")")
+          [ "$slug" != "_posts" ] && [ "$slug" != "." ] \
+            || { echo "::error::could not derive a slug from $post"; exit 1; }
           branch="feat/auto-article-$slug"
 
           git config user.name  "github-actions[bot]"
@@ -97,9 +102,12 @@ jobs:
             echo
             echo "## Journal de la sélection et de la vérification"
             echo
-            echo '```'
-            cat run.log
-            echo '```'
+            # A long fence, and backticks stripped from the log: a headline
+            # containing ``` would otherwise close the block early and let the
+            # rest of the log render as markdown in a public comment.
+            echo '~~~~'
+            tr -d '`' < run.log
+            echo '~~~~'
             echo
             echo "## À relire en priorité"
             echo

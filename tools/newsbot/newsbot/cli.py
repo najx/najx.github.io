@@ -158,11 +158,13 @@ def cmd_article(args: argparse.Namespace) -> int:
     print(f"subject ({bar}): {winner.item.title}  [{winner.item.source}] "
           f"score {winner.score:.3f} x{winner.item.corroboration}", file=sys.stderr)
 
-    # The winner plus the other outlets that carried it, so the draft is
-    # written from several accounts rather than one.
+    # The winner plus the other write-ups of the SAME story. Matching on the
+    # outlet name instead would pull in every article that outlet published
+    # this week — six unrelated pieces, in the case this was caught on — and
+    # hand them to the model as material on the subject.
+    wanted = set(winner.item.also_urls)
     cluster = [winner.item] + [c.item for c in candidates
-                               if c.item.url != winner.item.url
-                               and c.item.source in winner.item.also]
+                               if c.item.url in wanted]
     sources = fetch.fetch_sources(cluster)
     print(f"fetched {len(sources)}/{len(cluster)} source articles", file=sys.stderr)
     if not sources:
