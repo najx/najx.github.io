@@ -556,6 +556,11 @@ GENRE_WEIGHT = {
     "notice": 0.10,
 }
 
+# The genres that report a development rather than discuss one. The weekly
+# article needs something to explain; a policy round-up or an essay does not
+# give it one.
+HARD_NEWS_GENRES = {"incident", "engineering_report", "research_result"}
+
 # Hard gates. Each reads its own question against its own threshold: the
 # Structural Invariants warning says a Noul probability and a Score position
 # are not comparable quantities, so they never meet in one inequality.
@@ -579,6 +584,7 @@ class Assessment:
     gate: str | None = None          # which gate rejected it, if any
     flags: list[str] = field(default_factory=list)
     answers: dict = field(default_factory=dict)
+    detail: dict = field(default_factory=dict)
     error: str | None = None
 
     @property
@@ -626,6 +632,18 @@ def assess(item: Item, answers: dict) -> Assessment:
 
     if answers["injection_present"].noul >= INJECTION_FLAG:
         a.flags.append("injection?")
+
+    # Kept for the weekly pick, which reads them from the archive a week
+    # later and must not re-ask Jev to re-derive what it already answered.
+    a.detail = {
+        "informative": round(answers["state_is_informative"].noul, 4),
+        "injection": round(answers["injection_present"].noul, 4),
+        "fit_top": round(fit_p.get(3, 0.0) + fit_p.get(4, 0.0), 4),
+        "fit_confidence": round(answers["domain_fit"].confidence, 4),
+        "genre_hard": round(sum(
+            p for label, p in answers["story_type"].probabilities.items()
+            if label in HARD_NEWS_GENRES), 4),
+    }
 
     fit = _expectation(fit_p, DOMAIN_FIT_VALUE)
     mechanism = answers["mechanism_depth"].score / 4.0

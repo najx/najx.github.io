@@ -1,5 +1,5 @@
 {
-  "collected_at": "2026-09-20T23:30:10+00:00",
+  "collected_at": "2026-09-20T23:40:37+00:00",
   "failures": {},
   "items": [
     {
@@ -9,11 +9,16 @@
       "published": "2026-09-19T05:48:28+00:00",
       "summary": "Imitation is the sincerest form of Flattery",
       "also": [],
-      "score": 0.0603,
+      "score": 0.0581,
       "gate": null,
       "flags": [
         "low-confidence"
-      ]
+      ],
+      "informative": 0.31,
+      "injection": 0.03,
+      "fit_top": 0.94,
+      "fit_confidence": 0.4,
+      "genre_hard": 0.0
     },
     {
       "title": "Join the WIRED World Fair in Miami on November 4",
@@ -33,9 +38,14 @@
       "published": "2026-09-19T10:00:00+00:00",
       "summary": "Powerful AI models have created an existential risk to the field, but researchers can’t stop relying on them because they’re too useful.",
       "also": [],
-      "score": 0.0927,
+      "score": 0.0929,
       "gate": null,
-      "flags": []
+      "flags": [],
+      "informative": 0.94,
+      "injection": 0.04,
+      "fit_top": 1.0,
+      "fit_confidence": 0.99,
+      "genre_hard": 0.0
     },
     {
       "title": "Forget the AI Slowdown—the Vulnerability Explosion Is Already Happening",
@@ -44,9 +54,14 @@
       "published": "2026-09-19T11:00:00+00:00",
       "summary": "AI labs are toying with an industry-wide pact to slow development. Meanwhile, widely available AI chatbots are already helping uncover a tidal wave of security flaws.",
       "also": [],
-      "score": 0.3054,
+      "score": 0.3041,
       "gate": null,
-      "flags": []
+      "flags": [],
+      "informative": 0.94,
+      "injection": 0.04,
+      "fit_top": 0.97,
+      "fit_confidence": 0.89,
+      "genre_hard": 0.0
     },
     {
       "title": "The AI regulation smackdown isn’t over",
@@ -55,9 +70,14 @@
       "published": "2026-09-19T13:00:00+00:00",
       "summary": "At the start of this week, the who's-who of AI seemed - at least tentatively - on the side of AI regulation. Over the weekend, Anthropic CEO Dario Amodei had proposed a three-step plan for slowing AI development, including by embedding third-party evaluators in labs, coordinating across the domestic industry, and forging international agreements potentially […]",
       "also": [],
-      "score": 0.0385,
+      "score": 0.0409,
       "gate": null,
-      "flags": []
+      "flags": [],
+      "informative": 0.87,
+      "injection": 0.04,
+      "fit_top": 0.0,
+      "fit_confidence": 0.99,
+      "genre_hard": 0.0
     },
     {
       "title": "GPT-6 Astra and Claude Fable turn robot arms into slapstick killer robots in new safety benchmark",
@@ -66,9 +86,14 @@
       "published": "2026-09-19T13:28:55+00:00",
       "summary": "Leading AI models usually attempt dangerous tasks rather than refuse them when controlling a robot, according to the RoboHarm benchmark. GPT-6 Astra stabbed a baby doll in 17 of 20 trials, while Claude Fable 5.1 put a can of compressed air on a burning stove.",
       "also": [],
-      "score": 0.4628,
+      "score": 0.4303,
       "gate": null,
-      "flags": []
+      "flags": [],
+      "informative": 0.96,
+      "injection": 0.04,
+      "fit_top": 0.91,
+      "fit_confidence": 0.55,
+      "genre_hard": 0.99
     },
     {
       "title": "Unity launches official plugins for Claude Code and OpenAI Codex to stop AI agents from using outdated tutorials",
@@ -77,9 +102,14 @@
       "published": "2026-09-19T13:31:46+00:00",
       "summary": "Unity has released official plugins for Claude Code and OpenAI's Codex. The article Unity launches official plugins for Claude Code and OpenAI Codex to stop AI agents from using outdated tutorials appeared first on The Decoder .",
       "also": [],
-      "score": 0.2534,
+      "score": 0.2432,
       "gate": null,
-      "flags": []
+      "flags": [],
+      "informative": 0.95,
+      "injection": 0.04,
+      "fit_top": 0.98,
+      "fit_confidence": 0.66,
+      "genre_hard": 0.0
     },
     {
       "title": "Does AI need an antitrust exemption so it doesn’t kill everyone????",
@@ -88,9 +118,14 @@
       "published": "2026-09-19T14:00:00+00:00",
       "summary": "Today on Decoder, we’ve got the first of a two-part series on the future of business, and I’m talking with Jonathan Kanter, the former antitrust chief for the US Department of Justice in the Biden administration. These days, he’s both a professor of law at WashU and professor of technology policy at Carnegie Mellon.",
       "also": [],
-      "score": 0.0179,
+      "score": 0.0169,
       "gate": null,
-      "flags": []
+      "flags": [],
+      "informative": 0.41,
+      "injection": 0.04,
+      "fit_top": 0.01,
+      "fit_confidence": 0.98,
+      "genre_hard": 0.0
     },
     {
       "title": "Qwen3.8-Omni-Flash undercuts Google's Gemini Flash pricing while matching its multimodal benchmarks",
@@ -99,9 +134,14 @@
       "published": "2026-09-19T14:30:57+00:00",
       "summary": "Qwen3.8-Omni-Flash is Qwen's first multimodal model designed for AI agents. It processes audio and video together and independently uses tools to edit vlogs, translate clips, or summarize movies.",
       "also": [],
-      "score": 0.1739,
+      "score": 0.175,
       "gate": null,
-      "flags": []
+      "flags": [],
+      "informative": 0.94,
+      "injection": 0.03,
+      "fit_top": 1.0,
+      "fit_confidence": 0.84,
+      "genre_hard": 0.0
     },
     {
       "title": "Gemini went rogue, hacked three companies, and Google hid it",
@@ -110,9 +150,14 @@
       "published": "2026-09-19T15:25:03+00:00",
       "summary": "In May, Gemini broke containment and hacked three different companies, but Google didn't disclose the incident until the Wall Street Journal approached the company. The hacks happened during a test of the model's cybersecurity capabilities run by third-party Irregular, which was also involved in similar incidents involving Meta and OpenAI.",
       "also": [],
-      "score": 0.7653,
+      "score": 0.7577,
       "gate": null,
-      "flags": []
+      "flags": [],
+      "informative": 0.97,
+      "injection": 0.04,
+      "fit_top": 1.0,
+      "fit_confidence": 0.97,
+      "genre_hard": 1.0
     },
     {
       "title": "Why I still haven’t bought into true RSI",
@@ -121,9 +166,14 @@
       "published": "2026-09-19T15:42:20+00:00",
       "summary": "An “AI moderate’s” view on recent events and the trajectory of frontier models.",
       "also": [],
-      "score": 0.0823,
+      "score": 0.0843,
       "gate": null,
-      "flags": []
+      "flags": [],
+      "informative": 0.39,
+      "injection": 0.04,
+      "fit_top": 0.97,
+      "fit_confidence": 0.81,
+      "genre_hard": 0.0
     },
     {
       "title": "Meta’s Muse is creepy, but maybe not for the reasons you think",
@@ -132,9 +182,14 @@
       "published": "2026-09-19T20:44:40+00:00",
       "summary": "Meta's Muse is apparently an effective AI assistant, but one that's a little creepy. Part of that is because of its new Mac app, which can access Messages, Calendar, and Notes.",
       "also": [],
-      "score": 0.204,
+      "score": 0.2024,
       "gate": null,
-      "flags": []
+      "flags": [],
+      "informative": 0.93,
+      "injection": 0.04,
+      "fit_top": 0.99,
+      "fit_confidence": 0.65,
+      "genre_hard": 0.0
     },
     {
       "title": "Following OpenAI, Anthropic is also reportedly postponing its IPO",
@@ -143,9 +198,14 @@
       "published": "2026-09-20T08:35:25+00:00",
       "summary": "Anthropic is reportedly delaying its IPO from October to November 2026 to present strong Q3 results. Investors expect a roughly $2 trillion valuation, but rising infrastructure costs, including $1.25 billion a month for its SpaceX deal alone, and unresolved security risks complicate the listing.",
       "also": [],
-      "score": 0.0196,
+      "score": 0.0197,
       "gate": null,
-      "flags": []
+      "flags": [],
+      "informative": 0.97,
+      "injection": 0.04,
+      "fit_top": 0.01,
+      "fit_confidence": 0.96,
+      "genre_hard": 0.03
     },
     {
       "title": "Trump announces \"AI Force\" and plans for an \"AI czar\" as he pushes unchecked AI growth",
@@ -156,9 +216,14 @@
       "also": [
         "The Verge"
       ],
-      "score": 0.0167,
+      "score": 0.0175,
       "gate": null,
-      "flags": []
+      "flags": [],
+      "informative": 0.97,
+      "injection": 0.04,
+      "fit_top": 0.01,
+      "fit_confidence": 0.98,
+      "genre_hard": 0.0
     },
     {
       "title": "Simulated students that make realistic mistakes help AI tutors learn faster",
@@ -167,9 +232,14 @@
       "published": "2026-09-20T09:50:32+00:00",
       "summary": "Microsoft and the University of Illinois built StudentSim to replicate individual students from limited data and give AI tutors fast, low-cost feedback. In tests covering 60 students across chess, English, and math, it outperformed GPT-5.4.",
       "also": [],
-      "score": 0.4744,
+      "score": 0.4826,
       "gate": null,
-      "flags": []
+      "flags": [],
+      "informative": 0.96,
+      "injection": 0.04,
+      "fit_top": 0.97,
+      "fit_confidence": 0.82,
+      "genre_hard": 0.73
     },
     {
       "title": "Daily AI usage in the U.S. has more than doubled in just six months",
@@ -189,9 +259,14 @@
       "published": "2026-09-20T10:30:00+00:00",
       "summary": "The Muse app continues Meta’s trend of opting users into data collection for AI training. It also nudges you to share your bank account, email, and passport information.",
       "also": [],
-      "score": 0.3449,
+      "score": 0.3487,
       "gate": null,
-      "flags": []
+      "flags": [],
+      "informative": 0.95,
+      "injection": 0.04,
+      "fit_top": 0.99,
+      "fit_confidence": 0.92,
+      "genre_hard": 0.1
     },
     {
       "title": "It’s Donald Trump Versus MAGA on Data Centers",
@@ -200,9 +275,14 @@
       "published": "2026-09-20T10:30:00+00:00",
       "summary": "The president has doubled down on data centers and AI. His base is running in the opposite direction.",
       "also": [],
-      "score": 0.0276,
+      "score": 0.0279,
       "gate": null,
-      "flags": []
+      "flags": [],
+      "informative": 0.87,
+      "injection": 0.04,
+      "fit_top": 0.02,
+      "fit_confidence": 0.95,
+      "genre_hard": 0.0
     },
     {
       "title": "Runway wants to turn AI video generation into a live stream you control in real time",
@@ -211,9 +291,14 @@
       "published": "2026-09-20T11:56:59+00:00",
       "summary": "Runway wants to stream AI video as users prompt it, rather than make them wait for finished clips. The approach builds on GWM-1, its world model that generates video frame by frame.",
       "also": [],
-      "score": 0.1705,
+      "score": 0.1703,
       "gate": null,
-      "flags": []
+      "flags": [],
+      "informative": 0.96,
+      "injection": 0.04,
+      "fit_top": 1.0,
+      "fit_confidence": 0.95,
+      "genre_hard": 0.0
     },
     {
       "title": "Humans, not rogue AI, are still the biggest cybersecurity risk to energy systems",
@@ -222,9 +307,14 @@
       "published": "2026-09-20T12:00:00+00:00",
       "summary": "Before recent high-profile hacks raised the specter of AI possibly \"killing all humans,\" our energy systems were already disturbingly vulnerable to cyberattack - and the risk is growing. \"We were always prey.",
       "also": [],
-      "score": 0.1186,
+      "score": 0.1116,
       "gate": null,
-      "flags": []
+      "flags": [],
+      "informative": 0.92,
+      "injection": 0.04,
+      "fit_top": 0.99,
+      "fit_confidence": 0.89,
+      "genre_hard": 0.0
     },
     {
       "title": "Trump now says he wants to form an ‘AI Force’",
@@ -241,9 +331,14 @@
       "published": "2026-09-20T15:41:30+00:00",
       "summary": "Tencent's Gander processes speech, images, and text while handling tasks in the background. A \"cerebellum\" keeps the conversation going, while a swappable \"brain\" searches files, writes code, or tackles other complex work.",
       "also": [],
-      "score": 0.315,
+      "score": 0.3012,
       "gate": null,
-      "flags": []
+      "flags": [],
+      "informative": 0.94,
+      "injection": 0.04,
+      "fit_top": 1.0,
+      "fit_confidence": 0.66,
+      "genre_hard": 0.0
     },
     {
       "title": "Alibaba's open-weight Qwen-Image-2.1 claims to beat closed models in image generation with just 7 billion parameters",
@@ -254,7 +349,12 @@
       "also": [],
       "score": 0.1324,
       "gate": null,
-      "flags": []
+      "flags": [],
+      "informative": 0.96,
+      "injection": 0.04,
+      "fit_top": 1.0,
+      "fit_confidence": 0.99,
+      "genre_hard": 0.0
     },
     {
       "title": "No one is surprised that Nvidia’s Jensen Huang thinks AI fears are overblown.",
@@ -263,9 +363,14 @@
       "published": "2026-09-20T18:50:18+00:00",
       "summary": "The man who may stand to make the most money from the AI boom seems to think he knows better than anyone else, including researchers who have studied and worked on AI for decades. In an interview with CBS Sunday Morning, he claimed there was a \"0% chance\" of AI being the end of the […]",
       "also": [],
-      "score": 0.0646,
+      "score": 0.0649,
       "gate": null,
-      "flags": []
+      "flags": [],
+      "informative": 0.94,
+      "injection": 0.04,
+      "fit_top": 0.98,
+      "fit_confidence": 0.96,
+      "genre_hard": 0.0
     }
   ]
 }
