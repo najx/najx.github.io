@@ -1,0 +1,8 @@
+# Le backend de construction de newsbot, épinglé au même titre que les
+# dépendances d'exécution. Sans lui dans le verrou, `pip install ./tools/newsbot`
+# irait chercher setuptools sur PyPI sans hash, dans son environnement de
+# construction isolé. Compilé dans requirements.txt avec le reste, il permet
+# d'installer le paquet avec --no-build-isolation, donc sans aucun
+# téléchargement non vérifié.
+# À garder aligné sur [build-system].requires de pyproject.toml.
+setuptools>=68

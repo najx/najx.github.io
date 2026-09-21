@@ -36,17 +36,27 @@ jobs:
           [ -n "$ANTHROPIC_API_KEY" ] || { echo "::error::ANTHROPIC_API_KEY is not set; there is nothing to draft with."; exit 1; }
 
       - name: Checkout
-        uses: actions/checkout@v4
+        # Aucun jeton ici, et persist-credentials: false pour qu'aucune
+        # identification ne reste dans .git/config pendant que du code tiers
+        # s'exécute. Le NEWSBOT_TOKEN n'est fourni qu'à l'étape qui pousse.
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
-          token: ${{ secrets.NEWSBOT_TOKEN }}
+          persist-credentials: false
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
         with:
           python-version: "3.12"
 
       - name: Install newsbot
-        run: pip install ./tools/newsbot
+        # Verrou à hashes : rien ne s'installe qui ne soit exactement l'archive
+        # compilée dans tools/newsbot/requirements.txt. --no-build-isolation
+        # parce que setuptools y figure aussi, donc pip n'a plus rien à aller
+        # chercher sans vérification.
+        run: |
+          set -euo pipefail
+          pip install --require-hashes --no-deps -r tools/newsbot/requirements.txt
+          pip install --no-deps --no-build-isolation ./tools/newsbot
 
       - name: Draft
         id: draft
@@ -76,8 +86,15 @@ jobs:
         if: steps.draft.outputs.nothing_to_write != 'true'
         env:
           GH_TOKEN: ${{ secrets.NEWSBOT_TOKEN }}
+          NEWSBOT_TOKEN: ${{ secrets.NEWSBOT_TOKEN }}
         run: |
           set -euo pipefail
+          # Le checkout n'a persisté aucune identification : on la pose ici, et
+          # dans un en-tête plutôt que dans l'URL du remote, pour que le jeton
+          # n'apparaisse ni dans une trace de commande ni dans un message
+          # d'erreur de git.
+          git config --local http.https://github.com/.extraheader \
+            "AUTHORIZATION: basic $(printf 'x-access-token:%s' "$NEWSBOT_TOKEN" | base64 | tr -d '\n')"
           # Ask git for the file, not for `git status --porcelain`, which
           # collapses an untracked directory to "?? _posts/" and would make
           # every branch feat/auto-article-. on every run.
