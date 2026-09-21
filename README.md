@@ -29,8 +29,8 @@ ranks them, and drafts the weekly article. It is documented in
 pip install -e './tools/newsbot[dev]'
 pytest
 ```
-  113 tests, ~0.5s.
-- Driven by three GitHub Actions workflows
+  134 tests, ~0.5s.
+- Driven by two GitHub Actions workflows
   (`.github/workflows/ai-news-collect.yml`, `ai-news-article.yml`), which
   need three repository secrets: `NEWSBOT_TOKEN`, `TYPESAFE_API_KEY`,
   `ANTHROPIC_API_KEY`.
