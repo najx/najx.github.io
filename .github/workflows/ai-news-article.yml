@@ -36,17 +36,27 @@ jobs:
           [ -n "$ANTHROPIC_API_KEY" ] || { echo "::error::ANTHROPIC_API_KEY is not set; there is nothing to draft with."; exit 1; }
 
       - name: Checkout
-        uses: actions/checkout@v4
+        # Aucun jeton ici, et persist-credentials: false pour qu'aucune
+        # identification ne reste dans .git/config pendant que du code tiers
+        # s'exécute. Le NEWSBOT_TOKEN n'est fourni qu'à l'étape qui pousse.
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
-          token: ${{ secrets.NEWSBOT_TOKEN }}
+          persist-credentials: false
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
         with:
           python-version: "3.12"
 
       - name: Install newsbot
-        run: pip install ./tools/newsbot
+        # Verrou à hashes : rien ne s'installe qui ne soit exactement l'archive
+        # compilée dans tools/newsbot/requirements.txt. --no-build-isolation
+        # parce que setuptools y figure aussi, donc pip n'a plus rien à aller
+        # chercher sans vérification.
+        run: |
+          set -euo pipefail
+          pip install --require-hashes --no-deps -r tools/newsbot/requirements.txt
+          pip install --no-deps --no-build-isolation ./tools/newsbot
 
       - name: Draft
         id: draft
@@ -59,7 +69,8 @@ jobs:
           set -uo pipefail
           case "$CANDIDATE$DAYS" in *[!0-9]*) echo "::error::inputs must be whole numbers"; exit 1 ;; esac
           set +e
-          newsbot -v article --candidate "$CANDIDATE" --days "$DAYS" 2>&1 | tee run.log
+          newsbot -v article --candidate "$CANDIDATE" --days "$DAYS" \
+            --checks-out checks.json 2>&1 | tee run.log
           status=${PIPESTATUS[0]}
           set -e
           # 2 means nothing cleared the bar. That is a normal quiet week, not
@@ -75,8 +86,15 @@ jobs:
         if: steps.draft.outputs.nothing_to_write != 'true'
         env:
           GH_TOKEN: ${{ secrets.NEWSBOT_TOKEN }}
+          NEWSBOT_TOKEN: ${{ secrets.NEWSBOT_TOKEN }}
         run: |
           set -euo pipefail
+          # Le checkout n'a persisté aucune identification : on la pose ici, et
+          # dans un en-tête plutôt que dans l'URL du remote, pour que le jeton
+          # n'apparaisse ni dans une trace de commande ni dans un message
+          # d'erreur de git.
+          git config --local http.https://github.com/.extraheader \
+            "AUTHORIZATION: basic $(printf 'x-access-token:%s' "$NEWSBOT_TOKEN" | base64 | tr -d '\n')"
           # Ask git for the file, not for `git status --porcelain`, which
           # collapses an untracked directory to "?? _posts/" and would make
           # every branch feat/auto-article-. on every run.
@@ -90,7 +108,10 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b "$branch"
-          git add _posts
+          # .newsbot/state.json travels with the post: it is what stops the
+          # same subject being drafted again next Sunday, and it only takes
+          # effect once this branch is merged.
+          git add _posts .newsbot/state.json
           git commit -m "Article : $slug
 
           Rédigé automatiquement par .github/workflows/ai-news-article.yml.
@@ -98,7 +119,34 @@ jobs:
           git push -u origin "$branch"
 
           {
-            echo "Brouillon hebdomadaire. **Rien n'est publié tant que cette PR n'est pas mergée.**"
+            echo "Brouillon hebdomadaire. **Rien n'est publié tant que cette PR n'est pas mergée et sortie de l'état brouillon.**"
+            echo
+            echo "## À cocher avant de passer la PR en \"Ready for review\""
+            echo
+            # The checklist is built from checks.json, the citation checker's
+            # own machine-readable output — not by scraping run.log, which
+            # breaks the moment a flagged sentence contains text the scraper
+            # mistakes for one of its own markers.
+            python3 - <<'PY'
+          import json, pathlib
+
+          path = pathlib.Path("checks.json")
+          if not path.exists():
+              print("- [ ] Vérification des citations indisponible : relire l'article "
+                    "en entier avant de sortir du brouillon (voir le journal ci-dessous).")
+          else:
+              data = json.loads(path.read_text(encoding="utf-8"))
+              unsupported = data.get("unsupported", [])
+              if not unsupported:
+                  print(f"- [ ] Aucune affirmation non étayée sur {data.get('checked', 0)} "
+                        "vérifiées par Jev — à confirmer en relisant l'article.")
+              else:
+                  for f in unsupported:
+                      sentence = f["sentence"].replace("\n", " ").strip()
+                      print(f"- [ ] [{f['support']:.2f}] {sentence}")
+          PY
+            echo "- [ ] Le bloc de divulgation en fin d'article, que la charte impose."
+            echo "- [ ] Le tag choisi, qui doit rester l'un des six existants."
             echo
             echo "## Journal de la sélection et de la vérification"
             echo
@@ -108,13 +156,6 @@ jobs:
             echo '~~~~'
             tr -d '`' < run.log
             echo '~~~~'
-            echo
-            echo "## À relire en priorité"
-            echo
-            echo "- Les affirmations listées comme non étayées ci-dessus : Jev ne les"
-            echo "  a pas retrouvées dans les sources récupérées."
-            echo "- Le bloc de divulgation en fin d'article, que la charte impose."
-            echo "- Le tag choisi, qui doit rester l'un des six existants."
           } > body.md
-          gh pr create --base main --head "$branch" \
+          gh pr create --draft --base main --head "$branch" \
             --title "Article : $slug" --body-file body.md

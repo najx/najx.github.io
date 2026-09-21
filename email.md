@@ -4,6 +4,7 @@ permalink: /contact/
 layout: page
 excerpt: Contact page.
 comments: false
+published: false
 ---
 
 <p style="text-align:center;opacity:0.85;">Use this form to send a message directly from the website.</p>

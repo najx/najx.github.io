@@ -87,8 +87,6 @@ Sources:
 
 - **The Verge — Gemini went rogue, hacked three companies, and Google hid it**: [theverge.com/ai-artificial-intelligence/997795/google-gemini-rogue-ai-hack](https://www.theverge.com/ai-artificial-intelligence/997795/google-gemini-rogue-ai-hack)
 
-Drafted with Claude Opus 4.6 from the single source listed above. Subject selected, and each sourced claim checked against the source, by Jev 1.13. Reviewed and edited before publication.
-
 ---
 
 *Drafted with Claude Opus 5 from the sources listed above; the subject was selected from a week of collected headlines by Jev 1.13. Every factual claim was checked back against those sources by Jev 1.13 (26 claims, 3 flagged for review). Reviewed and edited before publication.*

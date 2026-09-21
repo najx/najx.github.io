@@ -1,0 +1,29 @@
+# Les épingles ne valent que si quelqu'un les bouge. Dependabot ouvre les PR
+# de mise à jour ; elles restent à relire et à merger à la main.
+version: 2
+updates:
+  # Le verrou à hashes de newsbot. Dependabot régénère requirements.txt avec
+  # ses hashes ; requirements-build.in et pyproject.toml restent les sources.
+  - package-ecosystem: "pip"
+    directory: "/tools/newsbot"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Europe/Zurich"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "deps"
+
+  # Les actions épinglées par SHA dans .github/workflows/. Dependabot met à
+  # jour le SHA et le commentaire de tag ensemble.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Europe/Zurich"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "ci"

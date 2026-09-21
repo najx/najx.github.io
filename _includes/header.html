@@ -55,6 +55,7 @@
     }}"
   />
   <meta name="referrer" content="no-referrer-when-downgrade" />
+  {% if page.noindex %}<meta name="robots" content="noindex" />{% endif %}
   {% if site.fb_appid %}<meta property="fb:app_id" content="{{ site.fb_appid }}" />{% endif %}
   <meta
     property="og:site_name"
@@ -109,8 +110,10 @@
       page.url  | remove: 'index.html' | remove: '.html' | absolute_url
     }}"
   />
+  {% if site.author.twitter %}
   <meta name="twitter:site" content="@{{ site.author.twitter }}" />
   <meta name="twitter:creator" content="@{{ site.author.twitter }}" />
+  {% endif %}
   <meta
     name="twitter:description"
     content="{{
@@ -145,13 +148,6 @@
     href="/assets/favicons/favicon-16x16.png"
   />
   <link rel="manifest" href="/assets/favicons/site.webmanifest" />
-  <link
-    rel="mask-icon"
-    href="/assets/favicons/safari-pinned-tab.svg"
-    color="#5bbad5"
-  />
-  <meta name="apple-mobile-web-app-title" content="Jekyll Klise" />
-  <meta name="application-name" content="Jekyll Klise" />
   <meta name="msapplication-TileColor" content="#da532c" />
   <meta name="theme-color" content="#2c2c2c" />
 
@@ -167,12 +163,3 @@
     <script type="text/javascript" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js?config=TeX-AMS-MML_HTMLorMML"></script>
   {% endif %}
 </head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-TESDGR3TCF"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-TESDGR3TCF');
-</script>

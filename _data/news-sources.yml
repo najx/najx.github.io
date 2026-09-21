@@ -22,6 +22,8 @@ sources:
     url: https://the-decoder.com/feed/
   - name: IEEE Spectrum
     url: https://spectrum.ieee.org/feeds/topic/artificial-intelligence.rss
+  - name: Marktechpost
+    url: https://www.marktechpost.com/feed/
 
   # --- Labs and vendors ---------------------------------------------------
   - name: OpenAI
@@ -50,6 +52,27 @@ sources:
     url: https://www.interconnects.ai/feed
   - name: BAIR Berkeley
     url: https://bair.berkeley.edu/blog/feed.xml
+  - name: Towards Data Science
+    url: https://towardsdatascience.com/feed
+  - name: Don't Worry About the Vase
+    url: https://thezvi.substack.com/feed
+
+  # --- Added 2026-09-21, measured in-window -------------------------------
+  # Issue #15: on 2026-09-20/21 only The Verge, The Decoder, WIRED,
+  # Interconnects and Latent Space had entries inside the 48h window; the lab
+  # blogs answer with their whole catalogue (OpenAI 1210, Hugging Face 862)
+  # but nothing recent. These three were probed live the same way
+  # (`newsbot probe` / a direct fetch+window count) at 2026-09-21 20:36 UTC,
+  # against the same 19-feed roster that produced only 43 in-window items
+  # that run, and each was itself producing real, dated entries:
+  #   Marktechpost           7 in 48h (of 10 fetched)  — AI-only news wire
+  #   Towards Data Science   6 in 48h (of 20 fetched)  — practitioner essays
+  #   Don't Worry About the Vase (Zvi Mowshowitz)
+  #                          2 in 48h (of 20 fetched)  — daily AI analysis
+  # Not measured over two weeks — a single probe only shows these feeds were
+  # alive and dense *that day*; the two-week measurement the issue also asks
+  # for still needs to happen, ideally read off the `per_source` counts now
+  # written into `.newsbot/archive/*.json` (see below).
 
   # --- Weighed and left out -----------------------------------------------
   # Measured over a 48h window against the live rubric, alongside the feeds

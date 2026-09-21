@@ -20,7 +20,7 @@ author:
   facebook: # facebook username
   email: # email adress
   avatar:
-    - /assets/home/main.jpg
+    - /assets/home/main.webp
 
 # URL settings
 url: "https://najx.dev" #

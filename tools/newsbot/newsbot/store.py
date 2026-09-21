@@ -18,8 +18,24 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from .models import Item
+from .normalize import canonical_url
 
 HOME_ITEMS = 15
+
+
+def count_by_source(items: list[Item]) -> dict[str, int]:
+    """How many of these items came from each feed.
+
+    Used for the `-v` log line during a run and, unchanged, for the
+    `per_source` field written into the day's archive — so a feed's share of
+    the 48h window can be read back across many days (issue #15 asks for a
+    two-week measurement) instead of being re-derived from raw items later,
+    or only existing for the length of one run's terminal output.
+    """
+    counts: dict[str, int] = {}
+    for item in items:
+        counts[item.source] = counts.get(item.source, 0) + 1
+    return counts
 
 
 def repo_root(start: Path | None = None) -> Path:
@@ -101,6 +117,30 @@ class Store:
     def save_state(self, state: dict) -> None:
         self._write_json(self.state_json, state)
 
+    def record_covered(self, item: Item, slug: str, when: datetime) -> Path:
+        """Note that this story became an article, so pick can refuse it later.
+
+        The canonical URL and every `also_urls` write-up of the same story go
+        in, because the week after, the follow-up arrives from whichever of
+        those outlets was not the representative. The source title goes in
+        too: Claude rewrites the headline, so the published title is not a
+        usable handle on the subject — the Gemini break-in was written up as
+        "When the Model Stopped", which shares no word with the feed title.
+        """
+        state = self.load_state()
+        covered = [c for c in state.get("covered", []) if c.get("slug") != slug]
+        covered.append({
+            "url": canonical_url(item.url),
+            "also_urls": [canonical_url(u) for u in item.also_urls],
+            "title": item.title,
+            "slug": slug,
+            "date": when.date().isoformat(),
+        })
+        state["covered"] = covered
+        state["last_article"] = when.date().isoformat()
+        self.save_state(state)
+        return self.state_json
+
     def save_archive(
         self,
         day: datetime,
@@ -124,6 +164,7 @@ class Store:
                 .replace(microsecond=0)
                 .isoformat(),
                 "failures": failures,
+                "per_source": count_by_source(items),
                 "items": [{**i.to_dict(), **scores.get(i.url, {})} for i in items],
             },
         )

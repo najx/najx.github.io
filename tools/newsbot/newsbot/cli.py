@@ -16,9 +16,10 @@ from pathlib import Path
 
 from . import sources as src
 from .normalize import CLUSTER_BAND_LOW, CLUSTER_CERTAIN, cluster, dedupe
-from .store import Store, repo_root
+from .store import Store, count_by_source, repo_root
 
 WINDOW_HOURS = 48
+log = logging.getLogger(__name__)
 
 
 def _setup_logging(verbose: bool) -> None:
@@ -73,6 +74,7 @@ def _rank(stories, now, args):
             "gate": a.gate,
             "flags": a.flags,
             **a.detail,
+            **({"model": a.model} if a.model else {}),
             **({"error": a.error} if a.error else {}),
         }
         for a in assessed
@@ -102,6 +104,13 @@ def cmd_collect(args: argparse.Namespace) -> int:
     fresh = [i for i in items if i.published >= now - timedelta(hours=args.window)]
     distinct = dedupe(fresh)
     stories = cluster(distinct)
+
+    # Per feed, how many of its entries actually fell inside the window —
+    # not the raw fetch total `collect()` already logs per source. This is
+    # the number issue #15 asks to track over time; it is also written into
+    # the day's archive as `per_source`, so it survives past this run.
+    for name, count in sorted(count_by_source(distinct).items()):
+        log.info("  %s: %d in window", name, count)
 
     ranked, scores = _rank(stories, now, args)
 
@@ -136,6 +145,7 @@ def cmd_collect(args: argparse.Namespace) -> int:
 def cmd_article(args: argparse.Namespace) -> int:
     """Draft the week's article: pick, fetch, write, check, render."""
     from . import fetch, pick, render, verify, write
+    import json
 
     store = Store(repo_root())
     now = datetime.now(timezone.utc)
@@ -146,8 +156,11 @@ def cmd_article(args: argparse.Namespace) -> int:
               file=sys.stderr)
         return 1
 
+    state = store.load_state()
     winner, report, strict = pick.choose(candidates, store.root / "_posts",
-                                         index=args.candidate)
+                                         index=args.candidate,
+                                         covered=state.get("covered", []),
+                                         now=now)
     if winner is None:
         print("nothing cleared the bar, even relaxed; publishing nothing this week.",
               file=sys.stderr)
@@ -193,13 +206,47 @@ def cmd_article(args: argparse.Namespace) -> int:
     out_root = Path(args.out) if args.out else store.root
     path = render.write_post(out_root, post, datetime.now(timezone.utc),
                              _model_name(draft.model), checks.checked,
-                             len(checks.unsupported))
+                             len(checks.unsupported),
+                             judge_model=winner.judgement.get("model"),
+                             verify_model=checks.model)
     print(f"wrote {path}", file=sys.stderr)
+
+    # Only when the post lands in the site itself. `--out` is a preview, and
+    # marking a subject as covered on a preview would silently cost the
+    # following weeks a real article on it.
+    if out_root == store.root:
+        store.record_covered(winner.item, post.slug(),
+                             datetime.now(timezone.utc))
+        print(f"recorded the subject in "
+              f"{store.state_json.relative_to(store.root)}", file=sys.stderr)
+    else:
+        print("--out: preview only, the subject was not marked as covered",
+              file=sys.stderr)
 
     if checks.unsupported:
         print("\nclaims the sources do not bear out:", file=sys.stderr)
         for f in checks.unsupported[:12]:
             print(f"  [{f.best_support:.2f}] {f.sentence[:100]}", file=sys.stderr)
+
+    if args.checks_out:
+        # A machine-readable sibling of the log above, so the workflow can
+        # build the PR's review checklist without scraping stderr — which
+        # broke the moment a claim's own text contained a line the scraper
+        # mistook for its own markers.
+        payload = {
+            "checked": checks.checked,
+            "unsupported": [
+                {"sentence": f.sentence, "support": round(f.best_support, 3),
+                 "source": f.best_source}
+                for f in checks.unsupported
+            ],
+            "tag": post.tag,
+            "post": str(path),
+        }
+        Path(args.checks_out).write_text(
+            json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        print(f"wrote {args.checks_out}", file=sys.stderr)
+
     return 0
 
 
@@ -241,6 +288,8 @@ def main(argv: list[str] | None = None) -> int:
     article.add_argument("--out", help="write the post under this root instead")
     article.add_argument("--no-verify", action="store_true",
                          help="skip the Jev citation check")
+    article.add_argument("--checks-out",
+                         help="also write the citation check as JSON to this path")
     article.set_defaults(func=cmd_article)
 
     args = parser.parse_args(argv)

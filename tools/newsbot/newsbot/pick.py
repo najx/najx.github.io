@@ -75,9 +75,11 @@ def load_week(archive_dir: Path, now: datetime, days: int = WINDOW_DAYS) -> list
             item = Item.from_dict(raw)
             if item.published < cutoff:
                 continue
+            # "model" joined this list after the fact, so archives written
+            # before it exist and simply do not carry the key.
             judgement = {k: raw[k] for k in
                          ("score", "gate", "informative", "injection",
-                          "fit_top", "fit_confidence", "genre_hard")
+                          "fit_top", "fit_confidence", "genre_hard", "model")
                          if k in raw}
             if "score" in judgement:
                 out.append(Candidate(item=item, judgement=judgement))
@@ -99,7 +101,46 @@ def _archive_overlap(title: str, published_titles: list[str]) -> float:
                default=0.0)
 
 
-def _reasons(c: Candidate, published_titles: list[str], strict: bool) -> list[str]:
+def _entry_date(entry: dict) -> datetime | None:
+    """The day an entry of `covered` was written, or None if unreadable."""
+    try:
+        day = datetime.fromisoformat(str(entry.get("date", "")))
+    except ValueError:
+        return None
+    return day if day.tzinfo else day.replace(tzinfo=timezone.utc)
+
+
+def recent_coverage(covered: list[dict] | None, now: datetime,
+                    days: int = COOLDOWN_DAYS) -> tuple[set[str], list[str]]:
+    """What the blog already wrote about within `days`: URLs, and source titles.
+
+    Both halves matter. The URL set catches the follow-up published by one of
+    the outlets in `also_urls`, which the title check cannot see. The titles
+    are the ones the *feed* used, not the ones Claude wrote: comparing a new
+    headline against the rewritten title measured 0.00 overlap on a story we
+    had just covered, so that check alone lets the sequel straight through.
+
+    An entry whose date will not parse is kept rather than dropped. Failing
+    closed costs at most one skipped subject; failing open costs a duplicate
+    article.
+    """
+    cutoff = now - timedelta(days=days)
+    urls: set[str] = set()
+    titles: list[str] = []
+    for entry in covered or []:
+        day = _entry_date(entry)
+        if day is not None and day < cutoff:
+            continue
+        for url in [entry.get("url", ""), *entry.get("also_urls", [])]:
+            if url:
+                urls.add(canonical_url(url))
+        if entry.get("title"):
+            titles.append(entry["title"])
+    return urls, titles
+
+
+def _reasons(c: Candidate, published_titles: list[str], covered_urls: set[str],
+             strict: bool) -> list[str]:
     """Every clause this candidate fails. Empty means it qualifies."""
     j = c.judgement
     bad = []
@@ -113,6 +154,9 @@ def _reasons(c: Candidate, published_titles: list[str], strict: bool) -> list[st
         bad.append("possible injection")
     if c.item.corroboration < MIN_CORROBORATION:
         bad.append(f"corroboration {c.item.corroboration}")
+    urls = {canonical_url(u) for u in [c.item.url, *c.item.also_urls]}
+    if urls & covered_urls:
+        bad.append(f"same story as an article under {COOLDOWN_DAYS} days old")
     overlap = _archive_overlap(c.item.title, published_titles)
     if overlap >= MAX_ARCHIVE_OVERLAP:
         bad.append(f"already covered ({overlap:.2f})")
@@ -135,19 +179,26 @@ def published_titles(posts_dir: Path) -> list[str]:
     return out
 
 
-def choose(candidates: list[Candidate], posts_dir: Path, index: int = 0):
+def choose(candidates: list[Candidate], posts_dir: Path, index: int = 0,
+           covered: list[dict] | None = None, now: datetime | None = None):
     """Pick the week's subject, and say why everything else lost.
 
     Returns (winner or None, report). The report lists every candidate with
     the clauses it failed, so the pull request can show the reasoning rather
     than just an outcome.
+
+    `covered` is the `covered` list of .newsbot/state.json — the subjects
+    already written about, with the URLs and the feed titles they arrived
+    under. It is what makes COOLDOWN_DAYS mean anything.
     """
-    titles = published_titles(posts_dir)
+    now = now or datetime.now(timezone.utc)
+    cooled_urls, cooled_titles = recent_coverage(covered, now)
+    titles = published_titles(posts_dir) + cooled_titles
     report = []
     for strict in (True, False):
         eligible = []
         for c in sorted(candidates, key=lambda c: -c.score):
-            bad = _reasons(c, titles, strict)
+            bad = _reasons(c, titles, cooled_urls, strict)
             if strict:
                 report.append({"title": c.item.title, "source": c.item.source,
                                "score": round(c.score, 3), "rejected_for": bad})

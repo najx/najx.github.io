@@ -9,7 +9,7 @@ ai_assisted: true
 ---
 
 <figure>
-  <img src="/assets/img/10/1.png" alt="Multi-Agent Architecture Patterns" style="width:100%;height:100%;">
+  <img src="/assets/img/10/1.webp" alt="Multi-Agent Architecture Patterns" width="1024" height="576" loading="lazy" style="width:100%;height:100%;">
   <figcaption>Overview of multi-agent architecture patterns in modern AI systems.</figcaption>
 </figure>
 

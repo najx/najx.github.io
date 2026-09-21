@@ -21,7 +21,7 @@ and nothing to load before the page paints. If the file is missing the
 _data/news-sources.yml       the feed list — the one file you edit by hand
 _data/news.json              the ~15 stories the home page shows
 .newsbot/archive/<date>.json the day's distinct stories, summaries included
-.newsbot/state.json          which stories already became an article
+.newsbot/state.json          which stories already became an article, and when
 ```
 
 `.newsbot/` starts with a dot, so Jekyll ignores it. That matters: Jekyll
@@ -163,7 +163,7 @@ outlet taking the page. Slots are never back-filled with gated stories.
 
 | when | what | writes |
 |---|---|---|
-| Sunday, 06:17 UTC | pick a subject, fetch its sources, draft, check, open a PR | a branch and a pull request — never `main` |
+| Sunday, 06:17 UTC | pick a subject, fetch its sources, draft, check, open a PR | a branch and a pull request — never `main`; the branch carries the post and `.newsbot/state.json` |
 
 Five steps, and the bar at each one is deliberately higher than the home
 page's: a mis-ordered row on the front page is replaced tomorrow, a badly
@@ -172,8 +172,9 @@ chosen subject wastes the week.
 1. **Pick** (`pick.py`) — the best-scoring story of the last seven days that
    clears every clause: score, informative state, no injection suspicion, a
    subject squarely on topic with confidence behind it, a genre that reports
-   a development rather than discussing one, and no overlap with a title
-   already published. If nothing clears it, a relaxed bar runs; if nothing
+   a development rather than discussing one, no overlap with a title
+   already published, and nothing the blog has already covered inside
+   `COOLDOWN_DAYS` (60). If nothing clears it, a relaxed bar runs; if nothing
    clears that either, the week publishes nothing and the job says so. That
    is a normal quiet week, not a failure.
 2. **Fetch** (`fetch.py`) — the source articles, extracted with trafilatura.
@@ -194,7 +195,39 @@ chosen subject wastes the week.
    and each source, whether the source bears it out.
 5. **Render and open a PR** (`render.py`) — the house front matter with
    `ai_assisted: true`, which the theme turns into its banner, plus the
-   disclosure line naming both models, which `charter.md` promises.
+   disclosure line naming both models, which `charter.md` promises. The
+   subject is then written into `.newsbot/state.json` and committed onto the
+   same branch, so the cooldown only starts once the article is merged.
+
+### The cooldown
+
+`.newsbot/state.json` is the only thing that remembers what the blog has
+already written about. One entry per article, holding the canonical URL of
+the subject, the `also_urls` of the other write-ups of the same story, the
+slug, the source title and the date:
+
+```json
+{"covered": [{"url": "https://example.com/gemini",
+              "also_urls": ["https://other.example/gemini"],
+              "title": "Gemini went rogue at three companies",
+              "slug": "when-the-model-stopped",
+              "date": "2026-09-21"}],
+ "last_article": "2026-09-21"}
+```
+
+`pick` rejects a candidate whose URL — or any of its own `also_urls` —
+appears in an entry less than `COOLDOWN_DAYS` (60) old, and compares the
+incoming headline to the stored **source** titles as well as to the titles in
+`_posts/`. Both halves are needed. The URL set catches the follow-up, which
+arrives next week from whichever outlet was not the representative. The
+source title catches the same story reported by a third outlet under a
+different link — and it has to be the source title, because the article's own
+title is Claude's rewrite: *Gemini went rogue, hacked three companies, and
+Google hid it* against *When "The Model Stopped" Becomes a Safety Control*
+overlaps by 0.00.
+
+An entry whose date will not parse is treated as recent. Failing closed costs
+at most one skipped subject; failing open costs a duplicate article.
 
 ### What the report means
 
@@ -211,7 +244,7 @@ on Claude Opus 5, plus a few cents of Jev. Roughly $0.70 a month.
 ### Running it by hand
 
 ```bash
-newsbot article --out /tmp/preview      # write the post somewhere else
+newsbot article --out /tmp/preview      # preview: does not touch state.json
 newsbot article --candidate 1           # take the runner-up subject
 newsbot article --days 14 --no-verify   # wider window, skip the check
 ```
@@ -226,3 +259,77 @@ newsbot article --days 14 --no-verify   # wider window, skip the check
 
 The workflow checks for `NEWSBOT_TOKEN` first and fails with that explanation
 rather than running and silently publishing nothing.
+
+## Lot 5 — Apify adapter for Anthropic and Mistral (design, not built)
+
+Issue #15 asks for this. It is written down here rather than shipped because
+there is no Apify token available to develop or test it against in this
+environment — an adapter built without ever calling the real API would be
+speculation wearing code, and a feed that silently returns nothing is worse
+than one that stays `enabled: false` with a note, per the existing convention
+in `_data/news-sources.yml`.
+
+**Why it's needed.** Anthropic and Mistral publish no RSS or Atom feed (see
+the `enabled: false` entries for both in `_data/news-sources.yml`, each with
+a `note` recording the 404s already checked). Every other source on the list
+is read through [`sources.fetch()`](../tools/newsbot/newsbot/sources.py),
+which assumes a feed URL `feedparser` can parse. These two need something
+that renders their news page and extracts entries instead.
+
+**Concrete integration points, in the code as it stands today:**
+
+- `Source` (`sources.py`) is a plain dataclass: `name`, `url`, `enabled`,
+  `note`. It would grow a `kind: str = "feed"` field (and, for the apify
+  kind, whatever the actor needs to run — an actor ID, at minimum) read by
+  `load_sources()` the same way `enabled` and `note` already are.
+- `collect()` (`sources.py`) fans a list of `Source` out to `fetch()` through
+  a `ThreadPoolExecutor`, catches any exception per source into `failures`,
+  and never lets one dead source fail the run. The adapter should be a
+  second function with the same contract — takes a `Source`, returns
+  `list[Item]`, raises on failure — dispatched from `collect()` by
+  `source.kind` so the failure isolation, the `log.info("%s: %d items", ...)`
+  line, and `probe`'s pass/fail table all keep working unchanged for every
+  source, feed or not.
+- `Item` (`models.py`) is the shared shape: `title`, `url`, `source`,
+  `published`, `summary`. The adapter's job is to produce this shape,
+  nothing more — clustering, deduplication, ranking and archiving downstream
+  do not know or care whether an `Item` came from a feed or an Actor.
+- `fetch()`'s per-entry rules — skip anything with no title, no link, or no
+  parseable date (`_entry_date`'s `FUTURE_TOLERANCE` guard included); run
+  both title and summary through `clean_text()`; trim the summary with
+  `_entry_summary()` — apply just as much to scraped entries, so a page that
+  is missing a date does not get windowed in wrongly and scraped HTML does
+  not reach the reader unescaped.
+
+**What the adapter would actually run.** Apify's own **Website Content
+Crawler** actor (or an equivalent generic-scrape actor) pointed at
+`https://www.anthropic.com/news` and `https://mistral.ai/news`, called once
+per collection run, filtered to that day's page only — not a crawl of the
+whole site, which these two pages don't need and which would multiply the
+Apify usage cost for no benefit. The actor's output would need a mapping
+step (probably in a new `newsbot/apify_source.py`) from whatever fields the
+chosen actor returns to `Item`'s five fields, plus a check that a title-only
+result without a real published date is dropped rather than guessed, per the
+existing rule.
+
+**New secret**, matching the pattern of `TYPESAFE_API_KEY` and
+`ANTHROPIC_API_KEY` above: `APIFY_TOKEN`, used by the `apify-client` package
+to call the actor and read its dataset back.
+
+**Before it ships:** a real Apify token to develop against; a decision on
+which actor to use (generic content crawler vs. a small purpose-built one —
+that decision changes the mapping step and the per-run cost); the actual
+per-run Apify cost, measured the same way this doc already measures the Jev
+and Claude costs above; and the same live-network measurement `newsbot
+probe` gives every feed today, so Anthropic and Mistral only move to
+`enabled: true` once they are shown to actually surface recent posts, not
+just once the plumbing runs without erroring.
+
+**Left out of this issue's fix for the same reason:** the two-week
+measurement of which of the existing feeds publish inside the 48h window.
+`newsbot -v collect` now logs a per-feed in-window count and the same count
+is written to `.newsbot/archive/<date>.json` as `per_source` (see the
+`## Ranking with Jev` era archive schema above), so the measurement can be
+taken by reading fourteen days of `per_source` once they exist — but they
+don't exist yet going back two weeks, and generating that history is not
+something a single run of this fix can produce.
