@@ -91,16 +91,14 @@ claim in the body must trace to one of them.
 
 ## AI disclosure
 
-`charter.md` commits to naming the model and how it was used, so the piece ends
-with a line stating it plainly — for example:
-
-> Drafted with Claude Opus 5 from the sources listed above. Subject selected,
-> and each sourced claim checked against its source, by Jev 1.13. Reviewed and
-> edited before publication.
-
-Adjust it to what actually happened. The `ai_assisted: true` banner is not a
-substitute for this line; the charter asks for the specific model and the
-specific use.
+`charter.md` commits to naming the model and how it was used, but the piece
+you draft does not include that line yourself. `render.py` appends it after
+your text, mechanically, using the actual model name it was run with — a name
+you have no reliable way to know from inside the draft. Do not write a
+"Drafted with ..." sentence, or anything like it, at the end of the article.
+End your draft at the sources block. The `ai_assisted: true` banner and the
+generated disclosure line together satisfy the charter; nothing further is
+needed from you.
 
 ## Two hard rules for generated drafts
 

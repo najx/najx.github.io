@@ -126,6 +126,25 @@ class TestParseDraft:
                         "DESCRIPTION: D.\n\nBody.")
         assert p.slug() == "l-odyssee-d-une-requete-c-est-parti"
 
+    def test_a_model_written_disclosure_paragraph_is_stripped(self):
+        """style.md tells the model not to write its own disclosure, but
+        render() cannot rely on that alone: a model does not reliably know
+        its own name, and the generated block would otherwise land after a
+        stale, self-attributed one (issue #23)."""
+        p = parse_draft(
+            "TITLE: T\nDESCRIPTION: D.\n\nBody.\n\n---\n\nSources:\n\n"
+            "- **A — B**: [a/b](https://a/b)\n\n"
+            "Drafted with Claude Opus 4.6 from the single source listed "
+            "above. Subject selected, and each sourced claim checked "
+            "against the source, by Jev 1.13. Reviewed and edited before "
+            "publication.")
+        assert "Drafted with" not in p.body
+        assert p.body.endswith("[a/b](https://a/b)")
+
+    def test_no_disclosure_paragraph_leaves_the_body_untouched(self):
+        p = parse_draft("TITLE: T\nDESCRIPTION: D.\n\nBody.\n\nMore body.")
+        assert p.body == "Body.\n\nMore body."
+
 
 class TestRender:
     def test_the_charter_flag_and_disclosure_are_both_present(self):

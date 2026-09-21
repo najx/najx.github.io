@@ -79,12 +79,33 @@ def parse_draft(markdown: str) -> Post:
         # than invent one.
         tag = DEFAULT_TAG
 
+    body = markdown[body_start:].strip()
+    body = _strip_model_written_disclosure(body)
+
     return Post(
         title=fields["TITLE"].strip().strip('"').rstrip("."),
         description=fields["DESCRIPTION"].strip(),
         tag=tag,
-        body=markdown[body_start:].strip(),
+        body=body,
     )
+
+
+def _strip_model_written_disclosure(body: str) -> str:
+    """Drop a trailing "Drafted with ..." paragraph the model wrote itself.
+
+    style.md tells the model not to write one — `render()` appends the real
+    disclosure, naming the actual model, after the body — but a draft cannot
+    be trusted to always comply, and a model does not reliably know its own
+    name. Belt and suspenders: if the last paragraph starts with "Drafted
+    with", it is dropped here before the generated block is added, along with
+    a lone trailing `---` rule left behind once that paragraph is gone.
+    """
+    paragraphs = re.split(r"\n\s*\n", body)
+    if paragraphs and paragraphs[-1].strip().startswith("Drafted with"):
+        paragraphs.pop()
+        if paragraphs and paragraphs[-1].strip() == "---":
+            paragraphs.pop()
+    return "\n\n".join(paragraphs).rstrip()
 
 
 def disclosure(draft_model: str, checked: int, unsupported: int) -> str:
