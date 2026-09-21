@@ -42,8 +42,6 @@ sources:
     url: https://huggingface.co/blog/feed.xml
 
   # --- Practitioners and analysis ----------------------------------------
-  - name: Import AI
-    url: https://importai.substack.com/feed
   - name: Sebastian Raschka
     url: https://magazine.sebastianraschka.com/feed
   - name: Latent Space
@@ -98,3 +96,10 @@ sources:
     url: https://venturebeat.com/category/ai/feed/
     enabled: false
     note: feed exists but answers 429 to datacenter IPs
+
+  - name: Import AI
+    url: https://importai.substack.com/feed
+    enabled: false
+    note: >-
+      works from a residential connection, 403 from GitHub Actions runners —
+      the same datacenter-IP block as VentureBeat. Observed on two runs.

@@ -4,9 +4,15 @@ version = "0.1.0"
 description = "Daily AI news watch for najx.dev: collect headlines, rank them with Jev, draft the weekly article with Claude."
 requires-python = ">=3.10"
 dependencies = [
+    # collection
     "feedparser>=6.0.11",
     "PyYAML>=6.0",
     "requests>=2.31",
+    # ranking and citation checking
+    "typesafe-sdk>=0.7",
+    # the weekly article
+    "anthropic>=1.7",
+    "trafilatura>=2.0",
 ]
 
 [project.optional-dependencies]
