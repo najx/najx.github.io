@@ -144,6 +144,7 @@ def cmd_collect(args: argparse.Namespace) -> int:
 def cmd_article(args: argparse.Namespace) -> int:
     """Draft the week's article: pick, fetch, write, check, render."""
     from . import fetch, pick, render, verify, write
+    import json
 
     store = Store(repo_root())
     now = datetime.now(timezone.utc)
@@ -223,6 +224,26 @@ def cmd_article(args: argparse.Namespace) -> int:
         print("\nclaims the sources do not bear out:", file=sys.stderr)
         for f in checks.unsupported[:12]:
             print(f"  [{f.best_support:.2f}] {f.sentence[:100]}", file=sys.stderr)
+
+    if args.checks_out:
+        # A machine-readable sibling of the log above, so the workflow can
+        # build the PR's review checklist without scraping stderr — which
+        # broke the moment a claim's own text contained a line the scraper
+        # mistook for its own markers.
+        payload = {
+            "checked": checks.checked,
+            "unsupported": [
+                {"sentence": f.sentence, "support": round(f.best_support, 3),
+                 "source": f.best_source}
+                for f in checks.unsupported
+            ],
+            "tag": post.tag,
+            "post": str(path),
+        }
+        Path(args.checks_out).write_text(
+            json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        print(f"wrote {args.checks_out}", file=sys.stderr)
+
     return 0
 
 
@@ -264,6 +285,8 @@ def main(argv: list[str] | None = None) -> int:
     article.add_argument("--out", help="write the post under this root instead")
     article.add_argument("--no-verify", action="store_true",
                          help="skip the Jev citation check")
+    article.add_argument("--checks-out",
+                         help="also write the citation check as JSON to this path")
     article.set_defaults(func=cmd_article)
 
     args = parser.parse_args(argv)
