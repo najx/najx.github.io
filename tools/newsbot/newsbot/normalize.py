@@ -154,7 +154,17 @@ def cluster(items: list[Item], threshold: float = CLUSTER_CERTAIN) -> list[Item]
     out = []
     for members in groups.values():
         head, rest = members[0], members[1:]
-        head.also = sorted({m.source for m in rest} - {head.source})
-        head.also_urls = [m.url for m in rest]
+        # A union, never an overwrite. The weekly run clusters items that
+        # already carry a day's worth of `also`/`also_urls` from the archive;
+        # replacing them here wiped every story's corroboration — a story two
+        # outlets ran ranked as if one had, and the prompt said so.
+        head.also = sorted(
+            ({m.source for m in rest} | set(head.also)
+             | {a for m in rest for a in m.also}) - {head.source}
+        )
+        head.also_urls = sorted(
+            (set(head.also_urls) | {m.url for m in rest}
+             | {u for m in rest for u in m.also_urls}) - {head.url}
+        )
         out.append(head)
     return sorted(out, key=lambda i: i.published, reverse=True)

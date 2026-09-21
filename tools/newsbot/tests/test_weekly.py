@@ -88,6 +88,18 @@ class TestMerge:
         ])
         assert len(stories) == 2
 
+    def test_corroboration_read_from_the_archive_survives_the_re_cluster(self):
+        """The daily run already clustered the day and wrote `also`; the
+        weekly re-cluster used to overwrite it with an empty list, so a story
+        two outlets ran ranked as one and the prompt said "no other outlet"."""
+        it = Item("Trump announces an AI Force", "https://d/1", "The Decoder",
+                  NOW - timedelta(days=1), also=["The Verge"],
+                  also_urls=["https://v/1"])
+        stories = weekly.merge([("2026-09-19", it, judgement())])
+        assert stories[0].outlets == 2
+        assert stories[0].item.also == ["The Verge"]
+        assert "https://v/1" in stories[0].urls
+
     def test_resolve_is_applied_to_the_clustered_list(self):
         seen = {}
 

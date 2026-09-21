@@ -148,13 +148,16 @@ def insert_table(body: str, rows) -> str:
     two and remove one, which beats silently trusting a model's arithmetic.
     """
     table = theme_table_markdown(rows)
-    m = re.search(r"^##[ \t]+Trends[ \t]*$", body, re.M)
+    # Case-insensitive and tolerant of a trailing colon: the prompt asks for
+    # "## Trends" exactly, but a model that writes "## Trends:" or title-cases
+    # "Also This Week" must not end up with a second Trends block at the end.
+    m = re.search(r"^##[ \t]+Trends:?[ \t]*$", body, re.M | re.I)
     if m:
         return body[:m.end()] + "\n\n" + table + body[m.end():]
     # No Trends section: add one before "Also this week", else before the
     # Sources rule, else at the end.
-    for pattern in (r"^##[ \t]+Also this week[ \t]*$", r"^---[ \t]*$\n+\s*Sources:"):
-        m = re.search(pattern, body, re.M)
+    for pattern in (r"^##[ \t]+Also this week:?[ \t]*$", r"^---[ \t]*$\n+\s*Sources:"):
+        m = re.search(pattern, body, re.M | re.I)
         if m:
             return body[:m.start()] + "## Trends\n\n" + table + "\n\n" + body[m.start():]
     return body.rstrip() + "\n\n## Trends\n\n" + table + "\n"
@@ -205,8 +208,10 @@ def render(report: Report, when: datetime, week_id: str, period: str,
     # front matter unparseable — and an unparseable front matter fails the
     # site build. A model-written description containing a colon-space is
     # enough to do it.
+    # The id is quoted too: a one-word heading such as "No" or "Off" yields a
+    # bare YAML 1.1 boolean, and a boolean makes no anchor.
     stories = "".join(
-        f"  - id: {anchor}\n    title: {json.dumps(title, ensure_ascii=False)}\n"
+        f"  - id: {json.dumps(anchor)}\n    title: {json.dumps(title, ensure_ascii=False)}\n"
         for anchor, title in sections(body)
     )
     stamp = _stamp(when)

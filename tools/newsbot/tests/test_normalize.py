@@ -117,6 +117,24 @@ class TestCluster:
         assert stories[0].also == []
         assert stories[0].corroboration == 1
 
+    def test_what_the_head_already_carried_is_kept(self, make_item):
+        """cluster() is run twice on the same data — once a day, once a week —
+        so the second pass must add to `also`, never replace it."""
+        head = make_item("Gemini breach hits three companies", "https://a.com/1",
+                         source="WIRED", minutes_ago=60)
+        head.also, head.also_urls = ["Ars Technica"], ["https://ars.com/1"]
+        other = make_item("Gemini breach hits three companies today",
+                          "https://b.com/2", source="The Verge", minutes_ago=10)
+        stories = cluster([head, other])
+        assert len(stories) == 1
+        assert stories[0].also == ["Ars Technica", "The Verge"]
+        assert stories[0].also_urls == ["https://ars.com/1", "https://b.com/2"]
+
+    def test_a_singleton_keeps_its_corroboration_too(self, make_item):
+        head = make_item("Alone", "https://a.com/1", source="WIRED")
+        head.also, head.also_urls = ["Ars Technica"], ["https://ars.com/1"]
+        assert cluster([head])[0].corroboration == 2
+
     def test_returns_newest_first(self, make_item):
         stories = cluster([
             make_item("Older unrelated story", minutes_ago=600),

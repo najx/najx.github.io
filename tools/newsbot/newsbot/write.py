@@ -129,13 +129,24 @@ front matter, nothing else before it. Its parts, in this order:
 Do not write a disclosure line; the pipeline appends one."""
 
 
+def _attr(value: str) -> str:
+    """An attribute value that cannot close its own quotes or its own line.
+
+    Outlet names come from the feed list and hosts from fetched URLs; neither
+    should be able to end the attribute early and start writing the tag.
+    """
+    return (str(value).replace("&", "&amp;").replace('"', "&quot;")
+            .replace("<", "&lt;").replace(">", "&gt;")
+            .replace("\n", " ").replace("\r", " "))
+
+
 def _source_block(nonce: str, n: int, outlet: str, url: str, text: str,
                   kind: str = "article") -> str:
     # Strip any nonce the page happens to contain, so fetched bytes can never
     # forge a wrapper that looks like part of the instructions.
     body = text.replace(nonce, "")
-    return (f'<source nonce="{nonce}" n="{n}" kind="{kind}" outlet="{outlet}" '
-            f'url="{url}">\n{body}\n</source>')
+    return (f'<source nonce="{nonce}" n="{n}" kind="{kind}" '
+            f'outlet="{_attr(outlet)}" url="{_attr(url)}">\n{body}\n</source>')
 
 
 def _outlet_for(story: Story, url: str) -> str:
