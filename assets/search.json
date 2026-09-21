@@ -2,8 +2,9 @@
 layout: none
 ---
 
+{%- assign entries = site.posts | concat: site.ai_news | sort: "date" | reverse -%}
 [
-  {% for post in site.posts %}
+  {% for post in entries %}
     {
       "title"    : "{{ post.title | escape }}",
       "description" : "{{ post.description | escape }}",

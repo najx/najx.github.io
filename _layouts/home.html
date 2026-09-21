@@ -4,41 +4,32 @@ home: true
 ---
 
 {%- comment -%}
-  /ai-news — the daily AI watch, ranked by Jev and written to _data/news.json
-  by the newsbot workflow. Rendered at build time: no client-side fetch, no
-  CORS, no empty banner when a feed is down. If the file is missing or empty
-  the section simply disappears.
+  /ai-news — the latest weekly report, drafted by tools/newsbot and merged
+  after review. Rendered at build time from the _ai_news collection. No
+  outbound links here: the headlines are anchors into the report itself, and
+  the report's Sources block is where the outlets get their links. If the
+  collection is empty the section simply disappears.
 {%- endcomment -%}
-{%- assign news = site.data.news -%}
-{%- if news.items and news.items.size > 0 -%}
+{%- assign report = site.ai_news | sort: "date" | last -%}
+{%- if report -%}
   <div class="year-header">
-    <h2>/ai-news</h2>
-    <span class="number-of-posts">({{ news.items.size }})</span>
+    <h2><a href="/ai-news/">/ai-news</a></h2>
+    <span class="number-of-posts">({{ report.week }})</span>
   </div>
-  {%- for item in news.items -%}
-    {%- comment -%}
-      These titles and links come off the open web, so nothing here is trusted.
-      Every interpolation is escaped, and the href is dropped unless the URL
-      starts with http:// or https:// — escaping alone would still happily
-      render a javascript: link.
-    {%- endcomment -%}
-    {%- assign is_http = false -%}
-    {%- if item.url %}{% if item.url contains "://" %}
-      {%- assign scheme = item.url | split: "://" | first | downcase -%}
-      {%- if scheme == "http" or scheme == "https" %}{% assign is_http = true %}{% endif -%}
-    {% endif %}{% endif -%}
-    {%- if item.title and is_http -%}
-      <article class="post-item">
-        <h3 class="post-item-title">
-          <a href="{{ item.url | escape }}" target="_blank" rel="noopener nofollow">{{ item.title | escape }}</a>
-        </h3>
-        {%- if item.source -%}
-          <div class="post-item-tags">
-            <span class="post-tag">{{ item.source | downcase | escape }}</span>
-          </div>
-        {%- endif -%}
-      </article>
-    {%- endif -%}
+  <article class="post-item">
+    <h3 class="post-item-title">
+      <a href="{{ report.url }}">{{ report.title | escape }}</a>
+    </h3>
+    <div class="post-item-tags">
+      <span class="post-tag">{{ report.period | escape }}</span>
+    </div>
+  </article>
+  {%- for story in report.stories -%}
+    <article class="post-item">
+      <h3 class="post-item-title">
+        <a href="{{ report.url }}#{{ story.id | escape }}">{{ story.title | escape }}</a>
+      </h3>
+    </article>
   {%- endfor -%}
 {%- endif -%}
 

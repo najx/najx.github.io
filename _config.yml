@@ -33,6 +33,11 @@ fb_appid: # leave it blank if not wish
 collections:
   posts:
     output: true
+  # The weekly AI report, written by tools/newsbot and reviewed before merge.
+  # One file per ISO week under _ai_news/, served at /ai-news/<week>/.
+  ai_news:
+    output: true
+    permalink: /ai-news/:name/
 
 # Markdown settings
 markdown: kramdown
@@ -44,6 +49,12 @@ kramdown:
 defaults:
   - scope:
       path: ""
+    values:
+      layout: post
+      comments: false
+  - scope:
+      path: ""
+      type: ai_news
     values:
       layout: post
       comments: false
@@ -89,6 +100,12 @@ exclude:
   # served from /tools/ and its documentation rendered as a page.
   - tools
   - docs
+
+# jekyll-feed: /feed.xml stays the articles' feed; the weekly report gets
+# its own at /feed/ai_news.xml, so a reader can follow one without the other.
+feed:
+  collections:
+    - ai_news
 
 # Plugins
 plugins:

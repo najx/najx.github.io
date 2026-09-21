@@ -1,0 +1,26 @@
+---
+# `default`, not `page`: the page layout prints a big centred heading and
+# wraps the content in .page-content; this index should sit exactly where
+# the home and /blog sit. `title` stays for the browser tab.
+title: AI news
+permalink: /ai-news/
+layout: default
+comments: false
+---
+
+<div class="year-header">
+  <h2>/ai-news</h2>
+  <span class="number-of-posts">({{ site.ai_news.size }})</span>
+</div>
+{%- assign reports = site.ai_news | sort: "date" | reverse -%}
+{%- for report in reports -%}
+  <article class="post-item">
+    <h3 class="post-item-title">
+      <a href="{{ report.url }}">{{ report.title | escape }}</a>
+    </h3>
+    <div class="post-item-tags">
+      <span class="post-tag">{{ report.week }}</span>
+      <span class="post-tag">{{ report.period | escape }}</span>
+    </div>
+  </article>
+{%- endfor -%}
