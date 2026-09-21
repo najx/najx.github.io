@@ -75,9 +75,11 @@ def load_week(archive_dir: Path, now: datetime, days: int = WINDOW_DAYS) -> list
             item = Item.from_dict(raw)
             if item.published < cutoff:
                 continue
+            # "model" joined this list after the fact, so archives written
+            # before it exist and simply do not carry the key.
             judgement = {k: raw[k] for k in
                          ("score", "gate", "informative", "injection",
-                          "fit_top", "fit_confidence", "genre_hard")
+                          "fit_top", "fit_confidence", "genre_hard", "model")
                          if k in raw}
             if "score" in judgement:
                 out.append(Candidate(item=item, judgement=judgement))

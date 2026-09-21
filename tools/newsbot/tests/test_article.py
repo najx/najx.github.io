@@ -5,17 +5,45 @@ against the live model in the workflow, not in the suite.
 """
 
 import json
+import re
 from datetime import datetime, timedelta, timezone
 
 import pytest
+from typesafe_sdk import ChoiceAnswer, NoulAnswer, ScoreAnswer, SystemOneResponse, Usage
 
 from newsbot import pick
 from newsbot.judge import MODEL as JEV_MODEL
 from newsbot.models import Item
-from newsbot.render import DEFAULT_TAG, TAGS, _jev_label, parse_draft, render, write_post
+from newsbot.render import (
+    DEFAULT_TAG,
+    TAGS,
+    _jev_label,
+    disclosure,
+    parse_draft,
+    render,
+    write_post,
+)
+from newsbot.store import Store
 from newsbot.verify import sentences
 
 NOW = datetime(2026, 9, 21, 12, tzinfo=timezone.utc)
+
+
+def flat(level, top, confidence=0.95):
+    """A ScoreAnswer with all its mass on one level of a `top`-level scale."""
+    probabilities = {i: (1.0 if i == level else 0.0) for i in range(top)}
+    return ScoreAnswer(type="score", score=float(level), confidence=confidence,
+                       legend={i: f"level {i}" for i in probabilities},
+                       probabilities=probabilities)
+
+
+def choice(label, confidence=0.95):
+    return ChoiceAnswer(type="choice", choice=label, confidence=confidence,
+                        probabilities={label: 1.0})
+
+
+def noul(p):
+    return NoulAnswer(type="noul", noul=p)
 
 
 def good_judgement(**over):
@@ -256,9 +284,10 @@ class TestRender:
         """charter.md promises the model is named, and post.html renders the
         banner from ai_assisted. Neither is optional."""
         out = render(parse_draft("TITLE: T\nDESCRIPTION: D.\nTAG: AI 🤖\n\nBody."),
-                     NOW, "Claude Opus 5", 30, 1)
+                     NOW, "Claude Opus 5", 30, 1,
+                     judge_model="jev-1.14", verify_model="jev-1.14")
         assert "ai_assisted: true" in out
-        assert "Claude Opus 5" in out and _jev_label() in out
+        assert "Claude Opus 5" in out and "Jev 1.14" in out
         assert "30 claims, 1 flagged" in out
 
     def test_the_jev_label_stays_derived_from_model(self):
@@ -397,3 +426,143 @@ class TestRegressions:
         with pytest.raises(ValueError, match="two published posts"):
             draft(Item("T", "https://x/1", "A", NOW), {"https://x/1": "text"},
                   [], "guide", ["only one"])
+
+
+class TestDisclosureNamesTheModelThatAnswered:
+    """charter.md promises the model actually used. The name therefore comes
+    from what the API returned, never from a version written into the prose:
+    that is issue #16, where a hardcoded "Jev 1.13" outlived the model."""
+
+    def test_the_served_version_is_what_gets_printed(self):
+        line = disclosure("Claude Opus 5", 26, 3,
+                          judge_model="jev-1.14", verify_model="jev-1.14")
+        assert line.count("Jev 1.14") == 2
+        assert "1.13" not in line
+
+    def test_the_two_steps_are_named_separately(self):
+        """Selection ran during a collect days before the check ran, so the
+        two can legitimately have been answered by different versions."""
+        line = disclosure("Claude Opus 5", 4, 0,
+                          judge_model="jev-1.13", verify_model="jev-1.14")
+        assert "headlines by Jev 1.13." in line
+        assert "against those sources by Jev 1.14" in line
+
+    def test_no_version_is_invented_when_none_was_served(self):
+        """An archive from before the served id was recorded gives nothing
+        to name. Naming Jev without a version is honest; guessing is not."""
+        line = disclosure("Claude Opus 5", 4, 0)
+        assert "headlines by Jev." in line
+        assert not re.search(r"Jev \d", line)
+
+    def test_the_fallback_label_cannot_drift_from_the_model_we_call(self):
+        """The label with no served id is derived from judge.MODEL, so the
+        two cannot disagree the way the issue describes."""
+        assert _jev_label() == _jev_label(JEV_MODEL)
+
+    def test_a_floating_alias_is_not_read_as_a_version(self):
+        assert _jev_label("jev-latest") == "Jev"
+        assert _jev_label("") == _jev_label(None) == _jev_label(JEV_MODEL)
+
+    def test_a_versioned_id_is_read_as_its_version(self):
+        assert _jev_label("jev-1.13") == "Jev 1.13"
+        assert _jev_label("JEV-2") == "Jev 2"
+
+    def test_the_post_on_disk_carries_the_served_version(self, tmp_path):
+        path = write_post(tmp_path,
+                          parse_draft("TITLE: A Title\nDESCRIPTION: D.\n\nB."),
+                          NOW, "Claude Opus 5", 2, 0,
+                          judge_model="jev-1.14", verify_model="jev-1.14")
+        assert "Jev 1.14" in path.read_text(encoding="utf-8")
+
+
+class TestServedIdIsCarriedOutOfTheCalls:
+    """Nothing here reaches the network: the SDK's own response model stands
+    in for the API, so a renamed field fails here rather than in production."""
+
+    def test_judge_records_the_version_that_answered(self, monkeypatch):
+        from newsbot import judge
+
+        answers = {"domain_fit": flat(4, 5), "story_type": choice("incident"),
+                   "mechanism_depth": flat(4, 5), "practitioner_stakes": flat(3, 4),
+                   "is_promo_or_admin": noul(0.02),
+                   "state_is_informative": noul(0.95),
+                   "injection_present": noul(0.02)}
+
+        class FakeClient:
+            def system_one(self, **kwargs):
+                assert kwargs["model"] == JEV_MODEL
+                return SystemOneResponse(model="jev-1.14", usage=Usage(),
+                                         answers=answers)
+
+        a = judge.score_one(FakeClient(), Item(
+            title="A story", url="https://x/1", source="Ars", published=NOW))
+        assert a.model == "jev-1.14"
+
+    def test_verify_reports_the_version_that_answered(self, monkeypatch):
+        from newsbot import verify as verify_mod
+
+        class FakeClient:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *exc):
+                return False
+
+            def system_one(self, **kwargs):
+                name = next(iter(kwargs["state"]))
+                p = 0.9 if name == "sentence" else 0.8
+                return SystemOneResponse(
+                    model="jev-1.14", usage=Usage(),
+                    answers={"q": noul(p)})
+
+        monkeypatch.setattr(verify_mod, "TypeSafeClient", FakeClient)
+        report = verify_mod.verify(
+            "The outage began on Tuesday morning at the data centre.",
+            {"https://src": "source text"})
+        assert report.checked == 1
+        assert report.model == "jev-1.14"
+
+    def test_a_version_rollover_mid_run_names_no_version(self, monkeypatch):
+        """Two versions answered one run; neither can be called *the* model."""
+        from newsbot import verify as verify_mod
+
+        served = iter(["jev-1.13", "jev-1.14", "jev-1.14", "jev-1.14"])
+
+        class FakeClient:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *exc):
+                return False
+
+            def system_one(self, **kwargs):
+                return SystemOneResponse(model=next(served), usage=Usage(),
+                                         answers={"q": noul(0.9)})
+
+        monkeypatch.setattr(verify_mod, "TypeSafeClient", FakeClient)
+        report = verify_mod.verify(
+            "The outage began on Tuesday morning at the data centre.",
+            {"https://src": "source text"})
+        assert report.model is None
+        assert "Jev." in disclosure("Claude Opus 5", report.checked, 0,
+                                    verify_model=report.model)
+
+
+class TestArchivedServedId:
+    def test_the_id_survives_the_archive_and_reaches_the_pick(self, tmp_path):
+        store = Store(tmp_path)
+        item = Item(title="A story", url="https://x/1", source="Ars", published=NOW)
+        store.save_archive(NOW, [item], {},
+                           {item.url: {"score": 0.8, "model": "jev-1.14"}})
+        loaded = pick.load_week(store.archive, NOW, days=7)
+        assert loaded[0].judgement["model"] == "jev-1.14"
+
+    def test_an_archive_written_before_the_field_existed_still_loads(self, tmp_path):
+        """Every archive already on disk lacks the key; reading one must not
+        fail, and the disclosure simply names no version."""
+        store = Store(tmp_path)
+        item = Item(title="A story", url="https://x/1", source="Ars", published=NOW)
+        store.save_archive(NOW, [item], {}, {item.url: {"score": 0.8}})
+        loaded = pick.load_week(store.archive, NOW, days=7)
+        assert "model" not in loaded[0].judgement
+        assert loaded[0].judgement.get("model") is None

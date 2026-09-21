@@ -587,6 +587,7 @@ class Assessment:
     flags: list[str] = field(default_factory=list)
     answers: dict = field(default_factory=dict)
     detail: dict = field(default_factory=dict)
+    model: str | None = None         # the id the API says it actually served
     error: str | None = None
 
     @property
@@ -688,7 +689,12 @@ def score_one(client: TypeSafeClient, item: Item, lede: str = "") -> Assessment:
     except TypeSafeAPIError as exc:
         log.warning("%s: %s", item.title[:50], exc)
         return Assessment(item=item, error=f"{type(exc).__name__}: {exc}")
-    return assess(item, response.answers)
+    # MODEL is the floating alias `jev-latest`; response.model is the version
+    # that answered. The weekly disclosure names the latter, so it is carried
+    # out of here and archived with the score.
+    a = assess(item, response.answers)
+    a.model = response.model
+    return a
 
 
 def score_all(items: list[Item], ledes: dict[str, str] | None = None) -> list[Assessment]:

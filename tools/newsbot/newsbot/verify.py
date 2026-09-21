@@ -106,6 +106,7 @@ class Finding:
 class Report:
     checked: int = 0
     findings: list[Finding] = None
+    model: str | None = None    # the id the API says it actually served
     error: str | None = None
 
     def __post_init__(self):
@@ -167,9 +168,14 @@ def verify(markdown: str, sources: dict[str, str]) -> Report:
 
     try:
         with TypeSafeClient() as client:
+            # MODEL is the floating alias `jev-latest`; r.model is the
+            # version that answered, and the disclosure must name that one.
+            served: set[str] = set()
+
             def is_claim(sentence: str):
                 r = client.system_one(state={"sentence": sentence},
                                       questions={"q": IS_CLAIM}, model=MODEL)
+                served.add(r.model)
                 return sentence, r.answers["q"].noul
 
             with cf.ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
@@ -185,6 +191,7 @@ def verify(markdown: str, sources: dict[str, str]) -> Report:
                 claim, url, text = pair
                 r = client.system_one(state={"claim": claim, "source": text},
                                       questions={"q": IS_SUPPORTED}, model=MODEL)
+                served.add(r.model)
                 return claim, url, r.answers["q"].noul
 
             best: dict[str, tuple[float, str | None]] = {c: (0.0, None) for c in claims}
@@ -199,4 +206,8 @@ def verify(markdown: str, sources: dict[str, str]) -> Report:
         checked=len(claims),
         findings=[Finding(sentence=c, best_support=p, best_source=u)
                   for c, (p, u) in best.items()],
+        # Only when every call was answered by the same version is there one
+        # version to name; a rollover mid-run leaves the label unversioned
+        # rather than picking a winner.
+        model=served.pop() if len(served) == 1 else None,
     )

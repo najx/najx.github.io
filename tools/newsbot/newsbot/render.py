@@ -22,16 +22,18 @@ TAGS = ["AI 🤖", "Cloud ☁️", "DevOps 🔄", "Code 👨‍💻", "Architect
 DEFAULT_TAG = "AI 🤖"
 
 
-def _jev_label(model_id: str = JEV_MODEL) -> str:
-    """Disclosure prose for Jev's model id, e.g. "jev-latest" -> "Jev latest".
+def _jev_label(model_id: str | None = None) -> str:
+    """How to name, in prose, the Jev that actually answered.
 
-    judge.MODEL is the one line that decides which model the pipeline
-    actually calls, so deriving the label from it here — instead of writing
-    a version number by hand — is what keeps the two from drifting apart the
-    next time Jev is upgraded.
+    `model_id` is what the API itself returned in `SystemOneResponse.model`
+    for the call being disclosed. Only a version found in that id is printed:
+    the id we *send* is the floating alias `judge.MODEL`, and writing a
+    version we merely believe is current is how the disclosure became false
+    in the first place. An alias, or nothing at all, names no version.
     """
-    suffix = model_id[len("jev-"):] if model_id.startswith("jev-") else model_id
-    return f"Jev {suffix}"
+    ident = (model_id or JEV_MODEL).strip()
+    m = re.fullmatch(r"jev[-_](\d[\w.]*)", ident, re.IGNORECASE)
+    return f"Jev {m.group(1)}" if m else "Jev"
 
 
 @dataclass
@@ -108,25 +110,36 @@ def _strip_model_written_disclosure(body: str) -> str:
     return "\n\n".join(paragraphs).rstrip()
 
 
-def disclosure(draft_model: str, checked: int, unsupported: int) -> str:
-    """The line charter.md asks for: which model, and how it was used."""
-    jev = _jev_label()
+def disclosure(draft_model: str, checked: int, unsupported: int,
+               judge_model: str | None = None,
+               verify_model: str | None = None) -> str:
+    """The line charter.md asks for: which model, and how it was used.
+
+    `judge_model` and `verify_model` are the ids the API returned for the two
+    Jev steps — selection and citation checking. They are two separate runs,
+    days apart, so they are named separately rather than assumed equal. An
+    archive written before this field existed supplies neither, and the
+    label falls back to naming Jev without a version.
+    """
     checked_note = (
         f"Every factual claim was checked back against those sources by "
-        f"{jev} ({checked} claims, {unsupported} flagged for review)."
+        f"{_jev_label(verify_model)} ({checked} claims, {unsupported} flagged "
+        f"for review)."
         if checked
         else "Citation checking did not run on this draft."
     )
     return (
         "---\n\n"
         f"*Drafted with {draft_model} from the sources listed above; the "
-        f"subject was selected from a week of collected headlines by {jev}. "
+        f"subject was selected from a week of collected headlines by "
+        f"{_jev_label(judge_model)}. "
         f"{checked_note} Reviewed and edited before publication.*\n"
     )
 
 
 def render(post: Post, when: datetime, model: str, checked: int, unsupported: int,
-           lang: str = "en") -> str:
+           lang: str = "en", judge_model: str | None = None,
+           verify_model: str | None = None) -> str:
     stamp = when.strftime("%Y-%m-%d %H:%M:%S %z")
     stamp = stamp[:-2] + ":" + stamp[-2:] if stamp[-5] in "+-" else stamp
     # json.dumps produces a valid YAML double-quoted scalar and escapes the
@@ -146,16 +159,21 @@ def render(post: Post, when: datetime, model: str, checked: int, unsupported: in
         "ai_assisted: true\n"
         "---\n\n"
         f"{post.body.rstrip()}\n\n"
-        f"{disclosure(model, checked, unsupported)}"
+        f"{disclosure(model, checked, unsupported, judge_model, verify_model)}"
     )
 
 
 def write_post(root: Path, post: Post, when: datetime, model: str,
-               checked: int, unsupported: int) -> Path:
+               checked: int, unsupported: int,
+               judge_model: str | None = None,
+               verify_model: str | None = None) -> Path:
     """_posts/<slug>/<date>-<slug>.md, the jekyll-postfiles layout."""
     slug = post.slug()
     directory = root / "_posts" / slug
     directory.mkdir(parents=True, exist_ok=True)
     path = directory / f"{when:%Y-%m-%d}-{slug}.md"
-    path.write_text(render(post, when, model, checked, unsupported), encoding="utf-8")
+    path.write_text(
+        render(post, when, model, checked, unsupported,
+               judge_model=judge_model, verify_model=verify_model),
+        encoding="utf-8")
     return path

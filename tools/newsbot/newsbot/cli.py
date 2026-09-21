@@ -74,6 +74,7 @@ def _rank(stories, now, args):
             "gate": a.gate,
             "flags": a.flags,
             **a.detail,
+            **({"model": a.model} if a.model else {}),
             **({"error": a.error} if a.error else {}),
         }
         for a in assessed
@@ -205,7 +206,9 @@ def cmd_article(args: argparse.Namespace) -> int:
     out_root = Path(args.out) if args.out else store.root
     path = render.write_post(out_root, post, datetime.now(timezone.utc),
                              _model_name(draft.model), checks.checked,
-                             len(checks.unsupported))
+                             len(checks.unsupported),
+                             judge_model=winner.judgement.get("model"),
+                             verify_model=checks.model)
     print(f"wrote {path}", file=sys.stderr)
 
     # Only when the post lands in the site itself. `--out` is a preview, and
