@@ -16,8 +16,22 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
+from .judge import MODEL as JEV_MODEL
+
 TAGS = ["AI 🤖", "Cloud ☁️", "DevOps 🔄", "Code 👨‍💻", "Architecture 🏛️", "Security 🔐"]
 DEFAULT_TAG = "AI 🤖"
+
+
+def _jev_label(model_id: str = JEV_MODEL) -> str:
+    """Disclosure prose for Jev's model id, e.g. "jev-latest" -> "Jev latest".
+
+    judge.MODEL is the one line that decides which model the pipeline
+    actually calls, so deriving the label from it here — instead of writing
+    a version number by hand — is what keeps the two from drifting apart the
+    next time Jev is upgraded.
+    """
+    suffix = model_id[len("jev-"):] if model_id.startswith("jev-") else model_id
+    return f"Jev {suffix}"
 
 
 @dataclass
@@ -75,16 +89,17 @@ def parse_draft(markdown: str) -> Post:
 
 def disclosure(draft_model: str, checked: int, unsupported: int) -> str:
     """The line charter.md asks for: which model, and how it was used."""
+    jev = _jev_label()
     checked_note = (
         f"Every factual claim was checked back against those sources by "
-        f"Jev 1.13 ({checked} claims, {unsupported} flagged for review)."
+        f"{jev} ({checked} claims, {unsupported} flagged for review)."
         if checked
         else "Citation checking did not run on this draft."
     )
     return (
         "---\n\n"
         f"*Drafted with {draft_model} from the sources listed above; the "
-        f"subject was selected from a week of collected headlines by Jev 1.13. "
+        f"subject was selected from a week of collected headlines by {jev}. "
         f"{checked_note} Reviewed and edited before publication.*\n"
     )
 

@@ -10,8 +10,9 @@ from datetime import datetime, timedelta, timezone
 import pytest
 
 from newsbot import pick
+from newsbot.judge import MODEL as JEV_MODEL
 from newsbot.models import Item
-from newsbot.render import DEFAULT_TAG, TAGS, parse_draft, render, write_post
+from newsbot.render import DEFAULT_TAG, TAGS, _jev_label, parse_draft, render, write_post
 from newsbot.verify import sentences
 
 NOW = datetime(2026, 9, 21, 12, tzinfo=timezone.utc)
@@ -133,8 +134,21 @@ class TestRender:
         out = render(parse_draft("TITLE: T\nDESCRIPTION: D.\nTAG: AI 🤖\n\nBody."),
                      NOW, "Claude Opus 5", 30, 1)
         assert "ai_assisted: true" in out
-        assert "Claude Opus 5" in out and "Jev 1.13" in out
+        assert "Claude Opus 5" in out and _jev_label() in out
         assert "30 claims, 1 flagged" in out
+
+    def test_the_jev_label_stays_derived_from_model(self):
+        """The disclosure used to spell out a Jev version by hand while
+        judge.py and verify.py called a different MODEL constant, so a Jev
+        upgrade could make the disclosure wrong with nothing to catch it.
+        The label must always come from MODEL, never from a literal."""
+        out = render(parse_draft("TITLE: T\nDESCRIPTION: D.\nTAG: AI 🤖\n\nBody."),
+                     NOW, "Claude Opus 5", 1, 0)
+        assert _jev_label(JEV_MODEL) in out
+        # A bumped MODEL must change the label the same way, with no second
+        # place in render.py left saying the old version.
+        assert _jev_label("jev-2.0") == "Jev 2.0"
+        assert _jev_label("jev-2.0") not in out
 
     def test_front_matter_matches_the_house_keys(self):
         out = render(parse_draft("TITLE: T\nDESCRIPTION: D.\nTAG: AI 🤖\n\nBody."),
