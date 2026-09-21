@@ -25,46 +25,9 @@ class TestRepoRoot:
             repo_root(tmp_path / "nowhere" / "file.py")
 
 
-class TestSaveHome:
-    def test_writes_only_the_fields_the_template_uses(self, store):
-        store.save_home([
-            Item("A headline", "https://a.com/1", "WIRED",
-                 datetime(2026, 9, 20, tzinfo=timezone.utc), summary="ignored")
-        ])
-        payload = json.loads(store.news_json.read_text())
-        assert set(payload["items"][0]) == {
-            "title", "url", "source", "date", "corroboration"
-        }
-        assert "summary" not in payload["items"][0]
-
-    def test_respects_the_limit(self, store):
-        items = [
-            Item(f"Story {n}", f"https://a.com/{n}", "X",
-                 datetime(2026, 9, 20, tzinfo=timezone.utc))
-            for n in range(40)
-        ]
-        store.save_home(items, limit=15)
-        assert len(json.loads(store.news_json.read_text())["items"]) == 15
-
-    def test_output_is_valid_json_jekyll_can_read(self, store):
-        store.save_home([
-            Item("Curly ’quotes’ and émojis 🤖", "https://a.com/1", "X",
-                 datetime(2026, 9, 20, tzinfo=timezone.utc))
-        ])
-        payload = json.loads(store.news_json.read_text())
-        assert payload["items"][0]["title"].endswith("🤖")
-
-    def test_leaves_no_temporary_file_behind(self, store):
-        store.save_home([
-            Item("A", "https://a.com/1", "X",
-                 datetime(2026, 9, 20, tzinfo=timezone.utc))
-        ])
-        assert list(store.data.glob("*.tmp")) == []
-
-
 class TestState:
     def test_missing_state_reads_as_empty(self, store):
-        assert store.load_state() == {"covered": [], "last_article": None}
+        assert store.load_state() == {"covered": [], "last_report": None}
 
     def test_covered_topics_round_trip(self, store):
         store.save_state({
@@ -78,32 +41,52 @@ class TestState:
 
 class TestRecordCovered:
     def test_the_url_also_urls_slug_and_date_are_all_written(self, store):
-        day = datetime(2026, 9, 21, tzinfo=timezone.utc)
+        day = datetime(2026, 9, 20, tzinfo=timezone.utc)
         store.record_covered(
             Item("Gemini went rogue at three companies",
                  "https://www.wired.com/gemini?utm_source=rss", "WIRED", day,
                  also=["Ars"], also_urls=["https://arstechnica.com/gemini/"]),
-            "when-the-model-stopped", day)
+            "2026-w38", day)
         entry = store.load_state()["covered"][0]
         assert entry["url"] == "https://wired.com/gemini"
         assert entry["also_urls"] == ["https://arstechnica.com/gemini"]
         assert entry["title"] == "Gemini went rogue at three companies"
-        assert entry["slug"] == "when-the-model-stopped"
-        assert entry["date"] == "2026-09-21"
-        assert store.load_state()["last_article"] == "2026-09-21"
+        assert entry["slug"] == "2026-w38"
+        assert entry["date"] == "2026-09-20"
+        assert store.load_state()["last_report"] == "2026-09-20"
 
-    def test_a_second_article_is_appended_not_replaced(self, store):
-        day = datetime(2026, 9, 21, tzinfo=timezone.utc)
-        store.record_covered(Item("A", "https://a.com/1", "X", day), "a", day)
-        store.record_covered(Item("B", "https://b.com/1", "X", day), "b", day)
-        assert [c["slug"] for c in store.load_state()["covered"]] == ["a", "b"]
+    def test_several_stories_of_one_report_share_the_slug(self, store):
+        """A report has six sections; keying on the slug would keep one."""
+        day = datetime(2026, 9, 20, tzinfo=timezone.utc)
+        store.record_covered(Item("A", "https://a.com/1", "X", day), "2026-w38", day)
+        store.record_covered(Item("B", "https://b.com/1", "X", day), "2026-w38", day)
+        assert [c["url"] for c in store.load_state()["covered"]] == \
+            ["https://a.com/1", "https://b.com/1"]
 
-    def test_rerunning_the_same_slug_does_not_duplicate_it(self, store):
-        """--candidate reruns of the same subject are a normal Sunday."""
-        day = datetime(2026, 9, 21, tzinfo=timezone.utc)
-        store.record_covered(Item("A", "https://a.com/1", "X", day), "a", day)
-        store.record_covered(Item("A", "https://a.com/1", "X", day), "a", day)
+    def test_rerunning_the_same_story_does_not_duplicate_it(self, store):
+        day = datetime(2026, 9, 20, tzinfo=timezone.utc)
+        store.record_covered(Item("A", "https://a.com/1", "X", day), "2026-w38", day)
+        store.record_covered(Item("A", "https://a.com/1?utm_source=x", "X", day), "2026-w38", day)
         assert len(store.load_state()["covered"]) == 1
+
+    def test_the_old_last_article_key_is_retired(self, store):
+        store.save_state({"covered": [], "last_article": "2026-09-21"})
+        day = datetime(2026, 9, 27, tzinfo=timezone.utc)
+        store.record_covered(Item("A", "https://a.com/1", "X", day), "2026-w39", day)
+        state = store.load_state()
+        assert "last_article" not in state and state["last_report"] == "2026-09-27"
+
+
+class TestLatestReport:
+    def test_none_without_a_reports_directory(self, store):
+        assert store.latest_report() is None
+
+    def test_the_newest_week_wins_by_name(self, store):
+        store.reports.mkdir()
+        for name in ("2026-w40.md", "2026-w38.md", "2026-w39.md"):
+            (store.reports / name).write_text("x", encoding="utf-8")
+        assert store.latest_report().name == "2026-w40.md"
+
 
 class TestCountBySource:
     def test_counts_items_per_source(self):
@@ -179,8 +162,5 @@ class TestRegressions:
 
         monkeypatch.setattr(pathlib.Path, "replace", boom)
         with pytest.raises(OSError):
-            store.save_home([
-                Item("A", "https://a.com/1", "X",
-                     datetime(2026, 9, 20, tzinfo=timezone.utc))
-            ])
-        assert list(store.data.glob("*.tmp")) == []
+            store.save_state({"covered": [], "last_report": None})
+        assert list(store.work.glob("*.tmp")) == []
