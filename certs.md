@@ -4,6 +4,8 @@ permalink: /7b90458e-ba15-4d2a-9d34-081f69410cc5/
 layout: page
 excerpt: My professional certifications.
 comments: false
+sitemap: false
+noindex: true
 ---
 
 <div class="certs-page" markdown="1">
