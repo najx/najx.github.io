@@ -21,7 +21,7 @@ The good news is that this does not mean "everything is visible" or that privacy
 ## Myth 1 — My ISP can see everything I do
 
 <figure>
-  <img src="/assets/img/11/myth1.png" alt="Myth 1 - My ISP can see everything I do online" style="width:100%;height:100%;">
+  <img src="/assets/img/11/myth1.webp" alt="Myth 1 - My ISP can see everything I do online" width="1408" height="768" loading="lazy" style="width:100%;height:100%;">
   <figcaption>Illustration generated with Google Nano Banana 2.</figcaption>
 </figure>
 
@@ -47,7 +47,7 @@ A simple example makes this clear. Even if no one can read the exact content of 
 ## Myth 2 — My router is just a passive device
 
 <figure>
-  <img src="/assets/img/11/myth2.png" alt="Myth 2 - My router is just a passive device" style="width:100%;height:100%;">
+  <img src="/assets/img/11/myth2.webp" alt="Myth 2 - My router is just a passive device" width="1408" height="768" loading="lazy" style="width:100%;height:100%;">
   <figcaption>Illustration generated with Google Nano Banana 2.</figcaption>
 </figure>
 
@@ -66,7 +66,7 @@ That matters more today than it did a decade ago. Smart TVs, speakers, cameras, 
 ## Myth 3 — HTTPS means I'm fully private
 
 <figure>
-  <img src="/assets/img/11/myth3.png" alt="Myth 3 - HTTPS means I'm fully private" style="width:100%;height:100%;">
+  <img src="/assets/img/11/myth3.webp" alt="Myth 3 - HTTPS means I'm fully private" width="1408" height="768" loading="lazy" style="width:100%;height:100%;">
   <figcaption>Illustration generated with Google Nano Banana 2.</figcaption>
 </figure>
 
@@ -85,7 +85,7 @@ That is why privacy on the web is layered. You can have encrypted traffic and st
 ## Myth 4 — A VPN solves the problem
 
 <figure>
-  <img src="/assets/img/11/myth4.png" alt="Myth 4 - A VPN solves all privacy problems" style="width:100%;height:100%;">
+  <img src="/assets/img/11/myth4.webp" alt="Myth 4 - A VPN solves all privacy problems" width="1408" height="768" loading="lazy" style="width:100%;height:100%;">
   <figcaption>Illustration generated with Google Nano Banana 2.</figcaption>
 </figure>
 
