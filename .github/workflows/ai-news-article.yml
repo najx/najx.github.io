@@ -90,7 +90,10 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b "$branch"
-          git add _posts
+          # .newsbot/state.json travels with the post: it is what stops the
+          # same subject being drafted again next Sunday, and it only takes
+          # effect once this branch is merged.
+          git add _posts .newsbot/state.json
           git commit -m "Article : $slug
 
           Rédigé automatiquement par .github/workflows/ai-news-article.yml.

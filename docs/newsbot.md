@@ -21,7 +21,7 @@ and nothing to load before the page paints. If the file is missing the
 _data/news-sources.yml       the feed list — the one file you edit by hand
 _data/news.json              the ~15 stories the home page shows
 .newsbot/archive/<date>.json the day's distinct stories, summaries included
-.newsbot/state.json          which stories already became an article
+.newsbot/state.json          which stories already became an article, and when
 ```
 
 `.newsbot/` starts with a dot, so Jekyll ignores it. That matters: Jekyll
@@ -163,7 +163,7 @@ outlet taking the page. Slots are never back-filled with gated stories.
 
 | when | what | writes |
 |---|---|---|
-| Sunday, 06:17 UTC | pick a subject, fetch its sources, draft, check, open a PR | a branch and a pull request — never `main` |
+| Sunday, 06:17 UTC | pick a subject, fetch its sources, draft, check, open a PR | a branch and a pull request — never `main`; the branch carries the post and `.newsbot/state.json` |
 
 Five steps, and the bar at each one is deliberately higher than the home
 page's: a mis-ordered row on the front page is replaced tomorrow, a badly
@@ -172,8 +172,9 @@ chosen subject wastes the week.
 1. **Pick** (`pick.py`) — the best-scoring story of the last seven days that
    clears every clause: score, informative state, no injection suspicion, a
    subject squarely on topic with confidence behind it, a genre that reports
-   a development rather than discussing one, and no overlap with a title
-   already published. If nothing clears it, a relaxed bar runs; if nothing
+   a development rather than discussing one, no overlap with a title
+   already published, and nothing the blog has already covered inside
+   `COOLDOWN_DAYS` (60). If nothing clears it, a relaxed bar runs; if nothing
    clears that either, the week publishes nothing and the job says so. That
    is a normal quiet week, not a failure.
 2. **Fetch** (`fetch.py`) — the source articles, extracted with trafilatura.
@@ -194,7 +195,39 @@ chosen subject wastes the week.
    and each source, whether the source bears it out.
 5. **Render and open a PR** (`render.py`) — the house front matter with
    `ai_assisted: true`, which the theme turns into its banner, plus the
-   disclosure line naming both models, which `charter.md` promises.
+   disclosure line naming both models, which `charter.md` promises. The
+   subject is then written into `.newsbot/state.json` and committed onto the
+   same branch, so the cooldown only starts once the article is merged.
+
+### The cooldown
+
+`.newsbot/state.json` is the only thing that remembers what the blog has
+already written about. One entry per article, holding the canonical URL of
+the subject, the `also_urls` of the other write-ups of the same story, the
+slug, the source title and the date:
+
+```json
+{"covered": [{"url": "https://example.com/gemini",
+              "also_urls": ["https://other.example/gemini"],
+              "title": "Gemini went rogue at three companies",
+              "slug": "when-the-model-stopped",
+              "date": "2026-09-21"}],
+ "last_article": "2026-09-21"}
+```
+
+`pick` rejects a candidate whose URL — or any of its own `also_urls` —
+appears in an entry less than `COOLDOWN_DAYS` (60) old, and compares the
+incoming headline to the stored **source** titles as well as to the titles in
+`_posts/`. Both halves are needed. The URL set catches the follow-up, which
+arrives next week from whichever outlet was not the representative. The
+source title catches the same story reported by a third outlet under a
+different link — and it has to be the source title, because the article's own
+title is Claude's rewrite: *Gemini went rogue, hacked three companies, and
+Google hid it* against *When "The Model Stopped" Becomes a Safety Control*
+overlaps by 0.00.
+
+An entry whose date will not parse is treated as recent. Failing closed costs
+at most one skipped subject; failing open costs a duplicate article.
 
 ### What the report means
 
@@ -211,7 +244,7 @@ on Claude Opus 5, plus a few cents of Jev. Roughly $0.70 a month.
 ### Running it by hand
 
 ```bash
-newsbot article --out /tmp/preview      # write the post somewhere else
+newsbot article --out /tmp/preview      # preview: does not touch state.json
 newsbot article --candidate 1           # take the runner-up subject
 newsbot article --days 14 --no-verify   # wider window, skip the check
 ```

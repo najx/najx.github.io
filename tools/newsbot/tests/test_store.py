@@ -76,6 +76,36 @@ class TestState:
         assert state["last_article"] == "2026-09-20"
 
 
+class TestRecordCovered:
+    def test_the_url_also_urls_slug_and_date_are_all_written(self, store):
+        day = datetime(2026, 9, 21, tzinfo=timezone.utc)
+        store.record_covered(
+            Item("Gemini went rogue at three companies",
+                 "https://www.wired.com/gemini?utm_source=rss", "WIRED", day,
+                 also=["Ars"], also_urls=["https://arstechnica.com/gemini/"]),
+            "when-the-model-stopped", day)
+        entry = store.load_state()["covered"][0]
+        assert entry["url"] == "https://wired.com/gemini"
+        assert entry["also_urls"] == ["https://arstechnica.com/gemini"]
+        assert entry["title"] == "Gemini went rogue at three companies"
+        assert entry["slug"] == "when-the-model-stopped"
+        assert entry["date"] == "2026-09-21"
+        assert store.load_state()["last_article"] == "2026-09-21"
+
+    def test_a_second_article_is_appended_not_replaced(self, store):
+        day = datetime(2026, 9, 21, tzinfo=timezone.utc)
+        store.record_covered(Item("A", "https://a.com/1", "X", day), "a", day)
+        store.record_covered(Item("B", "https://b.com/1", "X", day), "b", day)
+        assert [c["slug"] for c in store.load_state()["covered"]] == ["a", "b"]
+
+    def test_rerunning_the_same_slug_does_not_duplicate_it(self, store):
+        """--candidate reruns of the same subject are a normal Sunday."""
+        day = datetime(2026, 9, 21, tzinfo=timezone.utc)
+        store.record_covered(Item("A", "https://a.com/1", "X", day), "a", day)
+        store.record_covered(Item("A", "https://a.com/1", "X", day), "a", day)
+        assert len(store.load_state()["covered"]) == 1
+
+
 class TestArchive:
     def test_archive_is_written_outside_data(self, store):
         day = datetime(2026, 9, 20, tzinfo=timezone.utc)

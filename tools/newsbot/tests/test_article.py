@@ -25,12 +25,20 @@ def good_judgement(**over):
     return base
 
 
-def candidate(title="An incident worth writing about", days_ago=1, also=None, **over):
+def candidate(title="An incident worth writing about", days_ago=1, also=None,
+              url=None, also_urls=None, **over):
     return pick.Candidate(
-        item=Item(title=title, url=f"https://x/{abs(hash(title))}", source="Ars",
-                  published=NOW - timedelta(days=days_ago), also=also or []),
+        item=Item(title=title, url=url or f"https://x/{abs(hash(title))}",
+                  source="Ars", published=NOW - timedelta(days=days_ago),
+                  also=also or [], also_urls=also_urls or []),
         judgement=good_judgement(**over),
     )
+
+
+def covered_entry(url="https://x/subject", also_urls=None, title="The subject",
+                  slug="the-subject", days_ago=1):
+    return {"url": url, "also_urls": also_urls or [], "title": title,
+            "slug": slug, "date": (NOW - timedelta(days=days_ago)).date().isoformat()}
 
 
 @pytest.fixture
@@ -84,6 +92,103 @@ class TestChoose:
         b = candidate("Second choice", score=0.80)
         winner, _, _ = pick.choose([a, b], posts, index=1)
         assert winner.item.title == "Second choice"
+
+
+class TestCooldown:
+    """COOLDOWN_DAYS was defined and never read; this is what it now does."""
+
+    def test_the_same_url_inside_the_cooldown_is_refused(self, posts):
+        winner, _, _ = pick.choose(
+            [candidate(url="https://x/subject")], posts,
+            covered=[covered_entry()], now=NOW)
+        assert winner is None
+
+    def test_the_same_url_past_the_cooldown_is_allowed_again(self, posts):
+        winner, _, _ = pick.choose(
+            [candidate(url="https://x/subject")], posts,
+            covered=[covered_entry(days_ago=pick.COOLDOWN_DAYS + 1)], now=NOW)
+        assert winner is not None
+
+    def test_a_follow_up_from_another_outlet_of_the_story_is_refused(self, posts):
+        """The sequel arrives from whichever outlet was not the representative."""
+        winner, _, _ = pick.choose(
+            [candidate(url="https://ars/gemini-part-two")], posts,
+            covered=[covered_entry(url="https://verge/gemini",
+                                   also_urls=["https://ars/gemini-part-two"])],
+            now=NOW)
+        assert winner is None
+
+    def test_a_candidates_own_also_urls_are_matched_too(self, posts):
+        winner, _, _ = pick.choose(
+            [candidate(url="https://new/1", also_urls=["https://verge/gemini"])],
+            posts, covered=[covered_entry(url="https://verge/gemini")], now=NOW)
+        assert winner is None
+
+    def test_tracking_parameters_do_not_defeat_the_match(self, posts):
+        winner, _, _ = pick.choose(
+            [candidate(url="https://www.x.com/subject/?utm_source=rss")], posts,
+            covered=[covered_entry(url="https://x.com/subject")], now=NOW)
+        assert winner is None
+
+    def test_an_unrelated_subject_still_gets_through(self, posts):
+        winner, _, _ = pick.choose(
+            [candidate(url="https://x/something-else")], posts,
+            covered=[covered_entry()], now=NOW)
+        assert winner is not None
+
+    def test_the_report_names_the_cooldown_as_the_reason(self, posts):
+        _, report, _ = pick.choose(
+            [candidate(url="https://x/subject")], posts,
+            covered=[covered_entry()], now=NOW)
+        assert any(str(pick.COOLDOWN_DAYS) in r
+                   for r in report[0]["rejected_for"])
+
+    def test_an_unreadable_date_is_treated_as_recent(self, posts):
+        """Failing closed costs a skipped subject; failing open costs a
+        duplicate article."""
+        entry = covered_entry()
+        entry["date"] = "last Sunday"
+        winner, _, _ = pick.choose([candidate(url="https://x/subject")], posts,
+                                   covered=[entry], now=NOW)
+        assert winner is None
+
+    def test_no_state_at_all_changes_nothing(self, posts):
+        winner, _, strict = pick.choose([candidate()], posts, covered=None, now=NOW)
+        assert winner is not None and strict is True
+
+
+class TestSourceTitleOverlap:
+    def test_the_feed_title_is_compared_to_the_stored_source_title(self, posts):
+        """Claude rewrites the headline, so the published title is not a
+        usable handle on the subject: the feed title is."""
+        winner, _, _ = pick.choose(
+            [candidate("Gemini went rogue and hacked three companies",
+                       url="https://other/2")],
+            posts,
+            covered=[covered_entry(
+                url="https://verge/1",
+                title="Gemini went rogue, hacked three companies, and Google hid it",
+                slug="when-the-model-stopped")],
+            now=NOW)
+        assert winner is None
+
+    def test_the_rewritten_title_alone_would_have_let_it_through(self, posts):
+        """The defect, stated as a measurement: the two titles share nothing."""
+        feed = "Gemini went rogue, hacked three companies, and Google hid it"
+        published = 'When "The Model Stopped" Becomes a Safety Control'
+        assert pick._archive_overlap(feed, [published]) == 0.0
+
+    def test_a_stored_title_past_the_cooldown_stops_counting(self, posts):
+        winner, _, _ = pick.choose(
+            [candidate("Gemini went rogue and hacked three companies",
+                       url="https://other/2")],
+            posts,
+            covered=[covered_entry(
+                url="https://verge/1",
+                title="Gemini went rogue, hacked three companies, and Google hid it",
+                days_ago=pick.COOLDOWN_DAYS + 1)],
+            now=NOW)
+        assert winner is not None
 
 
 class TestLoadWeek:

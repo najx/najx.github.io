@@ -146,8 +146,11 @@ def cmd_article(args: argparse.Namespace) -> int:
               file=sys.stderr)
         return 1
 
+    state = store.load_state()
     winner, report, strict = pick.choose(candidates, store.root / "_posts",
-                                         index=args.candidate)
+                                         index=args.candidate,
+                                         covered=state.get("covered", []),
+                                         now=now)
     if winner is None:
         print("nothing cleared the bar, even relaxed; publishing nothing this week.",
               file=sys.stderr)
@@ -195,6 +198,18 @@ def cmd_article(args: argparse.Namespace) -> int:
                              _model_name(draft.model), checks.checked,
                              len(checks.unsupported))
     print(f"wrote {path}", file=sys.stderr)
+
+    # Only when the post lands in the site itself. `--out` is a preview, and
+    # marking a subject as covered on a preview would silently cost the
+    # following weeks a real article on it.
+    if out_root == store.root:
+        store.record_covered(winner.item, post.slug(),
+                             datetime.now(timezone.utc))
+        print(f"recorded the subject in "
+              f"{store.state_json.relative_to(store.root)}", file=sys.stderr)
+    else:
+        print("--out: preview only, the subject was not marked as covered",
+              file=sys.stderr)
 
     if checks.unsupported:
         print("\nclaims the sources do not bear out:", file=sys.stderr)
