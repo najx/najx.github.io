@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 import pytest
 
 from newsbot.models import Item
-from newsbot.store import Store, repo_root
+from newsbot.store import Store, count_by_source, repo_root
 
 
 @pytest.fixture
@@ -105,6 +105,19 @@ class TestRecordCovered:
         store.record_covered(Item("A", "https://a.com/1", "X", day), "a", day)
         assert len(store.load_state()["covered"]) == 1
 
+class TestCountBySource:
+    def test_counts_items_per_source(self):
+        day = datetime(2026, 9, 20, tzinfo=timezone.utc)
+        items = [
+            Item("A", "https://a.com/1", "WIRED", day),
+            Item("B", "https://a.com/2", "WIRED", day),
+            Item("C", "https://a.com/3", "The Verge", day),
+        ]
+        assert count_by_source(items) == {"WIRED": 2, "The Verge": 1}
+
+    def test_empty_list_counts_nothing(self):
+        assert count_by_source([]) == {}
+
 
 class TestArchive:
     def test_archive_is_written_outside_data(self, store):
@@ -118,6 +131,18 @@ class TestArchive:
         payload = json.loads(path.read_text())
         assert payload["failures"] == {"Dead Feed": "HTTPError: 500"}
         assert payload["items"][0]["summary"] == "kept here"
+
+    def test_archive_records_a_per_source_count_for_tracking_over_time(self, store):
+        """Issue #15: measuring which feeds actually publish inside the
+        window needs a per-feed count that persists past one run's log."""
+        day = datetime(2026, 9, 20, tzinfo=timezone.utc)
+        path = store.save_archive(day, [
+            Item("A", "https://a.com/1", "WIRED", day),
+            Item("B", "https://a.com/2", "WIRED", day),
+            Item("C", "https://a.com/3", "The Verge", day),
+        ], failures={})
+        payload = json.loads(path.read_text())
+        assert payload["per_source"] == {"WIRED": 2, "The Verge": 1}
 
 
 class TestRegressions:

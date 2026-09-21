@@ -259,3 +259,77 @@ newsbot article --days 14 --no-verify   # wider window, skip the check
 
 The workflow checks for `NEWSBOT_TOKEN` first and fails with that explanation
 rather than running and silently publishing nothing.
+
+## Lot 5 — Apify adapter for Anthropic and Mistral (design, not built)
+
+Issue #15 asks for this. It is written down here rather than shipped because
+there is no Apify token available to develop or test it against in this
+environment — an adapter built without ever calling the real API would be
+speculation wearing code, and a feed that silently returns nothing is worse
+than one that stays `enabled: false` with a note, per the existing convention
+in `_data/news-sources.yml`.
+
+**Why it's needed.** Anthropic and Mistral publish no RSS or Atom feed (see
+the `enabled: false` entries for both in `_data/news-sources.yml`, each with
+a `note` recording the 404s already checked). Every other source on the list
+is read through [`sources.fetch()`](../tools/newsbot/newsbot/sources.py),
+which assumes a feed URL `feedparser` can parse. These two need something
+that renders their news page and extracts entries instead.
+
+**Concrete integration points, in the code as it stands today:**
+
+- `Source` (`sources.py`) is a plain dataclass: `name`, `url`, `enabled`,
+  `note`. It would grow a `kind: str = "feed"` field (and, for the apify
+  kind, whatever the actor needs to run — an actor ID, at minimum) read by
+  `load_sources()` the same way `enabled` and `note` already are.
+- `collect()` (`sources.py`) fans a list of `Source` out to `fetch()` through
+  a `ThreadPoolExecutor`, catches any exception per source into `failures`,
+  and never lets one dead source fail the run. The adapter should be a
+  second function with the same contract — takes a `Source`, returns
+  `list[Item]`, raises on failure — dispatched from `collect()` by
+  `source.kind` so the failure isolation, the `log.info("%s: %d items", ...)`
+  line, and `probe`'s pass/fail table all keep working unchanged for every
+  source, feed or not.
+- `Item` (`models.py`) is the shared shape: `title`, `url`, `source`,
+  `published`, `summary`. The adapter's job is to produce this shape,
+  nothing more — clustering, deduplication, ranking and archiving downstream
+  do not know or care whether an `Item` came from a feed or an Actor.
+- `fetch()`'s per-entry rules — skip anything with no title, no link, or no
+  parseable date (`_entry_date`'s `FUTURE_TOLERANCE` guard included); run
+  both title and summary through `clean_text()`; trim the summary with
+  `_entry_summary()` — apply just as much to scraped entries, so a page that
+  is missing a date does not get windowed in wrongly and scraped HTML does
+  not reach the reader unescaped.
+
+**What the adapter would actually run.** Apify's own **Website Content
+Crawler** actor (or an equivalent generic-scrape actor) pointed at
+`https://www.anthropic.com/news` and `https://mistral.ai/news`, called once
+per collection run, filtered to that day's page only — not a crawl of the
+whole site, which these two pages don't need and which would multiply the
+Apify usage cost for no benefit. The actor's output would need a mapping
+step (probably in a new `newsbot/apify_source.py`) from whatever fields the
+chosen actor returns to `Item`'s five fields, plus a check that a title-only
+result without a real published date is dropped rather than guessed, per the
+existing rule.
+
+**New secret**, matching the pattern of `TYPESAFE_API_KEY` and
+`ANTHROPIC_API_KEY` above: `APIFY_TOKEN`, used by the `apify-client` package
+to call the actor and read its dataset back.
+
+**Before it ships:** a real Apify token to develop against; a decision on
+which actor to use (generic content crawler vs. a small purpose-built one —
+that decision changes the mapping step and the per-run cost); the actual
+per-run Apify cost, measured the same way this doc already measures the Jev
+and Claude costs above; and the same live-network measurement `newsbot
+probe` gives every feed today, so Anthropic and Mistral only move to
+`enabled: true` once they are shown to actually surface recent posts, not
+just once the plumbing runs without erroring.
+
+**Left out of this issue's fix for the same reason:** the two-week
+measurement of which of the existing feeds publish inside the 48h window.
+`newsbot -v collect` now logs a per-feed in-window count and the same count
+is written to `.newsbot/archive/<date>.json` as `per_source` (see the
+`## Ranking with Jev` era archive schema above), so the measurement can be
+taken by reading fourteen days of `per_source` once they exist — but they
+don't exist yet going back two weeks, and generating that history is not
+something a single run of this fix can produce.

@@ -16,9 +16,10 @@ from pathlib import Path
 
 from . import sources as src
 from .normalize import CLUSTER_BAND_LOW, CLUSTER_CERTAIN, cluster, dedupe
-from .store import Store, repo_root
+from .store import Store, count_by_source, repo_root
 
 WINDOW_HOURS = 48
+log = logging.getLogger(__name__)
 
 
 def _setup_logging(verbose: bool) -> None:
@@ -102,6 +103,13 @@ def cmd_collect(args: argparse.Namespace) -> int:
     fresh = [i for i in items if i.published >= now - timedelta(hours=args.window)]
     distinct = dedupe(fresh)
     stories = cluster(distinct)
+
+    # Per feed, how many of its entries actually fell inside the window —
+    # not the raw fetch total `collect()` already logs per source. This is
+    # the number issue #15 asks to track over time; it is also written into
+    # the day's archive as `per_source`, so it survives past this run.
+    for name, count in sorted(count_by_source(distinct).items()):
+        log.info("  %s: %d in window", name, count)
 
     ranked, scores = _rank(stories, now, args)
 

@@ -23,6 +23,21 @@ from .normalize import canonical_url
 HOME_ITEMS = 15
 
 
+def count_by_source(items: list[Item]) -> dict[str, int]:
+    """How many of these items came from each feed.
+
+    Used for the `-v` log line during a run and, unchanged, for the
+    `per_source` field written into the day's archive — so a feed's share of
+    the 48h window can be read back across many days (issue #15 asks for a
+    two-week measurement) instead of being re-derived from raw items later,
+    or only existing for the length of one run's terminal output.
+    """
+    counts: dict[str, int] = {}
+    for item in items:
+        counts[item.source] = counts.get(item.source, 0) + 1
+    return counts
+
+
 def repo_root(start: Path | None = None) -> Path:
     """Walk up from the working directory to the one holding _config.yml.
 
@@ -149,6 +164,7 @@ class Store:
                 .replace(microsecond=0)
                 .isoformat(),
                 "failures": failures,
+                "per_source": count_by_source(items),
                 "items": [{**i.to_dict(), **scores.get(i.url, {})} for i in items],
             },
         )
