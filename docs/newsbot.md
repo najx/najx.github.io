@@ -1,32 +1,39 @@
 # newsbot
 
-Collects AI headlines every morning and publishes a short list to the home
-page. Lives in [`tools/newsbot`](../tools/newsbot); driven by
-[`.github/workflows/ai-news-collect.yml`](../.github/workflows/ai-news-collect.yml).
+Collects AI headlines every morning, judges them, and once a week turns the
+week into a report for people who do not build AI systems: **AI Weekly**,
+published under `/ai-news/`. Lives in [`tools/newsbot`](../tools/newsbot);
+driven by two workflows under `.github/workflows/`.
 
 ## What runs, and when
 
 | when | what | writes |
 |---|---|---|
-| daily, 05:17 UTC | fetch every feed, window, deduplicate, cluster, rank with Jev | `_data/news.json`, `.newsbot/archive/<date>.json` |
+| daily, 05:17 UTC | fetch every feed, window, deduplicate, cluster, judge with Jev | `.newsbot/archive/<date>.json` |
+| Sunday, 06:17 UTC | merge the week, rank, pick six stories, fetch their articles, draft with Claude, check with Jev, open a draft PR | `_ai_news/<week>.md`, `.newsbot/state.json`, on a branch — never `main` |
 
-The home page renders `_data/news.json` at build time. There is no
-client-side fetch: no CORS to satisfy, no empty section when a feed is down,
-and nothing to load before the page paints. If the file is missing the
-`/ai-news` section simply does not render.
+The home page renders the latest report at build time from the `_ai_news`
+collection: its title, its period, and its six section headings as anchors
+into the report. No client-side fetch, no outbound links on the home page —
+the outlets get their links in the report's Sources block. If the collection
+is empty the section simply does not render. `/ai-news/` lists every report;
+`/feed/ai_news.xml` is its own feed.
 
 ## Where things live
 
 ```
 _data/news-sources.yml       the feed list — the one file you edit by hand
-_data/news.json              the ~15 stories the home page shows
-.newsbot/archive/<date>.json the day's distinct stories, summaries included
-.newsbot/state.json          which stories already became an article, and when
+.newsbot/archive/<date>.json the day's distinct stories, summaries and judgements
+.newsbot/state.json          which stories already had a section, and when
+_ai_news/<year>-w<week>.md   the reports, one per ISO week
+tools/newsbot/style.md       the house style handed to the writer
 ```
 
 `.newsbot/` starts with a dot, so Jekyll ignores it. That matters: Jekyll
 reads *every* file under `_data/` on *every* build, so a year of daily
-archives there would be paid for on each rebuild.
+archives there would be paid for on each rebuild. Nothing the daily run
+writes is read by Jekyll any more, and `jekyll.yml` skips the rebuild when a
+push only touches `.newsbot/`.
 
 ## Adding a source
 
@@ -37,8 +44,8 @@ Append to `_data/news-sources.yml`:
     url: https://example.com/blog/rss.xml
 ```
 
-`name` is what shows in the tag on the right of each headline, so keep it
-short. Then check it actually answers:
+`name` is what the report's Sources block will show, so keep it short. Then
+check it actually answers:
 
 ```bash
 newsbot probe
@@ -46,23 +53,27 @@ newsbot probe
 
 A source with no feed goes in with `enabled: false` and a `note` saying why,
 so the gap stays visible rather than being silently dropped. Anthropic and
-Mistral are both in that state today — neither publishes RSS, and they are
-the reason the Apify adapter exists.
+Mistral are both in that state today — neither publishes RSS.
 
 ## Running it by hand
 
 ```bash
-pip install ./tools/newsbot
+pip install -e './tools/newsbot[dev]'
 newsbot probe                      # does every feed still answer?
-newsbot -v collect --dry-run       # print what would be published
-newsbot -v collect                 # write _data/news.json
+newsbot -v collect --dry-run       # judge the day and print it, write nothing
+newsbot -v collect                 # write today's archive
+newsbot -v weekly --dry-run        # print the week's plan, draft nothing
+newsbot -v weekly --out /tmp/prev  # draft, check, write the report elsewhere
 ```
 
-`--window` changes how far back to look (48 hours by default) and `--limit`
-how many stories reach the home page (15).
-
-The workflow also takes both as `workflow_dispatch` inputs, plus a `dry_run`
-checkbox that prints the result without committing.
+`collect --window` changes how far back to look (48 hours by default).
+`weekly --days` is the width of the week (7), `--stories` the number of
+sections (6), `--no-verify` skips the citation check, and `--checks-out`
+writes the check as JSON for the workflow's checklist. `--out` writes the
+report under another root and marks nothing as covered. Both workflows take
+their inputs as `workflow_dispatch` fields, and the weekly one has a
+`dry_run` checkbox that uploads the report as an artifact instead of opening
+a pull request.
 
 ## Design notes
 
@@ -71,21 +82,25 @@ to keep working when a site reskins, no anti-bot to get around, no question
 about terms of use, and no cost.
 
 **Dates and counting stay in code.** Jev is documented as unreliable at
-comparing dates and at counting, so the freshness window and the
-corroboration count are computed here, exactly, and never asked of a model.
+comparing dates and at counting, so the freshness window, the corroboration
+count, the days a story kept appearing, and the theme table are all computed
+here, exactly, and never asked of a model.
 
 **Clustering is deliberately blunt.** Two headlines merge when their
 significant words overlap by 60% or more. Measured against a real 48-hour
 window, only two of 903 headline pairs scored above 0.20 — outlets rewrite
 headlines enough that lexical overlap alone under-clusters. Pairs in the
-0.20–0.60 band are the ones worth a Jev question; below it, misses are
+0.20–0.60 band are put to Jev's `same_story` question; below it, misses are
 accepted. The thresholds are `CLUSTER_BAND_LOW` and `CLUSTER_CERTAIN` in
-`normalize.py`.
+`normalize.py`. The weekly run clusters again across the seven archives, so
+a story two outlets ran on different days still counts as one story with two
+outlets.
 
-**Only the representative is published.** When several outlets carry the
-same story, the earliest publication is the one linked, and the others are
-recorded in `also` — that count is the corroboration signal the weekly
-article ranks on.
+**Only the representative is fetched, plus its own write-ups.** When several
+outlets carry the same story, the earliest publication is the representative
+and the others are recorded in `also_urls`. The writer is given up to three
+of those texts per story — matched by URL, never by outlet name, which would
+pull in everything that outlet published that week.
 
 **A feed that fails does not fail the run.** Failures are collected, logged,
 and written into the day's archive, so a source going dark shows up in the
@@ -95,25 +110,23 @@ than raising.
 
 **Deduplication keys on the canonical URL alone, never the title.** Two
 outlets running the same wire headline are two documents, and collapsing them
-here would destroy the corroboration that `cluster()` exists to count —
-precisely when corroboration is strongest. It would also have collapsed every
-non-Latin headline onto one key, since they normalise to the empty string.
+here would destroy the corroboration that `cluster()` exists to count.
 
-**Nothing published is trusted.** Titles and links come off the open web. The
-home template escapes every interpolation and renders a link only for
-`http://` and `https://` URLs; feed text is decoded to a fixed point and then
-stripped of markup, in that order, so doubly-encoded input cannot reappear as
-tags after the strip.
+**Nothing published is trusted.** Titles come off the open web. The home
+template escapes every interpolation; feed text is decoded to a fixed point
+and then stripped of markup, in that order, so doubly-encoded input cannot
+reappear as tags after the strip. The report's own links are the ones Claude
+writes into the Sources block from the URLs it was given.
 
 **`newsbot` finds the site from the working directory**, not from where its
 code lives, because the workflow installs the package non-editably. Set
 `NEWSBOT_ROOT` to run it from elsewhere.
 
-**`_data/news.json` is written through a temporary file** and parsed before
-being moved into place. A malformed file there would fail the Jekyll build
-and take the site down — too steep a price for a feed hiccup.
+**Every JSON file is written through a temporary file** and parsed before
+being moved into place, so a crash never leaves a half-written archive for
+Sunday's run to choke on.
 
-## Ranking with Jev
+## Judging with Jev
 
 Seven questions about one story, batched into a single request. The rubrics
 are long on purpose: *Literal Reading* is the first failure mode TypeSafe
@@ -122,214 +135,139 @@ each level spells out its boundary cases rather than trusting a short phrase.
 
 | question | type | what it decides |
 |---|---|---|
-| `domain_fit` | Score 0-4 | how close the subject is to the blog's five beats |
+| `public_significance` | Score 0-4 | how far beyond the AI industry the story reaches: from "not about AI" to "in the general news" |
+| `accessibility` | Score 0-3 | how much technical background a reader needs to follow it |
+| `theme` | Choice | one of the eight themes of the report (below) |
 | `story_type` | Choice | incident, engineering report, research, release, feature, essay, policy, digest, notice |
-| `mechanism_depth` | Score 0-4 | how much machinery the text actually hands an author |
-| `practitioner_stakes` | Score 0-3 | whether a reader would go and check their own systems |
 | `is_promo_or_admin` | Noul | event, hire, call for papers, housekeeping |
 | `state_is_informative` | Noul | do the fields say enough to know what this is about |
 | `injection_present` | Noul | is the text addressing whatever reads it |
 
-Three hard gates, each reading its own question against its own threshold —
-the *Structural Invariants* warning says a Noul probability and a Score
-position are not comparable, so they never meet in one inequality. Then a
-weighted merit, a soft confidence gate, and a ceiling from
-`state_is_informative`. Every weight lives in `judge.py`, not in a rubric:
-changing a weight changes what we do with an answer, changing a criterion
-changes what Jev is asked.
+Three hard gates — injection, promotion, and "not about AI" — each reading
+its own question against its own threshold. Then a merit of significance,
+accessibility and genre, significance again multiplicatively so that an easy
+story nobody would hear of cannot be rescued, a soft confidence gate, and a
+ceiling from `state_is_informative`. Every weight lives in `judge.py`, not in
+a rubric: changing a weight changes what we do with an answer, changing a
+criterion changes what Jev is asked.
 
-`domain_fit` is read as an expectation over its **probability distribution**,
-not from `.score`. The Score guide says neighbouring levels are not assumed
-adjacent, so a weighted position is meaningless when the mass splits between
-level 0 and level 4 — which is exactly what an ambiguous headline produces.
+`public_significance` is read as an expectation over its **probability
+distribution**, not from `.score`: the Score guide says neighbouring levels
+are not assumed adjacent, so a weighted position is meaningless when the mass
+splits between level 0 and level 4.
 
-A `same_story` Noul settles the clustering band: pairs from different outlets
-whose headlines overlap between 0.20 and 0.60. Two such pairs came up in a
-real day, one of which was the same Gemini break-in written up twice, taking
-two of the top three slots.
+Every judgement carries `rubric: "weekly-1"`, the name of this question set.
+The weekly run only ranks judgements under the current rubric; whatever the
+archives hold under an older one, or unjudged because the key was missing
+that day, is scored on the spot before selection. A change of questions
+therefore costs one run's worth of Jev calls, not a week of silence.
 
-**Measured on the day's real corpus**: all eight noise items the unranked list
-was publishing are gated; the Gemini break-in and the nuclear-hallucination
-story land first and fifth. Without `TYPESAFE_API_KEY` the collection still
-publishes, newest first, and says so in the log.
+The eight themes: models & products, agents & assistants, safety &
+incidents, policy & regulation, business & money, research & science,
+society & work, infrastructure & energy.
 
-### Tuning
+## The weekly report
 
-`PUBLISH_FLOOR` (0.12) decides how thin a thin day is allowed to be — on the
-corpus above it let 7 of 28 stories through. `MAX_PER_SOURCE` (2) stops one
-outlet taking the page. Slots are never back-filled with gated stories.
+Six steps.
 
-## The weekly article
+1. **Merge** (`weekly.py`) — the seven archives folded into distinct stories:
+   same document across days counted once, same event across outlets
+   clustered, the best judgement kept, the days seen and the outlets counted.
+   The previous seven days are loaded too, for the theme table.
+2. **Rank** — `trend = score × (0.55 + 0.25·corroboration + 0.10·recurrence
+   + 0.10·freshness)`. Corroboration is outlets out of four, recurrence days
+   seen out of three, freshness a four-day half-life. A story one outlet ran
+   once still ranks; the multiplier bottoms out at 0.55.
+3. **Select** — six sections, at most two per theme, each clearing: judged
+   under the current rubric, not gated, score ≥ 0.30, informative state, no
+   injection suspicion, accessibility ≥ 1.5 of 3, and not covered by a
+   section in the last 21 days (`state.json`). What misses a section may
+   still get a line under *Also this week*: same clauses, a lower floor,
+   and no accessibility clause, so the technical items land there. Fewer
+   than three sections is a quiet week: the run stops and says so.
+4. **Fetch** (`fetch.py`) — the article behind each section, extracted with
+   trafilatura, up to three write-ups per story. Nothing fetched is ever
+   committed. A story none of whose write-ups load drops out and the next
+   moves up; a section is never written from a headline.
+5. **Draft** (`write.py`) — Claude Opus 5, streamed, effort high, given
+   `style.md`, the previous report for voice, the sections' texts, the
+   also-list's headlines and feed summaries, and the theme counts. Each
+   source arrives in a `<source>` element tagged with a per-run nonce, and
+   only an element carrying that nonce is part of the instructions.
+6. **Check and render** (`verify.py`, `render.py`) — Jev reads every sentence
+   back against the texts the writer was given (for the also-list, the
+   headline and summary), in two passes: checkable claims first, then
+   support. The report is rendered with the collection's front matter —
+   `week`, `period`, the `stories` list of anchors the home page links to —
+   the theme table inserted under *Trends* from the pipeline's own counts,
+   and the disclosure line naming the models that actually answered.
 
-| when | what | writes |
-|---|---|---|
-| Sunday, 06:17 UTC | pick a subject, fetch its sources, draft, check, open a PR | a branch and a pull request — never `main`; the branch carries the post and `.newsbot/state.json` |
+### The report's shape
 
-Five steps, and the bar at each one is deliberately higher than the home
-page's: a mis-ordered row on the front page is replaced tomorrow, a badly
-chosen subject wastes the week.
-
-1. **Pick** (`pick.py`) — the best-scoring story of the last seven days that
-   clears every clause: score, informative state, no injection suspicion, a
-   subject squarely on topic with confidence behind it, a genre that reports
-   a development rather than discussing one, no overlap with a title
-   already published, and nothing the blog has already covered inside
-   `COOLDOWN_DAYS` (60). If nothing clears it, a relaxed bar runs; if nothing
-   clears that either, the week publishes nothing and the job says so. That
-   is a normal quiet week, not a failure.
-2. **Fetch** (`fetch.py`) — the source articles, extracted with trafilatura.
-   Nothing fetched is ever committed; storing other outlets' prose in a public
-   repository is not ours to do. If no source loads, the run stops rather than
-   writing from a headline.
-3. **Draft** (`write.py`) — Claude Opus 5, streamed, effort high. Each source
-   arrives wrapped in a `<source>` element tagged with a per-run nonce, and
-   the system prompt says only an element carrying that nonce is part of the
-   instructions — so a page that opens its own `<source>` or addresses the
-   model is reported on, not obeyed. `fallbacks` is on: a policy decline would
-   otherwise leave the week empty, and security incidents are this blog's
-   staple.
-4. **Check** (`verify.py`) — Jev reads every sentence back against the sources,
-   in two passes. The first separates checkable claims from the author's own
-   reasoning, because asking "is this supported" of an argument produces a
-   confident no and a report full of noise. The second asks, for each claim
-   and each source, whether the source bears it out.
-5. **Render and open a PR** (`render.py`) — the house front matter with
-   `ai_assisted: true`, which the theme turns into its banner, plus the
-   disclosure line naming both models, which `charter.md` promises. The
-   subject is then written into `.newsbot/state.json` and committed onto the
-   same branch, so the cooldown only starts once the article is merged.
+One opening paragraph on the week. Six sections of 120–200 words, each
+ending on a bold *Why it matters*. *Trends*: the theme table, then two or
+three paragraphs. *Also this week*: one line per item. Sources. Disclosure.
+About 1200 words of prose. The full house style is
+[`tools/newsbot/style.md`](../tools/newsbot/style.md).
 
 ### The cooldown
 
-`.newsbot/state.json` is the only thing that remembers what the blog has
-already written about. One entry per article, holding the canonical URL of
-the subject, the `also_urls` of the other write-ups of the same story, the
-slug, the source title and the date:
+`.newsbot/state.json` remembers which stories had a section: the canonical
+URL, the `also_urls` of the other write-ups, the source title, the report's
+week and the date. `select` refuses a candidate whose URL — or any of its own
+`also_urls` — appears in an entry less than 21 days old. The seven-day window
+keeps most repeats out on its own; this catches the story that straddles two
+Sundays and the follow-up published under a new link. The file is committed
+on the report's branch, so the cooldown only starts once the report is
+merged. An entry whose date will not parse is treated as recent.
 
-```json
-{"covered": [{"url": "https://example.com/gemini",
-              "also_urls": ["https://other.example/gemini"],
-              "title": "Gemini went rogue at three companies",
-              "slug": "when-the-model-stopped",
-              "date": "2026-09-21"}],
- "last_article": "2026-09-21"}
-```
+### What the checklist means
 
-`pick` rejects a candidate whose URL — or any of its own `also_urls` —
-appears in an entry less than `COOLDOWN_DAYS` (60) old, and compares the
-incoming headline to the stored **source** titles as well as to the titles in
-`_posts/`. Both halves are needed. The URL set catches the follow-up, which
-arrives next week from whichever outlet was not the representative. The
-source title catches the same story reported by a third outlet under a
-different link — and it has to be the source title, because the article's own
-title is Claude's rewrite: *Gemini went rogue, hacked three companies, and
-Google hid it* against *When "The Model Stopped" Becomes a Safety Control*
-overlaps by 0.00.
+The pull request opens as a draft with one checkbox per claim Jev could not
+find in the sources. Most flagged sentences are the writer's own framing
+rather than fabrications — read the list as *look at these*, not as *these
+are wrong*. When a claim is genuinely invented the separation is stark:
+measured against a real source, true claims scored 0.94 and 0.75 and planted
+ones 0.07 and below.
 
-An entry whose date will not parse is treated as recent. Failing closed costs
-at most one skipped subject; failing open costs a duplicate article.
+### Cost
 
-### What the report means
-
-On a real run: 80 sentences, 27 checkable claims, 6 flagged. The six were the
-author's own framing rather than fabrications — read the list as *look at
-these*, not as *these are wrong*. When a claim is genuinely invented the
-separation is stark: measured against a real source, two true claims scored
-0.94 and 0.75 and four planted ones 0.07 and below, including a plausible
-"the first known case of…" that the source never claims.
-
-Cost of one article, measured: **$0.16** — about 9,400 tokens in and 4,700 out
-on Claude Opus 5, plus a few cents of Jev. Roughly $0.70 a month.
-
-### Running it by hand
-
-```bash
-newsbot article --out /tmp/preview      # preview: does not touch state.json
-newsbot article --candidate 1           # take the runner-up subject
-newsbot article --days 14 --no-verify   # wider window, skip the check
-```
+To be measured on the first live run. Estimated from the single-story
+article it replaces ($0.16 for 9,400 tokens in): six stories with up to
+three write-ups each puts roughly 40,000 tokens in front of Claude Opus 5,
+so $0.30–0.40 per report, plus a few cents of Jev for the selection and
+several hundred claim checks.
 
 ## Required secrets
 
 | secret | why |
 |---|---|
-| `NEWSBOT_TOKEN` | fine-grained PAT, Contents: read and write. A commit pushed with the default `GITHUB_TOKEN` does **not** trigger other workflows, so `jekyll.yml` would never rebuild and the home page would keep showing yesterday's headlines. |
-| `TYPESAFE_API_KEY` | the ranking and the citation check. Optional for the daily list — without it the collection publishes chronologically — required for the weekly article. Measured: **$0.0000190 per story**, about $0.025/month. |
-| `ANTHROPIC_API_KEY` | the weekly draft. Claude Opus 5, measured at **$0.16 per article**. |
+| `NEWSBOT_TOKEN` | fine-grained PAT, Contents: read and write. Commits the daily archive and opens the weekly pull request. |
+| `TYPESAFE_API_KEY` | the judging and the citation check. Optional for the daily run — an unscored day is scored on Sunday — required for the weekly report. |
+| `ANTHROPIC_API_KEY` | the weekly draft. |
 
-The workflow checks for `NEWSBOT_TOKEN` first and fails with that explanation
+Both workflows check for their secrets first and fail with an explanation
 rather than running and silently publishing nothing.
 
 ## Lot 5 — Apify adapter for Anthropic and Mistral (design, not built)
 
 Issue #15 asks for this. It is written down here rather than shipped because
-there is no Apify token available to develop or test it against in this
-environment — an adapter built without ever calling the real API would be
-speculation wearing code, and a feed that silently returns nothing is worse
-than one that stays `enabled: false` with a note, per the existing convention
-in `_data/news-sources.yml`.
+there is no Apify token available to develop or test it against — an adapter
+built without ever calling the real API would be speculation wearing code,
+and a feed that silently returns nothing is worse than one that stays
+`enabled: false` with a note.
 
-**Why it's needed.** Anthropic and Mistral publish no RSS or Atom feed (see
-the `enabled: false` entries for both in `_data/news-sources.yml`, each with
-a `note` recording the 404s already checked). Every other source on the list
-is read through [`sources.fetch()`](../tools/newsbot/newsbot/sources.py),
-which assumes a feed URL `feedparser` can parse. These two need something
-that renders their news page and extracts entries instead.
+**Integration points, in the code as it stands:** `Source` (`sources.py`)
+would grow a `kind` field read by `load_sources()`; `collect()` would
+dispatch on it to a second fetcher with the same contract — takes a
+`Source`, returns `list[Item]`, raises on failure — so the failure isolation
+and `probe`'s table keep working unchanged. The adapter's job is to produce
+`Item`s; clustering, judging and the weekly run do not care where one came
+from. `fetch()`'s per-entry rules (no title, no link, no parseable date:
+skip; `clean_text()` on everything) apply just as much to scraped entries.
 
-**Concrete integration points, in the code as it stands today:**
-
-- `Source` (`sources.py`) is a plain dataclass: `name`, `url`, `enabled`,
-  `note`. It would grow a `kind: str = "feed"` field (and, for the apify
-  kind, whatever the actor needs to run — an actor ID, at minimum) read by
-  `load_sources()` the same way `enabled` and `note` already are.
-- `collect()` (`sources.py`) fans a list of `Source` out to `fetch()` through
-  a `ThreadPoolExecutor`, catches any exception per source into `failures`,
-  and never lets one dead source fail the run. The adapter should be a
-  second function with the same contract — takes a `Source`, returns
-  `list[Item]`, raises on failure — dispatched from `collect()` by
-  `source.kind` so the failure isolation, the `log.info("%s: %d items", ...)`
-  line, and `probe`'s pass/fail table all keep working unchanged for every
-  source, feed or not.
-- `Item` (`models.py`) is the shared shape: `title`, `url`, `source`,
-  `published`, `summary`. The adapter's job is to produce this shape,
-  nothing more — clustering, deduplication, ranking and archiving downstream
-  do not know or care whether an `Item` came from a feed or an Actor.
-- `fetch()`'s per-entry rules — skip anything with no title, no link, or no
-  parseable date (`_entry_date`'s `FUTURE_TOLERANCE` guard included); run
-  both title and summary through `clean_text()`; trim the summary with
-  `_entry_summary()` — apply just as much to scraped entries, so a page that
-  is missing a date does not get windowed in wrongly and scraped HTML does
-  not reach the reader unescaped.
-
-**What the adapter would actually run.** Apify's own **Website Content
-Crawler** actor (or an equivalent generic-scrape actor) pointed at
-`https://www.anthropic.com/news` and `https://mistral.ai/news`, called once
-per collection run, filtered to that day's page only — not a crawl of the
-whole site, which these two pages don't need and which would multiply the
-Apify usage cost for no benefit. The actor's output would need a mapping
-step (probably in a new `newsbot/apify_source.py`) from whatever fields the
-chosen actor returns to `Item`'s five fields, plus a check that a title-only
-result without a real published date is dropped rather than guessed, per the
-existing rule.
-
-**New secret**, matching the pattern of `TYPESAFE_API_KEY` and
-`ANTHROPIC_API_KEY` above: `APIFY_TOKEN`, used by the `apify-client` package
-to call the actor and read its dataset back.
-
-**Before it ships:** a real Apify token to develop against; a decision on
-which actor to use (generic content crawler vs. a small purpose-built one —
-that decision changes the mapping step and the per-run cost); the actual
-per-run Apify cost, measured the same way this doc already measures the Jev
-and Claude costs above; and the same live-network measurement `newsbot
-probe` gives every feed today, so Anthropic and Mistral only move to
-`enabled: true` once they are shown to actually surface recent posts, not
-just once the plumbing runs without erroring.
-
-**Left out of this issue's fix for the same reason:** the two-week
-measurement of which of the existing feeds publish inside the 48h window.
-`newsbot -v collect` now logs a per-feed in-window count and the same count
-is written to `.newsbot/archive/<date>.json` as `per_source` (see the
-`## Ranking with Jev` era archive schema above), so the measurement can be
-taken by reading fourteen days of `per_source` once they exist — but they
-don't exist yet going back two weeks, and generating that history is not
-something a single run of this fix can produce.
+**What it would run:** a generic content-crawler actor pointed at the two
+news pages, once per collection, filtered to that day, with a mapping step
+from the actor's output to `Item`'s five fields. **New secret:** `APIFY_TOKEN`.
+**Before it ships:** a token, a choice of actor, a measured per-run cost, and
+the same live check `newsbot probe` gives every feed.
