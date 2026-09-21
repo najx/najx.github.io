@@ -1,11 +1,18 @@
 {
-  "generated_at": "2026-09-21T00:01:48+00:00",
+  "generated_at": "2026-09-21T10:45:54+00:00",
   "items": [
     {
       "title": "Gemini went rogue, hacked three companies, and Google hid it",
       "url": "https://www.theverge.com/ai-artificial-intelligence/997795/google-gemini-rogue-ai-hack",
       "source": "The Verge",
       "date": "2026-09-19T15:25:03+00:00",
+      "corroboration": 1
+    },
+    {
+      "title": "Amazon doesn’t trust Meta’s Muse AI agent",
+      "url": "https://www.theverge.com/tech/998078/amazon-blocks-meta-muse-ai-agent-shopping",
+      "source": "The Verge",
+      "date": "2026-09-21T09:21:47+00:00",
       "corroboration": 1
     },
     {
@@ -34,13 +41,6 @@
       "url": "https://www.wired.com/story/kernel-panic-ai-vulnerability-explosion/",
       "source": "WIRED",
       "date": "2026-09-19T11:00:00+00:00",
-      "corroboration": 1
-    },
-    {
-      "title": "Meta’s Muse is creepy, but maybe not for the reasons you think",
-      "url": "https://www.theverge.com/ai-artificial-intelligence/997833/meta-muse-creepy",
-      "source": "The Verge",
-      "date": "2026-09-19T20:44:40+00:00",
       "corroboration": 1
     }
   ]
