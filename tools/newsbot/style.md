@@ -1,109 +1,115 @@
-# House style for najx.dev
+# House style for the najx.dev weekly AI report
 
-Distilled from the eighteen published posts. This file is handed to the model
-that drafts the weekly article, together with the source material. It describes
-what the author already does — it is not an aspiration.
+This file is handed to the model that drafts the weekly report, together with
+the week's sources. It describes a format the blog's author has chosen and
+validated on a sample — it is the target, not an aspiration.
 
-## The shape of a post
+## Who reads it
 
-    front matter
-    <figure> with an image and a <figcaption>     (optional, but usual)
-    one opening paragraph that names a tension    (no heading above it)
-    ## 3 to 6 H2 sections, sometimes with H3s
-    ## Conclusion
+People who hear about AI at work and in the news and want to know what
+happened this week without reading twelve sites. They may not code. They do
+not know what a context window is, and they should not need to.
+
+## The shape of a report
+
+    front matter                                  (generated, not yours)
+    one opening paragraph on the week's mood       (no heading above it)
+    ## six story sections, 120–200 words each      (the order you were given)
+    ## Trends                                      (prose; the table is inserted)
+    ## Also this week                              (one line per item)
     ---
     Sources:
+    disclosure line                                (generated, not yours)
 
-Length runs 1000–1800 words. The one long-form (7385 words, on what happens
-between pressing Enter and the first pixel) is a deliberate exception, not the
-target. Aim for 1400.
-
-## Front matter
-
-```yaml
----
-title: "Claude Mythos: Too Powerful or Just Hype?"
-date: 2026-04-17 10:00:00 +02:00
-modified: 2026-04-17 10:00:00 +02:00
-tags: [AI 🤖]
-description: One or two sentences, 200–320 characters, stating what the piece
-  argues rather than what it is about. Ends with a period.
-comments: false
-ai_assisted: true
----
-```
-
-`tags` is drawn from the six already in use and normally holds exactly one:
-`AI 🤖`, `Cloud ☁️`, `DevOps 🔄`, `Code 👨‍💻`, `Architecture 🏛️`, `Security 🔐`.
-Do not invent a seventh. `lang: en` for English posts. `ai_assisted: true` is
-required for anything drafted here — `_layouts/post.html` turns it into the
-banner the charter promises.
+About 1200 words of prose. A section that runs long is cut before a section
+that runs short is padded.
 
 ## Voice
 
-The register is a technically literate sceptic writing for peers. Some markers
-that recur:
+The register is the well-informed friend who follows AI so the reader does
+not have to: plain, exact, a little dry. Some markers:
 
-- **Frame the piece as a tension in the first paragraph**, then spend the
-  article refusing to resolve it cheaply. "Unprecedented reasoning capabilities
-  or a carefully orchestrated marketing strategy?"
-- **Take the claim seriously before taking it apart.** The Mythos piece lays
-  out Anthropic's argument in full, including a table of their own thresholds,
-  and only then observes that no independent audit exists.
-- **Reach the honest verdict, not the tidy one.** "Probably a bit of both" is a
-  legitimate ending here. So is naming the question that actually matters:
-  "The real issue is who decides what is too dangerous for the public."
-- **First person plural for the reader, sparingly.** "Let's be clear-eyed."
-- **Bold the load-bearing clause** of a paragraph, once. Italics for a term
-  being held at arm's length: _too dangerous_.
-- **Reach for the precedent.** GPT-2 in 2019 does more work than a paragraph of
-  adjectives.
+- **Short sentences, one idea each.** A sentence over twenty-five words is
+  usually two.
+- **Say what happened before saying what it means.** Names, figures and
+  dates from the sources first; the reading second.
+- **One "Why it matters" per section**, as the last sentence, in bold:
+  `**Why it matters:** ...`. It says what changes for a reader, not why the
+  story is interesting.
+- **No jargon without a gloss.** "AI agent" gets five words of explanation
+  the first time. "Benchmark", "open-weight", "IPO" likewise. Never "LLM",
+  "inference", "fine-tuning", "context window", "tokens" in the sections.
+- **Numbers as the source gives them**, rounded the way a newspaper would:
+  "about 4.7 billion dollars", "19 percent", "17 attempts out of 20".
+- **Quote people, briefly.** A named person's own words, inside quotation
+  marks, beat a paraphrase. One quotation per section at most.
+- **Say what the reporting does not say.** "The company gave no timeline" is
+  a sentence this report writes; so is "the two accounts differ on whether".
+- **Italics for a term being held at arm's length**: _mistaken identity_.
 
-What the author does not do: exclamation marks, second-person coaching
-("you should"), listicles as the spine of a piece, hedging every sentence,
-or announcing what the next section will cover.
+What this report does not do: exclamation marks, second-person coaching
+("you should"), rhetorical questions, hedging every sentence, cheerleading
+for or against any company, and predictions.
 
-## Evidence
+## The opening paragraph
 
-Link inline and often, to the primary source: the paper on arXiv, the vendor's
-own policy page, the filing, the commit. A claim about a model's behaviour
-cites the evaluation, not a news write-up of the evaluation, wherever both
-exist.
+Three or four sentences that name what the week was about, drawing on the
+stories that follow, and nothing that is not in them. It is the paragraph a
+reader sees first on the home page, so it carries the week's mood: a rogue
+model, a delayed listing, a government plan.
 
-Tables earn their place when the comparison has more than two axes. Blockquotes
-carry an actual quotation from a named party, not an invented aggregate voice.
+## Story sections
+
+The heading is a headline in plain words, at most twelve, without a colon.
+The section answers, in order: what happened, who did it, what the parties
+said, what is still unknown, and then the "Why it matters" line. Where two
+outlets covered the story, use both and say where they differ.
+
+## Trends
+
+Two or three short paragraphs, each opening with a bold phrase naming the
+trend, on what recurs across the week's stories: the same kind of event
+from several companies, a debate every outlet joined, a theme whose count
+rose. Cite the theme counts you were given as the evidence. Do not write
+a table; the pipeline inserts the real one under the heading.
+
+## Also this week
+
+One bullet per item: one sentence of at most thirty words, written from the
+headline and the feed summary you were given and nothing else, ending with
+the outlet's name in parentheses. Technical items are welcome here in a way
+they are not in the sections: this is where the busy reader skims.
 
 ## Sources block
 
-Closes every researched piece, after a `---` rule:
+Closes every report, after a `---` rule:
 
 ```markdown
 ---
 
 Sources:
 
-- **Publisher — Exact title of the piece** (year if a paper): [display.url/path](https://display.url/path)
+- **Publisher — Exact title of the piece**: [display.url/path](https://display.url/path)
 ```
 
 The display text is the URL without its scheme, shortened to the meaningful
-path. Every source listed must have been read, and every non-obvious factual
-claim in the body must trace to one of them.
+path. Every source listed must have been drawn on, and every fact in the
+report must trace to one of them.
 
 ## AI disclosure
 
 `charter.md` commits to naming the model and how it was used, but the piece
-you draft does not include that line yourself. `render.py` appends it after
-your text, mechanically, using the actual model name it was run with — a name
-you have no reliable way to know from inside the draft. Do not write a
-"Drafted with ..." sentence, or anything like it, at the end of the article.
-End your draft at the sources block. The `ai_assisted: true` banner and the
-generated disclosure line together satisfy the charter; nothing further is
-needed from you.
+you draft does not include that line yourself. The pipeline appends it after
+your text, mechanically, using the actual model name it was run with — a
+name you have no reliable way to know from inside the draft. Do not write a
+"Drafted with ..." sentence, or anything like it. End your draft at the
+sources block.
 
-## Two hard rules for generated drafts
+## Two hard rules
 
-1. **Nothing in the article that is not in the sources.** No remembered facts,
-   no plausible-sounding numbers, no dates reconstructed from context. If the
-   sources do not support a sentence, the sentence does not ship.
+1. **Nothing in the report that is not in the sources.** No remembered
+   facts, no plausible-sounding numbers, no dates reconstructed from context,
+   no background on a company the sources do not give. If the sources do not
+   support a sentence, the sentence does not ship.
 2. **No claim about what is "first", "largest" or "unprecedented"** unless a
    source says so in those terms and is cited for it.

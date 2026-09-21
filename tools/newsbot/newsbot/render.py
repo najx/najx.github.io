@@ -1,25 +1,26 @@
-"""Turning a draft into a post this site will build.
+"""Turning a draft into a report this site will build.
 
-The front matter has to match what _layouts/post.html and the klise theme
-expect, and `ai_assisted: true` is not optional: charter.md promises that any
-AI-assisted article says so and names the model. The theme already renders
-the banner from that flag, and the disclosure line below names the models.
+The front matter has to match what _layouts/post.html, the home page and the
+/ai-news index expect, and `ai_assisted: true` is not optional: charter.md
+promises that any AI-assisted piece says so and names the model. The theme
+already renders the banner from that flag, and the disclosure line below
+names the models.
 """
 
 from __future__ import annotations
 
-import hashlib
 import json
 import re
-import unicodedata
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
 from .judge import MODEL as JEV_MODEL
 
-TAGS = ["AI 🤖", "Cloud ☁️", "DevOps 🔄", "Code 👨‍💻", "Architecture 🏛️", "Security 🔐"]
-DEFAULT_TAG = "AI 🤖"
+REPORTS_DIR = "_ai_news"
+
+# Headings that are parts of the report rather than stories.
+FIXED_HEADINGS = {"trends", "also this week", "sources"}
 
 
 def _jev_label(model_id: str | None = None) -> str:
@@ -37,26 +38,14 @@ def _jev_label(model_id: str | None = None) -> str:
 
 
 @dataclass
-class Post:
+class Report:
     title: str
     description: str
-    tag: str
     body: str
 
-    def slug(self) -> str:
-        folded = unicodedata.normalize("NFKD", self.title)
-        folded = "".join(c for c in folded if not unicodedata.combining(c))
-        folded = re.sub(r"[^a-zA-Z0-9]+", "-", folded).strip("-").lower()
-        # A title with no ASCII alphanumerics folds to "", and an empty slug
-        # would write the post directly into _posts/ as "<date>-.md", where
-        # the next one overwrites it.
-        return folded[:70].rstrip("-") or (
-            "article-" + hashlib.sha1(self.title.encode()).hexdigest()[:8]
-        )
 
-
-def parse_draft(markdown: str) -> Post:
-    """Split the three metadata lines off the front of a draft."""
+def parse_draft(markdown: str) -> Report:
+    """Split the metadata lines off the front of a draft."""
     fields = {}
     body_start = 0
     for line in markdown.splitlines():
@@ -75,19 +64,12 @@ def parse_draft(markdown: str) -> Post:
     if missing:
         raise ValueError(f"draft is missing {', '.join(sorted(missing))}")
 
-    tag = fields.get("TAG", DEFAULT_TAG).strip()
-    if tag not in TAGS:
-        # A seventh tag would fragment /tags/ for no gain; fall back rather
-        # than invent one.
-        tag = DEFAULT_TAG
-
     body = markdown[body_start:].strip()
     body = _strip_model_written_disclosure(body)
 
-    return Post(
+    return Report(
         title=fields["TITLE"].strip().strip('"').rstrip("."),
         description=fields["DESCRIPTION"].strip(),
-        tag=tag,
         body=body,
     )
 
@@ -110,16 +92,89 @@ def _strip_model_written_disclosure(body: str) -> str:
     return "\n\n".join(paragraphs).rstrip()
 
 
+# --- Anchors ----------------------------------------------------------------
+
+def heading_id(text: str) -> str:
+    """The id kramdown gives a heading, so the home page can link to it.
+
+    Jekyll's default markdown engine generates header ids itself (auto_ids),
+    and _includes/anchor_headings.html keeps the id it finds. kramdown's rule,
+    reproduced: drop everything up to the first ASCII letter, drop every
+    character that is not an ASCII letter, digit, space or hyphen, turn spaces
+    into hyphens, lowercase. "Meta's Muse, nearly a million" therefore becomes
+    "metas-muse-nearly-a-million" — the apostrophe and the comma vanish
+    without leaving a hyphen, which is not what a generic slugify would do.
+    """
+    s = re.sub(r"^[^a-zA-Z]+", "", text)
+    s = re.sub(r"[^a-zA-Z0-9 -]", "", s)
+    return s.replace(" ", "-").lower() or "section"
+
+
+def sections(body: str) -> list[tuple[str, str]]:
+    """(anchor, heading) for every story section of the body."""
+    out = []
+    seen: dict[str, int] = {}
+    for m in re.finditer(r"^##\s+(.+?)\s*$", body, re.M):
+        title = m.group(1).strip()
+        if title.rstrip(":").lower() in FIXED_HEADINGS:
+            continue
+        anchor = heading_id(title)
+        # kramdown suffixes a repeated id with -1, -2, ...
+        if anchor in seen:
+            seen[anchor] += 1
+            anchor = f"{anchor}-{seen[anchor]}"
+        else:
+            seen[anchor] = 0
+        out.append((anchor, title))
+    return out
+
+
+# --- The theme table --------------------------------------------------------
+
+def theme_table_markdown(rows: list[tuple[str, str, int, int | None]]) -> str:
+    lines = ["| Theme | Stories this week | Last week |", "|---|---|---|"]
+    for _, display, now_c, then_c in rows:
+        last = str(then_c) if then_c is not None else "–"
+        lines.append(f"| {display} | {now_c} | {last} |")
+    return "\n".join(lines)
+
+
+def insert_table(body: str, rows) -> str:
+    """Put the theme table under `## Trends`, creating the section if need be.
+
+    The counts are the pipeline's, not the model's: the prompt tells the
+    model not to write a table, and this puts the real one in whatever it
+    did. If the model wrote a table anyway it stays; a reviewer will see
+    two and remove one, which beats silently trusting a model's arithmetic.
+    """
+    table = theme_table_markdown(rows)
+    # Case-insensitive and tolerant of a trailing colon: the prompt asks for
+    # "## Trends" exactly, but a model that writes "## Trends:" or title-cases
+    # "Also This Week" must not end up with a second Trends block at the end.
+    m = re.search(r"^##[ \t]+Trends:?[ \t]*$", body, re.M | re.I)
+    if m:
+        return body[:m.end()] + "\n\n" + table + body[m.end():]
+    # No Trends section: add one before "Also this week", else before the
+    # Sources rule, else at the end.
+    for pattern in (r"^##[ \t]+Also this week:?[ \t]*$", r"^---[ \t]*$\n+\s*Sources:"):
+        m = re.search(pattern, body, re.M | re.I)
+        if m:
+            return body[:m.start()] + "## Trends\n\n" + table + "\n\n" + body[m.start():]
+    return body.rstrip() + "\n\n## Trends\n\n" + table + "\n"
+
+
+# --- The file ---------------------------------------------------------------
+
 def disclosure(draft_model: str, checked: int, unsupported: int,
                judge_model: str | None = None,
                verify_model: str | None = None) -> str:
     """The line charter.md asks for: which model, and how it was used.
 
     `judge_model` and `verify_model` are the ids the API returned for the two
-    Jev steps — selection and citation checking. They are two separate runs,
-    days apart, so they are named separately rather than assumed equal. An
-    archive written before this field existed supplies neither, and the
-    label falls back to naming Jev without a version.
+    Jev steps — selection and citation checking. They are separate runs, so
+    they are named separately rather than assumed equal. An archive written
+    before this field existed supplies neither, and the label falls back to
+    naming Jev without a version.
     """
     checked_note = (
         f"Every factual claim was checked back against those sources by "
@@ -131,49 +186,63 @@ def disclosure(draft_model: str, checked: int, unsupported: int,
     return (
         "---\n\n"
         f"*Drafted with {draft_model} from the sources listed above; the "
-        f"subject was selected from a week of collected headlines by "
+        f"stories were selected from a week of collected headlines by "
         f"{_jev_label(judge_model)}. "
         f"{checked_note} Reviewed and edited before publication.*\n"
     )
 
 
-def render(post: Post, when: datetime, model: str, checked: int, unsupported: int,
-           lang: str = "en", judge_model: str | None = None,
-           verify_model: str | None = None) -> str:
+def _stamp(when: datetime) -> str:
     stamp = when.strftime("%Y-%m-%d %H:%M:%S %z")
-    stamp = stamp[:-2] + ":" + stamp[-2:] if stamp[-5] in "+-" else stamp
+    return stamp[:-2] + ":" + stamp[-2:] if stamp[-5] in "+-" else stamp
+
+
+def render(report: Report, when: datetime, week_id: str, period: str,
+           model: str, checked: int, unsupported: int,
+           rows: list[tuple[str, str, int, int | None]] | None = None,
+           judge_model: str | None = None, verify_model: str | None = None,
+           lang: str = "en") -> str:
+    body = insert_table(report.body, rows) if rows else report.body
     # json.dumps produces a valid YAML double-quoted scalar and escapes the
     # quotes, backslashes and control characters that would otherwise make the
     # front matter unparseable — and an unparseable front matter fails the
     # site build. A model-written description containing a colon-space is
     # enough to do it.
+    # The id is quoted too: a one-word heading such as "No" or "Off" yields a
+    # bare YAML 1.1 boolean, and a boolean makes no anchor.
+    stories = "".join(
+        f"  - id: {json.dumps(anchor)}\n    title: {json.dumps(title, ensure_ascii=False)}\n"
+        for anchor, title in sections(body)
+    )
+    stamp = _stamp(when)
     return (
         "---\n"
-        f"title: {json.dumps(post.title, ensure_ascii=False)}\n"
+        f"title: {json.dumps(report.title, ensure_ascii=False)}\n"
         f"date: {stamp}\n"
         f"modified: {stamp}\n"
-        f"tags: [{post.tag}]\n"
-        f"description: {json.dumps(post.description, ensure_ascii=False)}\n"
+        f"week: {week_id}\n"
+        f"period: {json.dumps(period, ensure_ascii=False)}\n"
+        f"description: {json.dumps(report.description, ensure_ascii=False)}\n"
+        f"stories:\n{stories}"
         "comments: false\n"
         f"lang: {lang}\n"
         "ai_assisted: true\n"
         "---\n\n"
-        f"{post.body.rstrip()}\n\n"
+        f"{body.rstrip()}\n\n"
         f"{disclosure(model, checked, unsupported, judge_model, verify_model)}"
     )
 
 
-def write_post(root: Path, post: Post, when: datetime, model: str,
-               checked: int, unsupported: int,
-               judge_model: str | None = None,
-               verify_model: str | None = None) -> Path:
-    """_posts/<slug>/<date>-<slug>.md, the jekyll-postfiles layout."""
-    slug = post.slug()
-    directory = root / "_posts" / slug
+def write_report(root: Path, report: Report, when: datetime, week_id: str,
+                 period: str, model: str, checked: int, unsupported: int,
+                 rows=None, judge_model: str | None = None,
+                 verify_model: str | None = None) -> Path:
+    """_ai_news/<week id>.md — one file per week, the collection layout."""
+    directory = root / REPORTS_DIR
     directory.mkdir(parents=True, exist_ok=True)
-    path = directory / f"{when:%Y-%m-%d}-{slug}.md"
+    path = directory / f"{week_id}.md"
     path.write_text(
-        render(post, when, model, checked, unsupported,
-               judge_model=judge_model, verify_model=verify_model),
+        render(report, when, week_id, period, model, checked, unsupported,
+               rows=rows, judge_model=judge_model, verify_model=verify_model),
         encoding="utf-8")
     return path

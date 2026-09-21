@@ -1,13 +1,16 @@
 """newsbot — command line entry point.
 
     newsbot probe              check every feed answers, print a table
-    newsbot collect            fetch, dedupe, cluster, write _data/news.json
+    newsbot collect            fetch, dedupe, cluster, score, archive the day
     newsbot collect --dry-run  same, but print instead of writing
+    newsbot weekly             plan, draft, check and write the week's report
+    newsbot weekly --dry-run   print the plan and stop before drafting
 """
 
 from __future__ import annotations
 
 import argparse
+import json
 import logging
 import os
 import sys
@@ -15,6 +18,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from . import sources as src
+from .models import Item
 from .normalize import CLUSTER_BAND_LOW, CLUSTER_CERTAIN, cluster, dedupe
 from .store import Store, count_by_source, repo_root
 
@@ -29,6 +33,16 @@ def _setup_logging(verbose: bool) -> None:
         stream=sys.stderr,
     )
 
+
+def _say(msg: str) -> None:
+    print(msg, file=sys.stderr)
+
+
+def _have_jev() -> bool:
+    return bool(os.environ.get("TYPESAFE_API_KEY"))
+
+
+# --- probe ------------------------------------------------------------------
 
 def cmd_probe(args: argparse.Namespace) -> int:
     store = Store(repo_root())
@@ -50,44 +64,34 @@ def cmd_probe(args: argparse.Namespace) -> int:
     return 1 if failures else 0
 
 
-def _rank(stories, now, args):
-    """Order the day's stories, with Jev when a key is configured.
+# --- collect ----------------------------------------------------------------
 
-    Without TYPESAFE_API_KEY the collection still publishes, newest first —
-    a home page of unranked headlines beats no home page — but it says so
-    loudly, because that is the state the whole pipeline exists to improve on.
+def _score(stories, args) -> tuple[list, dict]:
+    """Judge the day's stories with Jev when a key is configured.
+
+    Without TYPESAFE_API_KEY the day is still archived, unscored, and says so
+    loudly: the weekly run will score whatever it finds unscored, so a missing
+    key costs one run's worth of calls later rather than a week of silence.
     """
-    if args.no_rank or not os.environ.get("TYPESAFE_API_KEY"):
-        if not args.no_rank:
-            print("TYPESAFE_API_KEY not set: publishing unranked, newest first.",
-                  file=sys.stderr)
+    if args.no_score or not _have_jev():
+        if not args.no_score:
+            _say("TYPESAFE_API_KEY not set: archiving the day unscored.")
         return stories, {}
 
-    from .judge import rank, resolve_band, score_all
+    from .judge import as_record, resolve_band, score_all
 
     stories = resolve_band(stories, CLUSTER_BAND_LOW, CLUSTER_CERTAIN)
     assessed = score_all(stories)
+    scores = {a.item.url: as_record(a) for a in assessed}
 
-    scores = {
-        a.item.url: {
-            "score": round(a.score, 4),
-            "gate": a.gate,
-            "flags": a.flags,
-            **a.detail,
-            **({"model": a.model} if a.model else {}),
-            **({"error": a.error} if a.error else {}),
-        }
-        for a in assessed
-    }
     gated = [a for a in assessed if a.gate]
     if gated:
-        print(f"  gated: " + ", ".join(sorted({a.gate for a in gated})) +
-              f" ({len(gated)} stories)", file=sys.stderr)
+        _say("  gated: " + ", ".join(sorted({a.gate for a in gated})) +
+             f" ({len(gated)} stories)")
     errors = [a for a in assessed if a.error]
     if errors:
-        print(f"  {len(errors)} stories could not be scored", file=sys.stderr)
-
-    return [a.item for a in rank(assessed, now, limit=args.limit)], scores
+        _say(f"  {len(errors)} stories could not be scored")
+    return stories, scores
 
 
 def cmd_collect(args: argparse.Namespace) -> int:
@@ -97,8 +101,7 @@ def cmd_collect(args: argparse.Namespace) -> int:
     feeds = src.load_sources(store.sources_yml)
     items, failures = src.collect(feeds)
     if not items:
-        print("no items collected from any feed; leaving news.json alone",
-              file=sys.stderr)
+        _say("no items collected from any feed; leaving the archive alone")
         return 1
 
     fresh = [i for i in items if i.published >= now - timedelta(hours=args.window)]
@@ -106,28 +109,28 @@ def cmd_collect(args: argparse.Namespace) -> int:
     stories = cluster(distinct)
 
     # Per feed, how many of its entries actually fell inside the window —
-    # not the raw fetch total `collect()` already logs per source. This is
-    # the number issue #15 asks to track over time; it is also written into
-    # the day's archive as `per_source`, so it survives past this run.
+    # not the raw fetch total `collect()` already logs per source. Also
+    # written into the day's archive as `per_source`, so it survives the run.
     for name, count in sorted(count_by_source(distinct).items()):
         log.info("  %s: %d in window", name, count)
 
-    ranked, scores = _rank(stories, now, args)
+    stories, scores = _score(stories, args)
 
-    print(
-        f"{len(items)} entries -> {len(fresh)} within {args.window}h "
-        f"-> {len(distinct)} distinct -> {len(stories)} stories "
-        f"-> {len(ranked)} published ({len(failures)} feeds failed)",
-        file=sys.stderr,
-    )
+    _say(f"{len(items)} entries -> {len(fresh)} within {args.window}h "
+         f"-> {len(distinct)} distinct -> {len(stories)} stories "
+         f"({len(failures)} feeds failed)")
 
     if args.dry_run:
-        for item in ranked[: args.limit]:
+        ranked = sorted(stories, key=lambda i: -(scores.get(i.url, {}).get("score") or 0.0))
+        for item in ranked:
+            rec = scores.get(item.url, {})
             mark = f" x{item.corroboration}" if item.corroboration > 1 else ""
-            score = scores.get(item.url, {}).get("score")
+            score = rec.get("score")
             shown = f"{score:.3f}" if score is not None else "  -  "
-            print(f"  {shown}  {item.published:%b %d}  {item.title[:64]:66s} "
-                  f"[{item.source}{mark}]")
+            gate = f" [{rec['gate']}]" if rec.get("gate") else ""
+            theme = f" {rec['theme']}" if rec.get("theme") else ""
+            print(f"  {shown}  {item.published:%b %d}  {item.title[:60]:62s} "
+                  f"[{item.source}{mark}]{theme}{gate}")
         return 0
 
     # Archive the windowed, deduplicated set rather than every entry the
@@ -135,118 +138,198 @@ def cmd_collect(args: argparse.Namespace) -> int:
     # back catalogue from the lab blogs, and committing that daily would add
     # hundreds of megabytes a year to the repository for no benefit.
     store.save_archive(now, distinct, failures, scores)
-    store.save_home(ranked, limit=args.limit)
-
-    print(f"wrote {store.news_json.relative_to(store.root)} "
-          f"and {store.archive_for(now).relative_to(store.root)}", file=sys.stderr)
+    _say(f"wrote {store.archive_for(now).relative_to(store.root)}")
     return 0
 
 
-def cmd_article(args: argparse.Namespace) -> int:
-    """Draft the week's article: pick, fetch, write, check, render."""
-    from . import fetch, pick, render, verify, write
-    import json
+# --- weekly -----------------------------------------------------------------
+
+def _backfill(stories):
+    """Score, now, whatever the daily runs left unscored under this rubric."""
+    from . import weekly
+
+    todo = weekly.unscored(stories)
+    if not todo:
+        return 0
+    if not _have_jev():
+        _say(f"{len(todo)} stories carry no judgement under the current rubric "
+             f"and TYPESAFE_API_KEY is not set; they cannot be selected.")
+        return 0
+
+    from .judge import as_record, score_all
+
+    assessed = score_all([s.item for s in todo])
+    by_url = {a.item.url: as_record(a) for a in assessed if not a.error}
+    for s in todo:
+        if s.item.url in by_url:
+            s.judgement = by_url[s.item.url]
+    failed = len(assessed) - len(by_url)
+    _say(f"scored {len(by_url)} stories the archives had not judged under the "
+         f"current rubric" + (f"; {failed} could not be scored" if failed else ""))
+    return len(by_url)
+
+
+def _print_plan(selection, now) -> None:
+    from . import weekly
+
+    _say("\ntheme count (this week / last week):")
+    for _, display, now_c, then_c in selection.table:
+        last = str(then_c) if then_c is not None else "-"
+        _say(f"  {display:26s} {now_c:2d} / {last}")
+
+    _say("\nsections:")
+    for s in selection.sections:
+        _say(f"  {weekly.trend(s, now):.3f}  {s.item.title[:60]:62s} "
+             f"[{s.item.source} x{s.outlets}] {s.theme} "
+             f"days={len(s.days_seen)} acc={float(s.judgement.get('accessibility', 0)):.1f}")
+    _say("\nalso this week:")
+    for s in selection.also:
+        _say(f"  {weekly.trend(s, now):.3f}  {s.item.title[:60]:62s} "
+             f"[{s.item.source}] {s.theme}")
+    if selection.rejected:
+        _say("\nrejected:")
+        for s, why in selection.rejected[:15]:
+            _say(f"  {s.score:.3f}  {s.item.title[:56]:58s} {'; '.join(why)}")
+
+
+def cmd_weekly(args: argparse.Namespace) -> int:
+    """The week's report: merge, rank, select, fetch, draft, check, render."""
+    from . import fetch, render, verify, weekly, write
 
     store = Store(repo_root())
     now = datetime.now(timezone.utc)
+    week_id, period, _, _ = weekly.week_of(now)
+    _say(f"report {week_id}: {period}")
 
-    candidates = pick.load_week(store.archive, now, days=args.days)
-    if not candidates:
-        print(f"no scored stories in the last {args.days} days — run collect first",
-              file=sys.stderr)
+    entries = list(weekly.load_archives(store.archive, now, days=args.days))
+    if not entries:
+        _say(f"no archives in the last {args.days} days — run collect first")
         return 1
 
-    state = store.load_state()
-    winner, report, strict = pick.choose(candidates, store.root / "_posts",
-                                         index=args.candidate,
-                                         covered=state.get("covered", []),
-                                         now=now)
-    if winner is None:
-        print("nothing cleared the bar, even relaxed; publishing nothing this week.",
-              file=sys.stderr)
-        _print_report(report)
+    resolve = None
+    if _have_jev():
+        from .judge import resolve_band
+        resolve = lambda items: resolve_band(items, CLUSTER_BAND_LOW, CLUSTER_CERTAIN)
+    stories = weekly.merge(entries, resolve=resolve)
+    current = weekly.this_week(stories, now, days=args.days)
+    previous = weekly.last_week(stories, now, days=args.days)
+    _say(f"{len(entries)} archive entries -> {len(stories)} stories, "
+         f"{len(current)} this week, {len(previous)} last week")
+
+    _backfill(current)
+
+    covered = store.load_state().get("covered", [])
+    exclude: set[str] = set()
+    texts: dict[str, dict[str, str]] = {}
+    selection = None
+    for _ in range(4):
+        selection = weekly.select(current, now, covered=covered, previous=previous,
+                                  sections=args.stories, exclude=frozenset(exclude))
+        if args.dry_run:
+            break
+        missing = []
+        for s in selection.sections:
+            if s.item.url in texts:
+                continue
+            # The representative plus the other write-ups of the SAME story,
+            # by URL — never by outlet name, which would pull in everything
+            # that outlet published this week.
+            wanted = [Item(title=s.item.title, url=u, source=s.item.source,
+                           published=s.item.published) for u in s.source_urls]
+            got = fetch.fetch_sources(wanted)
+            if got:
+                texts[s.item.url] = got
+            else:
+                missing.append(s)
+        if not missing:
+            break
+        for s in missing:
+            _say(f"no source could be fetched for: {s.item.title[:70]}")
+            exclude.add(s.item.url)
+
+    if not args.dry_run:
+        # Four rounds is plenty; whatever still has no text is dropped rather
+        # than written from its headline.
+        selection.sections = [s for s in selection.sections if s.item.url in texts]
+
+    _print_plan(selection, now)
+    if selection.quiet:
+        _say(f"\nonly {len(selection.sections)} stories cleared the bar "
+             f"(fewer than {weekly.MIN_SECTIONS}); publishing nothing this week.")
         return 2
+    if args.dry_run:
+        return 0
 
-    bar = "the weekly bar" if strict else "the relaxed fallback bar"
-    print(f"subject ({bar}): {winner.item.title}  [{winner.item.source}] "
-          f"score {winner.score:.3f} x{winner.item.corroboration}", file=sys.stderr)
+    brief = write.Brief(
+        week_id=week_id, period=period,
+        sections=[(s, texts[s.item.url]) for s in selection.sections],
+        also=selection.also, table=selection.table,
+    )
+    guide = (store.root / "tools" / "newsbot" / "style.md").read_text(encoding="utf-8")
+    previous_report = store.latest_report()
+    voice = previous_report.read_text(encoding="utf-8")[:9000] if previous_report else None
 
-    # The winner plus the other write-ups of the SAME story. Matching on the
-    # outlet name instead would pull in every article that outlet published
-    # this week — six unrelated pieces, in the case this was caught on — and
-    # hand them to the model as material on the subject.
-    wanted = set(winner.item.also_urls)
-    cluster = [winner.item] + [c.item for c in candidates
-                               if c.item.url in wanted]
-    sources = fetch.fetch_sources(cluster)
-    print(f"fetched {len(sources)}/{len(cluster)} source articles", file=sys.stderr)
-    if not sources:
-        print("no source article could be fetched; refusing to write from the "
-              "headline alone.", file=sys.stderr)
-        return 3
-
-    guide, examples = write.load_style(store.root)
-    draft = write.draft(winner.item, sources, cluster[1:], guide, examples)
+    draft = write.draft(brief, guide, previous=voice)
     if draft.refused:
-        print(f"the model declined this subject ({draft.refusal_reason}); "
-              f"nothing written.", file=sys.stderr)
+        _say(f"the model declined this week ({draft.refusal_reason}); nothing written.")
         return 4
-    print(f"drafted {len(draft.markdown.split())} words, "
-          f"{draft.input_tokens} in / {draft.output_tokens} out, "
-          f"${draft.cost_usd:.3f}", file=sys.stderr)
+    _say(f"drafted {len(draft.markdown.split())} words, "
+         f"{draft.input_tokens} in / {draft.output_tokens} out, ${draft.cost_usd:.3f}")
 
-    checks = verify.Report() if args.no_verify else verify.verify(draft.markdown, sources)
+    # The checker reads exactly what the writer read: the fetched articles
+    # for the sections, and the headline plus feed summary for the also-list.
+    checkable = {url: text for texts_ in texts.values() for url, text in texts_.items()}
+    for s in selection.also:
+        checkable[s.item.url] = f"{s.item.title}\n\n{s.item.summary}"
+    checks = verify.Report() if args.no_verify else verify.verify(draft.markdown, checkable)
     if checks.error:
-        print(f"citation check unavailable: {checks.error}", file=sys.stderr)
+        _say(f"citation check unavailable: {checks.error}")
     else:
-        print(f"checked {checks.checked} claims, "
-              f"{len(checks.unsupported)} unsupported", file=sys.stderr)
+        _say(f"checked {checks.checked} claims, {len(checks.unsupported)} unsupported")
 
-    post = render.parse_draft(draft.markdown)
+    report = render.parse_draft(draft.markdown)
     out_root = Path(args.out) if args.out else store.root
-    path = render.write_post(out_root, post, datetime.now(timezone.utc),
-                             _model_name(draft.model), checks.checked,
-                             len(checks.unsupported),
-                             judge_model=winner.judgement.get("model"),
-                             verify_model=checks.model)
-    print(f"wrote {path}", file=sys.stderr)
+    judge_models = {s.judgement.get("model") for s in selection.sections}
+    path = render.write_report(
+        out_root, report, now, week_id, period, _model_name(draft.model),
+        checks.checked, len(checks.unsupported), rows=selection.table,
+        judge_model=judge_models.pop() if len(judge_models) == 1 else None,
+        verify_model=checks.model)
+    _say(f"wrote {path}")
 
-    # Only when the post lands in the site itself. `--out` is a preview, and
-    # marking a subject as covered on a preview would silently cost the
-    # following weeks a real article on it.
+    # Only when the report lands in the site itself. `--out` is a preview,
+    # and marking stories as covered on a preview would silently cost the
+    # following week its sections on them.
     if out_root == store.root:
-        store.record_covered(winner.item, post.slug(),
-                             datetime.now(timezone.utc))
-        print(f"recorded the subject in "
-              f"{store.state_json.relative_to(store.root)}", file=sys.stderr)
+        for s in selection.sections:
+            store.record_covered(s.item, week_id, now)
+        _say(f"recorded {len(selection.sections)} stories in "
+             f"{store.state_json.relative_to(store.root)}")
     else:
-        print("--out: preview only, the subject was not marked as covered",
-              file=sys.stderr)
+        _say("--out: preview only, nothing was marked as covered")
 
     if checks.unsupported:
-        print("\nclaims the sources do not bear out:", file=sys.stderr)
+        _say("\nclaims the sources do not bear out:")
         for f in checks.unsupported[:12]:
-            print(f"  [{f.best_support:.2f}] {f.sentence[:100]}", file=sys.stderr)
+            _say(f"  [{f.best_support:.2f}] {f.sentence[:100]}")
 
     if args.checks_out:
         # A machine-readable sibling of the log above, so the workflow can
-        # build the PR's review checklist without scraping stderr — which
-        # broke the moment a claim's own text contained a line the scraper
-        # mistook for its own markers.
+        # build the PR's review checklist without scraping stderr.
         payload = {
+            "week": week_id,
             "checked": checks.checked,
             "unsupported": [
                 {"sentence": f.sentence, "support": round(f.best_support, 3),
                  "source": f.best_source}
                 for f in checks.unsupported
             ],
-            "tag": post.tag,
+            "sections": [s.item.title for s in selection.sections],
             "post": str(path),
         }
         Path(args.checks_out).write_text(
             json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-        print(f"wrote {args.checks_out}", file=sys.stderr)
-
+        _say(f"wrote {args.checks_out}")
     return 0
 
 
@@ -254,11 +337,7 @@ def _model_name(model_id: str) -> str:
     return {"claude-opus-5": "Claude Opus 5"}.get(model_id, model_id)
 
 
-def _print_report(report: list[dict]) -> None:
-    for row in report[:12]:
-        print(f"  {row['score']:.3f}  {row['title'][:56]:58s} "
-              f"{'; '.join(row['rejected_for'])}", file=sys.stderr)
-
+# --- entry point ------------------------------------------------------------
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="newsbot", description=__doc__)
@@ -269,28 +348,28 @@ def main(argv: list[str] | None = None) -> int:
         func=cmd_probe
     )
 
-    collect = sub.add_parser("collect", help="fetch and write the home list")
+    collect = sub.add_parser("collect", help="fetch, score and archive the day")
     collect.add_argument("--window", type=int, default=WINDOW_HOURS,
                          help="how many hours back to keep (default: 48)")
-    collect.add_argument("--limit", type=int, default=15,
-                         help="how many stories to publish (default: 15)")
     collect.add_argument("--dry-run", action="store_true",
                          help="print the result instead of writing it")
-    collect.add_argument("--no-rank", action="store_true",
-                         help="skip Jev and publish newest first")
+    collect.add_argument("--no-score", action="store_true",
+                         help="skip Jev and archive the day unscored")
     collect.set_defaults(func=cmd_collect)
 
-    article = sub.add_parser("article", help="draft the week's article")
-    article.add_argument("--days", type=int, default=7,
-                         help="how far back to look for a subject (default: 7)")
-    article.add_argument("--candidate", type=int, default=0,
-                         help="take the Nth eligible subject instead of the first")
-    article.add_argument("--out", help="write the post under this root instead")
-    article.add_argument("--no-verify", action="store_true",
-                         help="skip the Jev citation check")
-    article.add_argument("--checks-out",
-                         help="also write the citation check as JSON to this path")
-    article.set_defaults(func=cmd_article)
+    weekly = sub.add_parser("weekly", help="write the week's report")
+    weekly.add_argument("--days", type=int, default=7,
+                        help="how far back the week reaches (default: 7)")
+    weekly.add_argument("--stories", type=int, default=6,
+                        help="how many stories get a section (default: 6)")
+    weekly.add_argument("--dry-run", action="store_true",
+                        help="print the plan and stop before drafting")
+    weekly.add_argument("--out", help="write the report under this root instead")
+    weekly.add_argument("--no-verify", action="store_true",
+                        help="skip the Jev citation check")
+    weekly.add_argument("--checks-out",
+                        help="also write the citation check as JSON to this path")
+    weekly.set_defaults(func=cmd_weekly)
 
     args = parser.parse_args(argv)
     _setup_logging(args.verbose)

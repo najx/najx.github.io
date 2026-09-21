@@ -20,16 +20,17 @@ bundle exec jekyll serve
 
 ## newsbot
 
-The site also has a Python part: `tools/newsbot` collects AI headlines,
-ranks them, and drafts the weekly article. It is documented in
-[`docs/newsbot.md`](docs/newsbot.md).
+The site also has a Python part: `tools/newsbot` collects AI headlines
+every morning, judges them with Jev, and every Sunday drafts **AI Weekly**,
+the report published under `/ai-news/`, as a pull request to review. It is
+documented in [`docs/newsbot.md`](docs/newsbot.md).
 
 - Python ≥ 3.10
 ```
 pip install -e './tools/newsbot[dev]'
 pytest
 ```
-  134 tests, ~0.5s.
+  177 tests, ~0.5s.
 - Driven by two GitHub Actions workflows
   (`.github/workflows/ai-news-collect.yml`, `ai-news-article.yml`), which
   need three repository secrets: `NEWSBOT_TOKEN`, `TYPESAFE_API_KEY`,

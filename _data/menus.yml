@@ -3,6 +3,10 @@ header:
     url: /
     external: false
 
+  - title: /ai-news
+    url: /ai-news/
+    external: false
+
   - title: /blog
     url: /blog/
     external: false

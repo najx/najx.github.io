@@ -1,13 +1,13 @@
 """Where the pipeline keeps what it knows.
 
-Two destinations, deliberately separate:
+  .newsbot/archive/    one file per day: the day's distinct stories with
+                       their judgements. A leading dot keeps Jekyll out of
+                       it, so a year of daily files never touches build time.
+  .newsbot/state.json  which stories already had a section in a report.
+  _ai_news/            the reports themselves, a Jekyll collection.
 
-  _data/news.json      the short list the site renders. Jekyll reads every
-                       file under _data/ on every build, so this is the only
-                       thing that belongs there.
-  .newsbot/            the full archive, the rolling shortlist and the seen
-                       set. A leading dot keeps Jekyll out of it, so a year
-                       of daily files never touches build time.
+Nothing under _data/ any more: Jekyll reads every file there on every build,
+and the site no longer renders anything the daily run writes.
 """
 
 from __future__ import annotations
@@ -19,9 +19,6 @@ from pathlib import Path
 
 from .models import Item
 from .normalize import canonical_url
-
-HOME_ITEMS = 15
-
 
 def count_by_source(items: list[Item]) -> dict[str, int]:
     """How many of these items came from each feed.
@@ -67,8 +64,8 @@ class Store:
 
     # --- paths ----------------------------------------------------------
     @property
-    def news_json(self) -> Path:
-        return self.data / "news.json"
+    def reports(self) -> Path:
+        return self.root / "_ai_news"
 
     @property
     def sources_yml(self) -> Path:
@@ -84,10 +81,10 @@ class Store:
     # --- io -------------------------------------------------------------
     @staticmethod
     def _write_json(path: Path, payload: dict) -> None:
-        """Write via a temporary file, so a crash never leaves _data/ broken.
+        """Write via a temporary file, so a crash never leaves a half file.
 
-        A malformed news.json would fail the Jekyll build and take the site
-        down, which is a steep price for a feed hiccup.
+        The archive is what next Sunday's report is built from, and a
+        truncated JSON there would fail the run that reads it.
         """
         path.parent.mkdir(parents=True, exist_ok=True)
         text = json.dumps(payload, indent=2, ensure_ascii=False) + "\n"
@@ -102,44 +99,50 @@ class Store:
             tmp.unlink(missing_ok=True)
 
     def load_state(self) -> dict:
-        """Which stories already became an article, and when.
+        """Which stories already had a section in a report, and when.
 
         Deliberately not a record of every URL ever seen: the feeds return
         ~2500 entries a day, and persisting them produced a quarter-megabyte
-        file rewritten on every run for no benefit. Re-proposal is guarded by
-        `covered` and by the posts already in _posts/, both of which are
-        small and exact.
+        file rewritten on every run for no benefit. Repeats are guarded by
+        `covered`, which is small and exact.
         """
         if not self.state_json.is_file():
-            return {"covered": [], "last_article": None}
+            return {"covered": [], "last_report": None}
         return json.loads(self.state_json.read_text(encoding="utf-8"))
 
     def save_state(self, state: dict) -> None:
         self._write_json(self.state_json, state)
 
     def record_covered(self, item: Item, slug: str, when: datetime) -> Path:
-        """Note that this story became an article, so pick can refuse it later.
+        """Note that this story had a section, so the next report skips it.
 
         The canonical URL and every `also_urls` write-up of the same story go
         in, because the week after, the follow-up arrives from whichever of
         those outlets was not the representative. The source title goes in
-        too: Claude rewrites the headline, so the published title is not a
-        usable handle on the subject — the Gemini break-in was written up as
-        "When the Model Stopped", which shares no word with the feed title.
+        too, for a human reading the file. Keyed on the URL: a report has
+        several sections, so several entries share one slug, and rerunning
+        the same week rewrites its entries rather than duplicating them.
         """
         state = self.load_state()
-        covered = [c for c in state.get("covered", []) if c.get("slug") != slug]
+        url = canonical_url(item.url)
+        covered = [c for c in state.get("covered", []) if c.get("url") != url]
         covered.append({
-            "url": canonical_url(item.url),
+            "url": url,
             "also_urls": [canonical_url(u) for u in item.also_urls],
             "title": item.title,
             "slug": slug,
             "date": when.date().isoformat(),
         })
         state["covered"] = covered
-        state["last_article"] = when.date().isoformat()
+        state["last_report"] = when.date().isoformat()
+        state.pop("last_article", None)
         self.save_state(state)
         return self.state_json
+
+    def latest_report(self) -> Path | None:
+        """The most recent report file, by name — names are ISO week ids."""
+        files = sorted(self.reports.glob("*.md")) if self.reports.is_dir() else []
+        return files[-1] if files else None
 
     def save_archive(
         self,
@@ -150,10 +153,9 @@ class Store:
     ) -> Path:
         """Keep the day's distinct stories, summaries and judgements included.
 
-        This is what the weekly article ranks over — seven days of it — so it
-        holds the windowed and deduplicated set with each story's score and
-        the reason it was gated, not the raw feed haul and not just the
-        fifteen that reached the home page.
+        This is what the weekly report is built from — seven days of it — so
+        it holds the windowed and deduplicated set with each story's score
+        and the reason it was gated, not the raw feed haul.
         """
         scores = scores or {}
         path = self.archive_for(day)
@@ -169,29 +171,3 @@ class Store:
             },
         )
         return path
-
-    def save_home(self, items: list[Item], limit: int = HOME_ITEMS) -> Path:
-        """Write the list the home page renders.
-
-        Only the fields the template touches, so a change of ranking never
-        reshapes what Liquid has to deal with.
-        """
-        self._write_json(
-            self.news_json,
-            {
-                "generated_at": datetime.now(timezone.utc)
-                .replace(microsecond=0)
-                .isoformat(),
-                "items": [
-                    {
-                        "title": i.title,
-                        "url": i.url,
-                        "source": i.source,
-                        "date": i.published.isoformat(),
-                        "corroboration": i.corroboration,
-                    }
-                    for i in items[:limit]
-                ],
-            },
-        )
-        return self.news_json

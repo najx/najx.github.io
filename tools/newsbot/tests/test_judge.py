@@ -7,17 +7,19 @@ name fails here rather than in production, and nothing needs an API key.
 from datetime import datetime, timedelta, timezone
 
 import pytest
-from typesafe_sdk import ChoiceAnswer, NoulAnswer, ScoreAnswer
+from typesafe_sdk import ChoiceAnswer, NoulAnswer, ScoreAnswer, SystemOneResponse, Usage
 
 from newsbot.judge import (
-    DOMAIN_FIT_VALUE,
     GENRE_WEIGHT,
-    MAX_PER_SOURCE,
-    PUBLISH_FLOOR,
+    MODEL,
     QUESTIONS,
+    RUBRIC,
+    SIGNIFICANCE_VALUE,
+    THEMES,
+    as_record,
     assess,
     build_state,
-    rank,
+    score_one,
 )
 from newsbot.models import Item
 
@@ -49,12 +51,12 @@ def noul(p):
 
 
 def answers(**over):
-    """A solidly on-topic incident report; override one field per test."""
+    """A front-page incident anyone can follow; override one field per test."""
     base = {
-        "domain_fit": flat(4, 5),
+        "public_significance": flat(4, 5),
+        "accessibility": flat(3, 4),
+        "theme": choice("safety_incidents"),
         "story_type": choice("incident"),
-        "mechanism_depth": flat(4, 5),
-        "practitioner_stakes": flat(3, 4),
         "is_promo_or_admin": noul(0.02),
         "state_is_informative": noul(0.95),
         "injection_present": noul(0.02),
@@ -95,6 +97,17 @@ class TestQuestionSet:
                 low = f" {level.lower()} "
                 assert not any(w in low for w in banned), (key, level[:60])
 
+    def test_the_theme_question_offers_exactly_the_report_themes(self):
+        """The theme table prints THEMES; a label Jev can return that the
+        table does not know would be counted nowhere."""
+        assert set(QUESTIONS["theme"].criteria) == set(THEMES)
+
+    def test_the_seven_questions_are_the_weekly_ones(self):
+        assert set(QUESTIONS) == {
+            "public_significance", "accessibility", "theme", "story_type",
+            "is_promo_or_admin", "state_is_informative", "injection_present",
+        }
+
 
 class TestState:
     def test_only_four_named_fields_reach_jev(self):
@@ -105,15 +118,15 @@ class TestState:
 class TestGates:
     def test_injection_is_rejected(self):
         a = assess(item(), answers(injection_present=noul(0.9)))
-        assert a.gate == "injection" and not a.published
+        assert a.gate == "injection"
 
     def test_promotion_is_rejected(self):
         a = assess(item(), answers(is_promo_or_admin=noul(0.85)))
         assert a.gate == "promo_or_admin"
 
-    def test_off_beat_subject_is_rejected(self):
-        a = assess(item(), answers(domain_fit=flat(0, 5)))
-        assert a.gate == "off_beat"
+    def test_a_story_not_about_ai_is_rejected(self):
+        a = assess(item("A new games console"), answers(public_significance=flat(0, 5)))
+        assert a.gate == "off_topic"
 
     def test_suspicion_short_of_the_gate_is_flagged_not_dropped(self):
         a = assess(item(), answers(injection_present=noul(0.5)))
@@ -123,31 +136,54 @@ class TestGates:
         """The rubric carves this out; the gate must not undo it."""
         a = assess(item("Agents hijacked by injected prompts"),
                    answers(injection_present=noul(0.1)))
-        assert a.gate is None and a.published
+        assert a.gate is None and a.score > 0
+
+    def test_a_gated_judgement_still_carries_the_rubric(self):
+        """weekly.py reads `rubric` to tell a judged story from one nobody
+        has looked at. A gate is a judgement, so it must carry the name."""
+        a = assess(item(), answers(is_promo_or_admin=noul(0.9)))
+        assert as_record(a)["rubric"] == RUBRIC
+        assert as_record(a)["gate"] == "promo_or_admin"
 
 
-class TestDomainFitDistribution:
+class TestSignificanceDistribution:
     def test_split_mass_is_not_read_as_the_middle(self):
         """Mass split between level 0 and level 4 averages to 2.0, but the
         Score guide says neighbouring levels are not adjacent, so the middle
         is not the answer. Reading the distribution keeps the two apart."""
-        split = assess(item(), answers(domain_fit=score({0: 0.5, 1: 0, 2: 0, 3: 0, 4: 0.5})))
-        middle = assess(item(), answers(domain_fit=flat(2, 5)))
-        assert split.gate is None  # 0.5 mass in levels 0-1 is under the gate
-        expected = 0.5 * DOMAIN_FIT_VALUE[0] + 0.5 * DOMAIN_FIT_VALUE[4]
+        split = assess(item(), answers(public_significance=score(
+            {0: 0.5, 1: 0, 2: 0, 3: 0, 4: 0.5})))
+        middle = assess(item(), answers(public_significance=flat(2, 5)))
+        assert split.gate is None  # 0.5 mass in level 0 is under the gate
+        expected = 0.5 * SIGNIFICANCE_VALUE[0] + 0.5 * SIGNIFICANCE_VALUE[4]
         assert expected == pytest.approx(0.5)
         assert split.score > middle.score
 
-    def test_mass_in_the_reject_levels_trips_the_gate(self):
-        a = assess(item(), answers(domain_fit=score({0: 0.35, 1: 0.3, 2: 0.35, 3: 0, 4: 0})))
-        assert a.gate == "off_beat"
+    def test_mass_in_the_off_topic_level_trips_the_gate(self):
+        a = assess(item(), answers(public_significance=score(
+            {0: 0.65, 1: 0.1, 2: 0.25, 3: 0, 4: 0})))
+        assert a.gate == "off_topic"
 
 
 class TestMerit:
-    def test_on_topic_incident_outranks_off_topic_incident(self):
-        on = assess(item(), answers())
-        off = assess(item(), answers(domain_fit=flat(3, 5)))
-        assert on.score > off.score
+    def test_wider_reach_outranks_narrower_reach(self):
+        wide = assess(item(), answers())
+        narrow = assess(item(), answers(public_significance=flat(1, 5)))
+        assert wide.score > narrow.score
+
+    def test_plain_language_outranks_jargon_at_equal_reach(self):
+        plain = assess(item(), answers(accessibility=flat(3, 4)))
+        dense = assess(item(), answers(accessibility=flat(0, 4)))
+        assert plain.score > dense.score
+
+    def test_being_easy_cannot_rescue_a_story_nobody_would_hear_of(self):
+        """The multiplicative significance term: an accessible library bump
+        still ranks under a dense front-page incident."""
+        easy_niche = assess(item(), answers(public_significance=flat(1, 5),
+                                            accessibility=flat(3, 4)))
+        dense_big = assess(item(), answers(public_significance=flat(4, 5),
+                                           accessibility=flat(0, 4)))
+        assert dense_big.score > easy_niche.score
 
     def test_genre_separates_two_identical_subjects(self):
         incident = assess(item(), answers(story_type=choice("incident")))
@@ -155,47 +191,41 @@ class TestMerit:
         assert incident.score > notice.score
         assert GENRE_WEIGHT["notice"] < GENRE_WEIGHT["incident"]
 
+    def test_an_engineering_write_up_ranks_under_a_release(self):
+        """The report tells readers what happened; a team describing its own
+        stack gives it less to tell than a product people can now use."""
+        assert GENRE_WEIGHT["engineering_report"] < GENRE_WEIGHT["product_release"]
+
     def test_thin_state_caps_rather_than_taxes(self):
-        """A ceiling stops a bare title taking a top slot without moving every
-        terse outlet down as a class."""
         thin = assess(item(), answers(state_is_informative=noul(0.05)))
         rich = assess(item(), answers(state_is_informative=noul(0.95)))
         assert thin.score <= 0.525
         assert rich.score > thin.score
 
     def test_a_weak_read_is_pulled_down_and_flagged(self):
-        shaky = assess(item(), answers(domain_fit=flat(4, 5, confidence=0.3)))
-        sure = assess(item(), answers(domain_fit=flat(4, 5, confidence=0.95)))
+        shaky = assess(item(), answers(public_significance=flat(4, 5, confidence=0.3)))
+        sure = assess(item(), answers(public_significance=flat(4, 5, confidence=0.95)))
         assert shaky.score < sure.score
         assert "low-confidence" in shaky.flags
 
 
-class TestRank:
-    def test_one_outlet_cannot_take_the_whole_page(self):
-        assessed = [assess(item(f"Story {n}", source="WIRED"), answers())
-                    for n in range(6)]
-        assert len(rank(assessed, NOW, limit=15)) == MAX_PER_SOURCE
+class TestRecord:
+    def test_the_archive_record_carries_what_the_weekly_selection_reads(self):
+        rec = as_record(assess(item(), answers()))
+        for key in ("score", "gate", "flags", "rubric", "informative", "injection",
+                    "significance", "accessibility", "theme", "genre"):
+            assert key in rec, key
+        assert rec["rubric"] == RUBRIC
+        assert rec["theme"] == "safety_incidents"
+        assert rec["accessibility"] == 3.0
 
-    def test_slots_are_not_backfilled_with_gated_stories(self):
-        good = [assess(item("Real story"), answers())]
-        junk = [assess(item(f"Promo {n}", source=f"S{n}"),
-                       answers(is_promo_or_admin=noul(0.9))) for n in range(20)]
-        assert len(rank(good + junk, NOW, limit=15)) == 1
+    def test_score_one_records_the_version_that_answered(self):
+        class FakeClient:
+            def system_one(self, **kwargs):
+                assert kwargs["model"] == MODEL
+                return SystemOneResponse(model="jev-1.14", usage=Usage(),
+                                         answers=answers())
 
-    def test_corroboration_breaks_a_tie(self):
-        alone = assess(item("Solo", source="A"), answers())
-        backed = assess(item("Backed", source="B", also=["C", "D", "E"]), answers())
-        assert rank([alone, backed], NOW)[0].item.title == "Backed"
-
-    def test_fresher_wins_all_else_equal(self):
-        old = assess(item("Old", source="A", minutes_ago=60 * 40), answers())
-        new = assess(item("New", source="B"), answers())
-        assert rank([old, new], NOW)[0].item.title == "New"
-
-    def test_below_the_floor_is_not_published(self):
-        weak = assess(item(), answers(domain_fit=flat(2, 5),
-                                      mechanism_depth=flat(0, 5),
-                                      practitioner_stakes=flat(0, 4),
-                                      story_type=choice("digest")))
-        assert weak.score < PUBLISH_FLOOR
-        assert rank([weak], NOW) == []
+        a = score_one(FakeClient(), item())
+        assert a.model == "jev-1.14"
+        assert as_record(a)["model"] == "jev-1.14"
