@@ -33,12 +33,12 @@ jobs:
           NEWSBOT_TOKEN: ${{ secrets.NEWSBOT_TOKEN }}
         run: |
           if [ -z "$NEWSBOT_TOKEN" ]; then
-            echo "::error::NEWSBOT_TOKEN is not set. A commit pushed with the" \
-                 "default GITHUB_TOKEN does not trigger other workflows, so" \
-                 "jekyll.yml would never rebuild and the home page would keep" \
-                 "showing yesterday's headlines. Create a fine-grained PAT with" \
-                 "Contents: read and write on this repository and save it as" \
-                 "the NEWSBOT_TOKEN secret."
+            echo "::error::NEWSBOT_TOKEN is not set. Create a fine-grained PAT" \
+                 "with Contents: read and write on this repository and save it" \
+                 "as the NEWSBOT_TOKEN secret. (The daily commit no longer" \
+                 "rebuilds the site, but the same token opens the weekly" \
+                 "report's pull request, and one token is easier to rotate" \
+                 "than two.)"
             exit 1
           fi
 
@@ -67,8 +67,8 @@ jobs:
 
       - name: Collect
         env:
-          # Jev ranks the day's stories. Without it the collection still
-          # publishes, newest first, and says so in the log.
+          # Jev judges the day's stories. Without it the day is still
+          # archived, unscored, and the weekly run scores it later.
           TYPESAFE_API_KEY: ${{ secrets.TYPESAFE_API_KEY }}
           # Through the environment, never interpolated into the script body:
           # ${{ }} is substituted before the shell sees the line, so a dispatch
@@ -95,9 +95,9 @@ jobs:
           # d'erreur de git.
           git config --local http.https://github.com/.extraheader \
             "AUTHORIZATION: basic $(printf 'x-access-token:%s' "$NEWSBOT_TOKEN" | base64 | tr -d '\n')"
-          git add _data/news.json .newsbot
+          git add .newsbot
           if git diff --cached --quiet; then
-            echo "No change in the headlines; nothing to commit."
+            echo "No change in the archive; nothing to commit."
             exit 0
           fi
           git commit -m "AI news: $(date -u +%Y-%m-%d) collection
@@ -105,8 +105,8 @@ jobs:
           Automated run of .github/workflows/ai-news-collect.yml."
 
           # Fetching twenty feeds takes a few minutes, so main may have moved
-          # since checkout. This job only ever touches _data/news.json and
-          # .newsbot/, so replaying it on top of whatever landed is safe.
+          # since checkout. This job only ever touches .newsbot/, so replaying
+          # it on top of whatever landed is safe.
           for attempt in 1 2 3; do
             if git push; then
               exit 0

@@ -3,6 +3,11 @@ name: Build and Deploy Jekyll
 on:
   push:
     branches: [ main ]
+    # The daily collection commits only under .newsbot/, which Jekyll never
+    # reads, so those pushes need no rebuild. The weekly report merges as a
+    # pull request touching _ai_news/, which does.
+    paths-ignore:
+      - '.newsbot/**'
   pull_request:
     branches: [ main ]
 

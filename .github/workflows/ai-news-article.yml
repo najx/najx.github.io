@@ -1,4 +1,4 @@
-name: AI news — weekly article
+name: AI news — weekly report
 
 on:
   schedule:
@@ -6,34 +6,40 @@ on:
     - cron: "17 6 * * 0"
   workflow_dispatch:
     inputs:
-      candidate:
-        description: "Take the Nth eligible subject instead of the first"
-        required: false
-        default: "0"
       days:
-        description: "How far back to look for a subject"
+        description: "How far back the week reaches"
         required: false
         default: "7"
+      stories:
+        description: "How many stories get a section"
+        required: false
+        default: "6"
+      dry_run:
+        description: "Draft to a preview artifact; open no pull request, mark nothing covered"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
   pull-requests: write
 
 concurrency:
-  group: ai-news-article
+  group: ai-news-weekly
   cancel-in-progress: false
 
 jobs:
-  draft:
+  report:
     runs-on: ubuntu-latest
     steps:
       - name: Check the secrets are configured
         env:
           NEWSBOT_TOKEN: ${{ secrets.NEWSBOT_TOKEN }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          TYPESAFE_API_KEY: ${{ secrets.TYPESAFE_API_KEY }}
         run: |
           [ -n "$NEWSBOT_TOKEN" ] || { echo "::error::NEWSBOT_TOKEN is not set; the pull request cannot be opened."; exit 1; }
           [ -n "$ANTHROPIC_API_KEY" ] || { echo "::error::ANTHROPIC_API_KEY is not set; there is nothing to draft with."; exit 1; }
+          [ -n "$TYPESAFE_API_KEY" ] || { echo "::error::TYPESAFE_API_KEY is not set; the stories cannot be selected."; exit 1; }
 
       - name: Checkout
         # Aucun jeton ici, et persist-credentials: false pour qu'aucune
@@ -58,32 +64,45 @@ jobs:
           pip install --require-hashes --no-deps -r tools/newsbot/requirements.txt
           pip install --no-deps --no-build-isolation ./tools/newsbot
 
-      - name: Draft
+      - name: Draft the report
         id: draft
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           TYPESAFE_API_KEY: ${{ secrets.TYPESAFE_API_KEY }}
-          CANDIDATE: ${{ inputs.candidate || '0' }}
+          # Through the environment, never interpolated into the script body:
+          # ${{ }} is substituted before the shell sees the line.
           DAYS: ${{ inputs.days || '7' }}
+          STORIES: ${{ inputs.stories || '6' }}
+          DRY_RUN: ${{ inputs.dry_run && '1' || '' }}
         run: |
           set -uo pipefail
-          case "$CANDIDATE$DAYS" in *[!0-9]*) echo "::error::inputs must be whole numbers"; exit 1 ;; esac
+          case "$DAYS$STORIES" in *[!0-9]*) echo "::error::inputs must be whole numbers"; exit 1 ;; esac
           set +e
-          newsbot -v article --candidate "$CANDIDATE" --days "$DAYS" \
-            --checks-out checks.json 2>&1 | tee run.log
+          newsbot -v weekly --days "$DAYS" --stories "$STORIES" \
+            --checks-out checks.json ${DRY_RUN:+--out preview} 2>&1 | tee run.log
           status=${PIPESTATUS[0]}
           set -e
-          # 2 means nothing cleared the bar. That is a normal quiet week, not
-          # a failure: publish nothing and say so.
+          # 2 means fewer than three stories cleared the bar. That is a quiet
+          # week, not a failure: publish nothing and say so.
           if [ "$status" = "2" ]; then
             echo "nothing_to_write=true" >> "$GITHUB_OUTPUT"
-            echo "::notice::No subject cleared the bar this week; no article drafted."
+            echo "::notice::Too few stories cleared the bar this week; no report drafted."
             exit 0
           fi
           exit "$status"
 
+      - name: Upload the preview
+        if: inputs.dry_run && steps.draft.outputs.nothing_to_write != 'true'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ai-weekly-preview
+          path: |
+            preview/_ai_news/
+            checks.json
+            run.log
+
       - name: Open the pull request
-        if: steps.draft.outputs.nothing_to_write != 'true'
+        if: ${{ !inputs.dry_run && steps.draft.outputs.nothing_to_write != 'true' }}
         env:
           GH_TOKEN: ${{ secrets.NEWSBOT_TOKEN }}
           NEWSBOT_TOKEN: ${{ secrets.NEWSBOT_TOKEN }}
@@ -96,66 +115,61 @@ jobs:
           git config --local http.https://github.com/.extraheader \
             "AUTHORIZATION: basic $(printf 'x-access-token:%s' "$NEWSBOT_TOKEN" | base64 | tr -d '\n')"
           # Ask git for the file, not for `git status --porcelain`, which
-          # collapses an untracked directory to "?? _posts/" and would make
-          # every branch feat/auto-article-. on every run.
-          post=$(git ls-files --others --exclude-standard -- '_posts/**/*.md' | head -1)
-          [ -n "$post" ] || { echo "::error::the draft step wrote no post"; exit 1; }
-          slug=$(basename "$(dirname "$post")")
-          [ "$slug" != "_posts" ] && [ "$slug" != "." ] \
-            || { echo "::error::could not derive a slug from $post"; exit 1; }
-          branch="feat/auto-article-$slug"
+          # collapses an untracked directory to "?? _ai_news/".
+          report=$(git ls-files --others --exclude-standard -- '_ai_news/*.md' | head -1)
+          [ -n "$report" ] || { echo "::error::the draft step wrote no report"; exit 1; }
+          week=$(basename "$report" .md)
+          branch="feat/ai-weekly-$week"
 
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b "$branch"
-          # .newsbot/state.json travels with the post: it is what stops the
-          # same subject being drafted again next Sunday, and it only takes
-          # effect once this branch is merged.
-          git add _posts .newsbot/state.json
-          git commit -m "Article : $slug
+          # .newsbot/state.json travels with the report: it is what stops the
+          # same stories getting a section again, and it only takes effect
+          # once this branch is merged.
+          git add _ai_news .newsbot/state.json
+          git commit -m "AI Weekly $week
 
           Rédigé automatiquement par .github/workflows/ai-news-article.yml.
           À relire avant publication."
           git push -u origin "$branch"
 
           {
-            echo "Brouillon hebdomadaire. **Rien n'est publié tant que cette PR n'est pas mergée et sortie de l'état brouillon.**"
+            echo "Rapport hebdomadaire $week. **Rien n'est publié tant que cette PR n'est pas mergée et sortie de l'état brouillon.**"
             echo
             echo "## À cocher avant de passer la PR en \"Ready for review\""
             echo
             # The checklist is built from checks.json, the citation checker's
-            # own machine-readable output — not by scraping run.log, which
-            # breaks the moment a flagged sentence contains text the scraper
-            # mistakes for one of its own markers.
+            # own machine-readable output — not by scraping run.log.
             python3 - <<'PY'
           import json, pathlib
 
           path = pathlib.Path("checks.json")
           if not path.exists():
-              print("- [ ] Vérification des citations indisponible : relire l'article "
+              print("- [ ] Vérification des citations indisponible : relire le rapport "
                     "en entier avant de sortir du brouillon (voir le journal ci-dessous).")
           else:
               data = json.loads(path.read_text(encoding="utf-8"))
               unsupported = data.get("unsupported", [])
               if not unsupported:
                   print(f"- [ ] Aucune affirmation non étayée sur {data.get('checked', 0)} "
-                        "vérifiées par Jev — à confirmer en relisant l'article.")
+                        "vérifiées par Jev — à confirmer en relisant le rapport.")
               else:
                   for f in unsupported:
                       sentence = f["sentence"].replace("\n", " ").strip()
                       print(f"- [ ] [{f['support']:.2f}] {sentence}")
           PY
-            echo "- [ ] Le bloc de divulgation en fin d'article, que la charte impose."
-            echo "- [ ] Le tag choisi, qui doit rester l'un des six existants."
+            echo "- [ ] Le tableau des thèmes sous « Trends » correspond au journal ci-dessous."
+            echo "- [ ] Le bloc de divulgation en fin de rapport, que la charte impose."
+            echo "- [ ] Les six titres de section lisibles sans bagage technique."
             echo
             echo "## Journal de la sélection et de la vérification"
             echo
             # A long fence, and backticks stripped from the log: a headline
-            # containing ``` would otherwise close the block early and let the
-            # rest of the log render as markdown in a public comment.
+            # containing ``` would otherwise close the block early.
             echo '~~~~'
             tr -d '`' < run.log
             echo '~~~~'
           } > body.md
           gh pr create --draft --base main --head "$branch" \
-            --title "Article : $slug" --body-file body.md
+            --title "AI Weekly $week" --body-file body.md
