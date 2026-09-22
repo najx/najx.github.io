@@ -222,12 +222,28 @@ def cmd_weekly(args: argparse.Namespace) -> int:
     _backfill(current)
 
     covered = store.load_state().get("covered", [])
+    # What the blog has already put out — articles and earlier reports. The
+    # week's own file is skipped, so a second run for the same week does not
+    # read what the first one wrote and find all its stories already covered.
+    published = weekly.published_coverage(store.root, skip=week_id)
+    _say(f"already published: {len(published[0])} cited links, "
+         f"{len(published[1])} titles")
+    if _have_jev():
+        # A rewritten headline scores below the overlap threshold even when
+        # it reports the same event, so the band is put to Jev, exactly as
+        # the daily clustering does. The URLs it returns join the cited ones.
+        from .judge import same_story
+        matched = weekly.already_published(current, published[1], same_story)
+        if matched:
+            _say(f"{len(matched)} stories Jev says the blog already reported")
+            published = (published[0] | matched, published[1])
     exclude: set[str] = set()
     texts: dict[str, dict[str, str]] = {}
     selection = None
     for _ in range(4):
         selection = weekly.select(current, now, covered=covered, previous=previous,
-                                  sections=args.stories, exclude=frozenset(exclude))
+                                  sections=args.stories, exclude=frozenset(exclude),
+                                  published=published)
         if args.dry_run:
             break
         missing = []

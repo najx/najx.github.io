@@ -301,6 +301,137 @@ class TestCooldown:
         assert sel.sections == []
 
 
+class TestPublishedCoverage:
+    """The blog's own back catalogue closes the door on its own subjects."""
+
+    @pytest.fixture
+    def site(self, tmp_path):
+        post = tmp_path / "_posts" / "when-the-model-stopped"
+        post.mkdir(parents=True)
+        (post / "2026-09-21-when-the-model-stopped.md").write_text(
+            '---\ntitle: "When \\"The Model Stopped\\" Becomes a Safety Control"\n---\n\n'
+            "The Verge [reported](https://www.theverge.com/997795/gemini-hack) this week.\n\n"
+            "Sources:\n\n- **The Verge — Gemini went rogue**: "
+            "[theverge.com/997795/gemini-hack](https://www.theverge.com/997795/gemini-hack)\n",
+            encoding="utf-8")
+        reports = tmp_path / "_ai_news"
+        reports.mkdir()
+        (reports / "2026-w37.md").write_text(
+            '---\ntitle: "AI Weekly #37"\n---\n\nText. (https://wired.com/last-week)\n',
+            encoding="utf-8")
+        return tmp_path
+
+    def test_links_and_titles_are_read_from_posts_and_reports(self, site):
+        urls, titles = weekly.published_coverage(site)
+        assert "https://theverge.com/997795/gemini-hack" in urls
+        assert "https://wired.com/last-week" in urls
+        assert any("Model Stopped" in t for t in titles)
+        assert "AI Weekly #37" in titles
+
+    def test_the_weeks_own_report_is_skipped(self, site):
+        urls, titles = weekly.published_coverage(site, skip="2026-w37")
+        assert "https://wired.com/last-week" not in urls
+        assert "AI Weekly #37" not in titles
+        assert "https://theverge.com/997795/gemini-hack" in urls
+
+    def test_a_site_with_neither_directory_reads_as_empty(self, tmp_path):
+        assert weekly.published_coverage(tmp_path) == (set(), [])
+
+    def test_a_story_the_blog_already_wrote_from_gets_no_section(self, site):
+        """The case that proves the URL check: the published article is
+        titled "When the Model Stopped", which shares no word with the feed
+        headline, so a title comparison alone let the digest re-cover it."""
+        candidate = story("Gemini went rogue, hacked three companies, and Google hid it",
+                          url="https://www.theverge.com/997795/gemini-hack")
+        sel = weekly.select([candidate], NOW,
+                            published=weekly.published_coverage(site))
+        assert sel.sections == [] and sel.also == []
+        assert "already cited" in sel.rejected[0][1][0]
+
+    def test_the_title_check_still_catches_a_different_link(self, site):
+        candidate = story("When The Model Stopped Becomes a Safety Control",
+                          url="https://elsewhere.example/other")
+        sel = weekly.select([candidate], NOW,
+                            published=weekly.published_coverage(site))
+        assert sel.sections == []
+        assert "already published" in sel.rejected[0][1][0]
+
+    def test_an_unrelated_story_still_gets_through(self, site):
+        candidate = story("Amazon blocks Meta's shopping agent",
+                          url="https://www.theverge.com/998078/amazon-muse")
+        sel = weekly.select([candidate], NOW,
+                            published=weekly.published_coverage(site))
+        assert len(sel.sections) == 1
+
+    def test_tracking_parameters_do_not_defeat_the_match(self, site):
+        candidate = story("A rewrite of the same story",
+                          url="https://theverge.com/997795/gemini-hack/?utm_source=rss")
+        sel = weekly.select([candidate], NOW,
+                            published=weekly.published_coverage(site))
+        assert sel.sections == []
+
+    def test_a_candidates_other_write_ups_are_matched_too(self, site):
+        candidate = story("Another outlet on it", url="https://ars.example/1",
+                          also_urls=["https://www.theverge.com/997795/gemini-hack"])
+        sel = weekly.select([candidate], NOW,
+                            published=weekly.published_coverage(site))
+        assert sel.sections == []
+
+    def test_no_published_coverage_changes_nothing(self):
+        assert len(weekly.select([story("Anything")], NOW, published=None).sections) == 1
+
+    def test_the_outlets_own_headline_is_harvested_from_the_sources_block(self, site):
+        """Claude rewrites the title, so the article's own headline is a poor
+        handle on the subject. The Sources block keeps the feed's."""
+        _, titles = weekly.published_coverage(site)
+        assert "Gemini went rogue" in " ".join(titles)
+
+
+class TestSameEventAnotherOutlet:
+    """A second outlet's write-up of a story the blog already covered has a
+    different link and a rewritten headline, so neither exact check sees it."""
+
+    REWRITE = "You too Google! Google Confirms Gemini Breached 3 Companies in May Test"
+    PUBLISHED = "Gemini went rogue, hacked three companies, and Google hid it"
+
+    def test_the_pair_lands_in_the_band_rather_than_above_it(self):
+        from newsbot.normalize import jaccard, title_tokens
+        score = jaccard(title_tokens(self.REWRITE), title_tokens(self.PUBLISHED))
+        assert 0.20 <= score < weekly.MAX_TITLE_OVERLAP
+        pairs = weekly.band_against_published([story(self.REWRITE)], [self.PUBLISHED])
+        assert len(pairs) == 1
+
+    def test_an_unrelated_headline_is_not_even_asked(self):
+        assert weekly.band_against_published(
+            [story("Kubernetes 1.40 reaches general availability")],
+            [self.PUBLISHED]) == []
+
+    def test_jev_saying_yes_excludes_the_story(self):
+        matched = weekly.already_published([story(self.REWRITE, url="https://mk/1")],
+                                           [self.PUBLISHED], ask=lambda a, b: True)
+        assert matched == {"https://mk/1"}
+        sel = weekly.select([story(self.REWRITE, url="https://mk/1")], NOW,
+                            published=(matched, [self.PUBLISHED]))
+        assert sel.sections == [] and sel.also == []
+
+    def test_jev_saying_no_leaves_it_alone(self):
+        assert weekly.already_published([story(self.REWRITE)], [self.PUBLISHED],
+                                        ask=lambda a, b: False) == set()
+
+    def test_the_url_is_canonicalised_so_the_exclusion_matches(self):
+        matched = weekly.already_published(
+            [story(self.REWRITE, url="https://www.mk.com/1/?utm_source=rss")],
+            [self.PUBLISHED], ask=lambda a, b: True)
+        assert matched == {"https://mk.com/1"}
+
+    def test_one_story_is_asked_about_once_however_many_titles_match(self):
+        asked = []
+        weekly.already_published([story(self.REWRITE, url="https://mk/1")],
+                                 [self.PUBLISHED, self.PUBLISHED + " today"],
+                                 ask=lambda a, b: asked.append(b) or True)
+        assert len(asked) == 1
+
+
 class TestWeekOf:
     def test_a_sunday_run_names_the_week_ending_that_day(self):
         week_id, period, start, end = weekly.week_of(NOW)

@@ -23,12 +23,10 @@ log = logging.getLogger(__name__)
 MODEL = "claude-opus-5"
 # Streaming, so an HTTP timeout is not the constraint. Roomy rather than
 # tight — a truncated report costs a whole run — but not the 64k the SDK
-# allows: this is a 1200-word digest, and an unbounded ceiling on a runaway
-# generation is real money.
+# allows. This is a guard against a runaway generation, which is real money,
+# not a length rule: the house style deliberately sets no word count, and a
+# real report came to 1,900 words and 9,400 output tokens.
 MAX_TOKENS = 24_000
-TARGET_WORDS = 1200
-MAX_WORDS = 1400
-SECTION_WORDS = (120, 200)
 
 # Thinking on (the default on this model) and effort high: the work is
 # judgement about what the sources support, not throughput.
@@ -115,9 +113,11 @@ front matter, nothing else before it. Its parts, in this order:
    about. No heading above it.
 2. One `##` section per story you were given a source for, in the order
    given. The heading is a plain-language headline of at most twelve words,
-   no colon, no question. {SECTION_WORDS[0]}-{SECTION_WORDS[1]} words each:
-   what happened, in what order, with the names and figures the sources give;
-   then one final sentence in bold beginning "**Why it matters:**".
+   no colon, no question. Each section says what happened, in what order,
+   with the names and figures the sources give; then one final sentence in
+   bold beginning "**Why it matters:**". Give each story the length its
+   sources warrant — a thin wire story does not need the room a documented
+   incident does.
 3. A `## Trends` section: two or three short paragraphs on what recurs
    across the week, each opening with a bold phrase naming the trend. Use the
    theme counts you were given as evidence. Do NOT write a table: the
@@ -195,12 +195,13 @@ def _user(brief: Brief, nonce: str) -> str:
 
     parts.append(f"""## What to write
 
-The report described in the output shape, about {TARGET_WORDS} words of prose
-in total and never more than {MAX_WORDS}. Every section is written from that
-story's sources only; every "Also this week" line from that item's headline
-and summary only. Where the sources disagree or leave something
-unestablished, say so plainly rather than smoothing it over. Never write
-about this pipeline, the theme counts' provenance, or what you were given.""")
+The report described in the output shape. There is no word count to hit and
+no ceiling: write each story to the length its sources support, and stop when
+you have said what they say. Every section is written from that story's
+sources only; every "Also this week" line from that item's headline and
+summary only. Where the sources disagree or leave something unestablished,
+say so plainly rather than smoothing it over. Never write about this
+pipeline, the theme counts' provenance, or what you were given.""")
     return "\n".join(parts)
 
 

@@ -21,10 +21,10 @@ not know what a context window is, and they should not need to.
     Sources:
     disclosure line                                (generated, not yours)
 
-About 1200 words of prose, and **1400 is the hard ceiling** — a first run
-came out at 1906 and read as three articles stapled together. A section that
-runs long is cut before a section that runs short is padded. Six sections of
-170 words, an opening of 90 and Trends of 180 is the whole budget.
+**There is no word count, and no ceiling.** Give each story the length its
+sources warrant and stop there: a thin wire story does not need the room a
+documented incident does. What keeps the report readable is the shape below,
+not a budget.
 
 ## Voice
 
@@ -66,7 +66,8 @@ model, a delayed listing, a government plan.
 The heading is a headline in plain words, at most twelve, without a colon.
 The section answers, in order: what happened, who did it, what the parties
 said, what is still unknown, and then the "Why it matters" line. Where two
-outlets covered the story, use both and say where they differ.
+outlets covered the story, use both and say where they differ. Sections do
+not have to be the same length as each other.
 
 ## Trends
 

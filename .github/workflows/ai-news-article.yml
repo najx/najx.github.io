@@ -177,7 +177,6 @@ jobs:
             echo "- [ ] Le tableau des thèmes sous « Trends » correspond au journal ci-dessous."
             echo "- [ ] Le bloc de divulgation en fin de rapport, que la charte impose."
             echo "- [ ] Les six titres de section lisibles sans bagage technique."
-            echo "- [ ] La longueur : 1400 mots au plus."
             echo
             echo "## Journal de la sélection et de la vérification"
             echo

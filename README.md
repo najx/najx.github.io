@@ -30,7 +30,7 @@ documented in [`docs/newsbot.md`](docs/newsbot.md).
 pip install -e './tools/newsbot[dev]'
 pytest
 ```
-  192 tests, ~0.5s.
+  208 tests, ~0.5s.
 - Driven by two GitHub Actions workflows
   (`.github/workflows/ai-news-collect.yml`, `ai-news-article.yml`), which
   need three repository secrets: `NEWSBOT_TOKEN`, `TYPESAFE_API_KEY`,
