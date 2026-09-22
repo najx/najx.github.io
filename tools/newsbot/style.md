@@ -21,8 +21,10 @@ not know what a context window is, and they should not need to.
     Sources:
     disclosure line                                (generated, not yours)
 
-About 1200 words of prose. A section that runs long is cut before a section
-that runs short is padded.
+**There is no word count, and no ceiling.** Give each story the length its
+sources warrant and stop there: a thin wire story does not need the room a
+documented incident does. What keeps the report readable is the shape below,
+not a budget.
 
 ## Voice
 
@@ -49,7 +51,8 @@ not have to: plain, exact, a little dry. Some markers:
 
 What this report does not do: exclamation marks, second-person coaching
 ("you should"), rhetorical questions, hedging every sentence, cheerleading
-for or against any company, and predictions.
+for or against any company, predictions, and any mention of how the report
+itself was assembled.
 
 ## The opening paragraph
 
@@ -63,7 +66,8 @@ model, a delayed listing, a government plan.
 The heading is a headline in plain words, at most twelve, without a colon.
 The section answers, in order: what happened, who did it, what the parties
 said, what is still unknown, and then the "Why it matters" line. Where two
-outlets covered the story, use both and say where they differ.
+outlets covered the story, use both and say where they differ. Sections do
+not have to be the same length as each other.
 
 ## Trends
 
@@ -72,6 +76,11 @@ trend, on what recurs across the week's stories: the same kind of event
 from several companies, a debate every outlet joined, a theme whose count
 rose. Cite the theme counts you were given as the evidence. Do not write
 a table; the pipeline inserts the real one under the heading.
+
+**Never mention the pipeline, the counts' provenance, or your own workings.**
+"The pipeline has no counts from last week to compare against" is a sentence
+about the machinery, and the reader did not come for it. When there is no
+previous week, write about this week and stop.
 
 ## Also this week
 

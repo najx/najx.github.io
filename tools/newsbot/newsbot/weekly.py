@@ -15,14 +15,16 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 from dataclasses import dataclass, field
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, time, timedelta, timezone
 from pathlib import Path
 from typing import Callable
 
 from .judge import RUBRIC, THEMES
+from .render import REPORTS_DIR
 from .models import Item
-from .normalize import canonical_url, cluster
+from .normalize import canonical_url, cluster, jaccard, title_tokens
 
 log = logging.getLogger(__name__)
 
@@ -46,6 +48,13 @@ ALSO_MIN_SCORE = 0.15
 # seven-day window already keeps most repeats out; this catches the story
 # that straddles two Sundays and the follow-up published under a new link.
 COOLDOWN_DAYS = 21
+
+# Anything the blog has already published — an article under `_posts/`, an
+# earlier report under `_ai_news/` — closes the door on its own subject, with
+# no time limit. A source this blog has already written from is not news to
+# report again, and the seven-day window means a story only ever comes up in
+# the week it broke anyway.
+MAX_TITLE_OVERLAP = 0.40
 
 MAX_SOURCES_PER_STORY = 3
 
@@ -112,9 +121,12 @@ def load_archives(archive_dir: Path, now: datetime, days: int = WINDOW_DAYS):
     """Every entry of the archives covering this week and the one before.
 
     Yields (archive day, item, judgement). Two weeks, because the theme table
-    compares this week's count with last week's.
+    compares this week's count with last week's. Reaching back from the
+    labelled week's start, not from `now`, because a run late in the week
+    would otherwise drop the very days its own report is about.
     """
-    cutoff = now - timedelta(days=2 * days + 1)
+    _, _, start, _ = week_of(now, days)
+    cutoff = datetime.combine(start, time.min, tzinfo=timezone.utc) - timedelta(days=days + 1)
     for path in sorted(archive_dir.glob("*.json")):
         try:
             day = datetime.strptime(path.stem, "%Y-%m-%d").replace(tzinfo=timezone.utc)
@@ -190,15 +202,27 @@ def merge(entries, resolve: Callable[[list[Item]], list[Item]] | None = None) ->
     return stories
 
 
-def this_week(stories: list[Story], now: datetime, days: int = WINDOW_DAYS) -> list[Story]:
-    """Stories with a write-up published inside the window."""
-    cutoff = now - timedelta(days=days)
-    return [s for s in stories if (s.published_last or s.item.published) >= cutoff]
+def _bounds(start: date, end: date) -> tuple[datetime, datetime]:
+    """The instants a day range spans, inclusive of both ends."""
+    return (datetime.combine(start, time.min, tzinfo=timezone.utc),
+            datetime.combine(end, time.max, tzinfo=timezone.utc))
 
 
-def last_week(stories: list[Story], now: datetime, days: int = WINDOW_DAYS) -> list[Story]:
-    lo, hi = now - timedelta(days=2 * days), now - timedelta(days=days)
-    return [s for s in stories if lo <= (s.published_last or s.item.published) < hi]
+def in_week(stories: list[Story], start: date, end: date) -> list[Story]:
+    """Stories whose latest write-up falls inside the days the report names.
+
+    Windowed on the labelled week, never on `now - 7 days`. The two are not
+    the same: a Sunday run admitted the previous Sunday as well, and a manual
+    run on a Tuesday put stories from Monday and Tuesday into a report whose
+    title said the week ended on Sunday.
+    """
+    lo, hi = _bounds(start, end)
+    return [s for s in stories if lo <= (s.published_last or s.item.published) <= hi]
+
+
+def week_before(stories: list[Story], start: date, days: int = WINDOW_DAYS) -> list[Story]:
+    """The same, for the week ending the day before `start`."""
+    return in_week(stories, start - timedelta(days=days), start - timedelta(days=1))
 
 
 def unscored(stories: list[Story]) -> list[Story]:
@@ -281,9 +305,96 @@ def recent_coverage(covered: list[dict] | None, now: datetime,
     return out
 
 
+# --- What the blog has already published ------------------------------------
+
+_LINK_RE = re.compile(r"\((https?://[^\s)]+)\)|<(https?://[^\s>]+)>|(?<![(<])\b(https?://[^\s)<>\]]+)")
+_TITLE_RE = re.compile(r'^title:\s*"?(.+?)"?\s*$', re.M)
+# A bullet of the house Sources block: `- **Publisher — Headline**: [x](url)`.
+# The headline it carries is the outlet's own, which is what a feed hands us
+# — a far better handle on the subject than the title Claude rewrote.
+_SOURCE_LINE_RE = re.compile(r"^\s*[-*]\s+\*\*(.+?)\*\*\s*:", re.M)
+
+
+def published_coverage(root: Path, skip: str | None = None) -> tuple[set[str], list[str]]:
+    """(canonical URLs cited, titles) of everything the blog has published.
+
+    Both halves of the site: the articles under `_posts/` and the earlier
+    reports under `_ai_news/`. The URLs are the strong signal — a story whose
+    link this blog has already cited is one it has already covered, whatever
+    the two headlines look like. The Gemini break-in is the case that proves
+    it: the article about it is titled "When the Model Stopped", which shares
+    no word with the feed headline, so a title comparison alone let the
+    digest re-cover it the following week.
+
+    `skip` is the week id of the report being written, so a second run for
+    the same week does not read the file the first run just wrote and find
+    every one of its own stories already covered.
+    """
+    urls: set[str] = set()
+    titles: list[str] = []
+    for directory, pattern in ((root / "_posts", "*/*.md"),
+                               (root / REPORTS_DIR, "*.md")):
+        if not directory.is_dir():
+            continue
+        for path in sorted(directory.glob(pattern)):
+            if skip and path.stem == skip:
+                continue
+            text = path.read_text(encoding="utf-8")
+            m = _TITLE_RE.search(text)
+            if m:
+                titles.append(m.group(1))
+            for cited in _SOURCE_LINE_RE.findall(text):
+                # "Publisher — Headline" keeps only the headline.
+                titles.append(re.split(r"\s+[—–-]\s+", cited, maxsplit=1)[-1].strip())
+            for groups in _LINK_RE.findall(text):
+                link = next((g for g in groups if g), "")
+                if link:
+                    urls.add(canonical_url(link.rstrip(".,;)")))
+    return urls, titles
+
+
+def band_against_published(stories: list[Story], titles: list[str],
+                           low: float = 0.20,
+                           high: float = MAX_TITLE_OVERLAP) -> list[tuple[Story, str]]:
+    """The (story, published title) pairs a lexical score cannot settle.
+
+    Outlets rewrite headlines enough that two write-ups of one event often
+    score well under the overlap threshold: the blog's article on the Gemini
+    break-in cites The Verge's "Gemini went rogue, hacked three companies",
+    and Marktechpost's write-up of the same incident scores 0.21 against it.
+    Below the threshold and above noise is exactly the band `judge.SAME_STORY`
+    exists for, so the pairs in it are put to Jev rather than guessed at.
+    """
+    out = []
+    for story in stories:
+        tokens = title_tokens(story.item.title)
+        for title in titles:
+            if low <= jaccard(tokens, title_tokens(title)) < high:
+                out.append((story, title))
+    return out
+
+
+def already_published(stories: list[Story], titles: list[str], ask) -> set[str]:
+    """URLs of the stories Jev says the blog has already reported.
+
+    `ask(headline_a, headline_b) -> bool` is injected: the caller supplies the
+    Jev-backed question when a key is configured, and nothing otherwise, so a
+    run without one keeps the exact lexical behaviour instead of failing.
+    """
+    seen: set[str] = set()
+    for story, title in band_against_published(stories, titles):
+        url = canonical_url(story.item.url)
+        if url in seen:
+            continue
+        if ask(story.item.title, title):
+            seen.add(url)
+    return seen
+
+
 # --- Selection --------------------------------------------------------------
 
-def _reasons(s: Story, covered: dict[str, str], section: bool) -> list[str]:
+def _reasons(s: Story, covered: dict[str, str], section: bool,
+             published: tuple[set[str], list[str]] | None = None) -> list[str]:
     """Every clause this story fails for a section (or, if not, for the also-list)."""
     j = s.judgement
     bad = []
@@ -304,6 +415,15 @@ def _reasons(s: Story, covered: dict[str, str], section: bool) -> list[str]:
     hit = urls & set(covered)
     if hit:
         bad.append(f"covered on {covered[next(iter(hit))]}")
+    if published:
+        published_urls, published_titles = published
+        if urls & published_urls:
+            bad.append("already cited by something the blog published")
+        else:
+            overlap = max((jaccard(title_tokens(s.item.title), title_tokens(t))
+                           for t in published_titles), default=0.0)
+            if overlap >= MAX_TITLE_OVERLAP:
+                bad.append(f"already published ({overlap:.2f})")
     if section and float(j.get("accessibility", 0.0)) < MIN_ACCESSIBILITY:
         bad.append(f"needs background ({float(j.get('accessibility', 0.0)):.1f}/3)")
     return bad
@@ -312,12 +432,14 @@ def _reasons(s: Story, covered: dict[str, str], section: bool) -> list[str]:
 def select(stories: list[Story], now: datetime, covered: list[dict] | None = None,
            previous: list[Story] | None = None, sections: int = SECTIONS,
            also: int = ALSO, per_theme: int = MAX_PER_THEME,
-           exclude: frozenset[str] = frozenset()) -> Selection:
+           exclude: frozenset[str] = frozenset(),
+           published: tuple[set[str], list[str]] | None = None) -> Selection:
     """Choose the sections and the also-list, and say why everything else lost.
 
     `exclude` holds representative URLs the caller could not fetch a source
     for: a section is written from the article, never from the headline, so
-    such a story drops out and the next one moves up.
+    such a story drops out and the next one moves up. `published` is what the
+    blog has already put out, from `published_coverage`.
     """
     cooled = recent_coverage(covered, now)
     ordered = sorted(stories, key=lambda s: -trend(s, now))
@@ -331,7 +453,7 @@ def select(stories: list[Story], now: datetime, covered: list[dict] | None = Non
         if s.item.url in exclude:
             rejected.append((s, ["no source article could be fetched"]))
             continue
-        bad = _reasons(s, cooled, section=True)
+        bad = _reasons(s, cooled, section=True, published=published)
         theme = s.theme or "?"
         if not bad and per.get(theme, 0) >= per_theme:
             bad = [f"theme cap: {theme}"]
@@ -346,7 +468,8 @@ def select(stories: list[Story], now: datetime, covered: list[dict] | None = Non
     # sections would not carry can still be mentioned.
     lines: list[Story] = []
     for s, bad in leftovers:
-        if len(lines) < also and not _reasons(s, cooled, section=False):
+        if len(lines) < also and not _reasons(s, cooled, section=False,
+                                              published=published):
             lines.append(s)
         else:
             rejected.append((s, bad))
@@ -357,18 +480,19 @@ def select(stories: list[Story], now: datetime, covered: list[dict] | None = Non
 
 # --- Naming the week --------------------------------------------------------
 
-def week_of(now: datetime) -> tuple[str, str, date, date]:
+def week_of(now: datetime, days: int = WINDOW_DAYS) -> tuple[str, str, date, date]:
     """(week id, period label, first day, last day) for the report run at `now`.
 
     The report is named after the ISO week ending on the most recent Sunday,
     today included. A run on a Sunday morning labels the week that ends that
     day; a manual run on a Tuesday still labels the last complete week rather
-    than the one just started.
+    than the one just started. `in_week` then windows the stories on exactly
+    these two days, so the contents always match the title.
     """
     end = now.date()
     if end.weekday() != 6:
         end -= timedelta(days=end.weekday() + 1)
-    start = end - timedelta(days=6)
+    start = end - timedelta(days=days - 1)
     year, week, _ = end.isocalendar()
     return f"{year}-w{week:02d}", period_label(start, end), start, end
 

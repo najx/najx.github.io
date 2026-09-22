@@ -266,6 +266,70 @@ class TestSentences:
         from newsbot import fetch, verify
         assert verify.SOURCE_CHARS == fetch.MAX_CHARS
 
+    def test_the_drafts_own_metadata_lines_are_not_claims(self):
+        """A raw draft was handed to the checker, so "DESCRIPTION: ..." was
+        reported as an unsupported claim on a real run."""
+        got = sentences("TITLE: A Title\nDESCRIPTION: What the week was about.\n\n"
+                        "A real claim about the events here.")
+        assert got == ["A real claim about the events here."]
+
+
+class TestSplitSynthesis:
+    """The opening paragraph and Trends span the whole week; the story
+    sections do not. Checking the first kind one source at a time answers no
+    every time, which buried the real findings on a live run."""
+
+    REPORT = ("The week's argument was about who slows AI down.\n\n"
+              "## A story happened\n\nGoogle said the model stopped by itself.\n\n"
+              "## Trends\n\n**Policy led.** Six of the week's stories were policy.\n\n"
+              "## Also this week\n\n- A United Nations panel urged governments "
+              "not to wait. (The Verge)\n")
+
+    def test_the_lede_and_trends_are_separated_from_the_sections(self):
+        from newsbot.verify import split_synthesis
+        reported, synthesis = split_synthesis(self.REPORT)
+        assert "Google said the model stopped" in reported
+        assert "United Nations panel" in reported
+        assert "The week's argument" in synthesis
+        assert "Six of the week's stories were policy." in synthesis
+        assert "Google said the model stopped" not in synthesis
+
+    def test_a_trends_heading_with_other_casing_is_still_synthesis(self):
+        from newsbot.verify import split_synthesis
+        _, synthesis = split_synthesis("Lede.\n\n## TRENDS:\n\nProse here.\n")
+        assert "Prose here." in synthesis
+
+    def test_a_report_with_no_headings_is_all_synthesis(self):
+        from newsbot.verify import split_synthesis
+        reported, synthesis = split_synthesis("Just a paragraph.\n")
+        assert reported == "" and "Just a paragraph." in synthesis
+
+    def test_the_two_halves_are_reported_apart(self, monkeypatch):
+        from newsbot import verify as verify_mod
+
+        class FakeClient:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *exc):
+                return False
+
+            def system_one(self, **kwargs):
+                # Everything is a claim; nothing is supported.
+                p = 0.9 if "sentence" in kwargs["state"] else 0.1
+                return SystemOneResponse(model="jev-1.14", usage=Usage(),
+                                         answers={"q": NoulAnswer(type="noul", noul=p)})
+
+        monkeypatch.setattr(verify_mod, "TypeSafeClient", FakeClient)
+        report = verify_mod.verify(self.REPORT, {"https://src": "text"})
+        assert [f.sentence for f in report.unsupported] == \
+            ["Google said the model stopped by itself.",
+             "A United Nations panel urged governments not to wait."]
+        assert [f.sentence for f in report.synthesis] == \
+            ["The week's argument was about who slows AI down.",
+             "Six of the week's stories were policy."]
+        assert report.checked == 4
+
 
 def _story(title, url, source="The Verge", also=None, also_urls=None, summary=""):
     it = Item(title, url, source, NOW - timedelta(days=1), summary=summary,

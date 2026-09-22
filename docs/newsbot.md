@@ -178,10 +178,13 @@ Six steps.
    + 0.10·freshness)`. Corroboration is outlets out of four, recurrence days
    seen out of three, freshness a four-day half-life. A story one outlet ran
    once still ranks; the multiplier bottoms out at 0.55.
-3. **Select** — six sections, at most two per theme, each clearing: judged
-   under the current rubric, not gated, score ≥ 0.30, informative state, no
-   injection suspicion, accessibility ≥ 1.5 of 3, and not covered by a
-   section in the last 21 days (`state.json`). What misses a section may
+3. **Select** — the stories published inside the days the title names, never
+   the last seven days counted from the run: a Sunday run admitted the Sunday
+   before as well, and a manual run mid-week put stories from after the
+   labelled week into it. Then six sections, at most two per theme, each
+   clearing: judged under the current rubric, not gated, score ≥ 0.30,
+   informative state, no injection suspicion, accessibility ≥ 1.5 of 3, and
+   nothing the blog has already covered (below). What misses a section may
    still get a line under *Also this week*: same clauses, a lower floor,
    and no accessibility clause, so the technical items land there. Fewer
    than three sections is a quiet week: the run stops and says so.
@@ -196,30 +199,53 @@ Six steps.
    only an element carrying that nonce is part of the instructions.
 6. **Check and render** (`verify.py`, `render.py`) — Jev reads every sentence
    back against the texts the writer was given (for the also-list, the
-   headline and summary), in two passes: checkable claims first, then
-   support. The report is rendered with the collection's front matter —
+   headline and summary; for Trends, the theme counts), in two passes:
+   checkable claims first, then support. The report is rendered with the collection's front matter —
    `week`, `period`, the `stories` list of anchors the home page links to —
    the theme table inserted under *Trends* from the pipeline's own counts,
    and the disclosure line naming the models that actually answered.
 
 ### The report's shape
 
-One opening paragraph on the week. Six sections of 120–200 words, each
-ending on a bold *Why it matters*. *Trends*: the theme table, then two or
-three paragraphs. *Also this week*: one line per item. Sources. Disclosure.
-About 1200 words of prose. The full house style is
+One opening paragraph on the week. Six sections, each ending on a bold *Why
+it matters*. *Trends*: the theme table, then two or three paragraphs. *Also
+this week*: one line per item. Sources. Disclosure. **No word count and no
+ceiling** — each story gets the length its sources warrant, and the shape is
+what keeps the report readable. The full house style is
 [`tools/newsbot/style.md`](../tools/newsbot/style.md).
 
-### The cooldown
+### Not covering the same thing twice
 
-`.newsbot/state.json` remembers which stories had a section: the canonical
-URL, the `also_urls` of the other write-ups, the source title, the report's
-week and the date. `select` refuses a candidate whose URL — or any of its own
-`also_urls` — appears in an entry less than 21 days old. The seven-day window
-keeps most repeats out on its own; this catches the story that straddles two
-Sundays and the follow-up published under a new link. The file is committed
-on the report's branch, so the cooldown only starts once the report is
-merged. An entry whose date will not parse is treated as recent.
+Three checks, in increasing order of effort.
+
+**The last three weeks of reports.** `.newsbot/state.json` remembers which
+stories had a section: the canonical URL, the `also_urls` of the other
+write-ups, the source title, the report's week and the date. `select` refuses
+a candidate whose URL — or any of its own `also_urls` — appears in an entry
+less than 21 days old. The file is committed on the report's branch, so the
+cooldown only starts once the report is merged. An entry whose date will not
+parse is treated as recent.
+
+**Everything the blog has ever published.** `published_coverage` reads every
+article under `_posts/` and every earlier report under `_ai_news/`, and
+collects two things: every link they cite, and their titles — including the
+outlet headlines in their Sources blocks, which is what a feed hands us and a
+far better handle on a subject than the title Claude rewrote. A candidate
+whose link the blog has already cited gets nothing, with no time limit: a
+source this blog has written from is not news to report again. A candidate
+whose headline overlaps a published title by 0.40 or more is refused too.
+The week being written is skipped, so a second run for the same week does not
+find all of its own stories already covered.
+
+**The same event under another outlet's headline.** The hard case, and the
+one that prompted all this: the blog's article on the Gemini break-in is
+titled *When the Model Stopped*, which shares no word with the feed headline,
+and Marktechpost's write-up of the same incident sits at a different link
+again. Its headline scores 0.21 against the one the article cites — below the
+overlap threshold, above noise. That is exactly the band `judge.same_story`
+exists for, so those pairs are put to Jev, and the ones it calls the same
+event join the excluded links. Without a key the lexical checks still run;
+only this last one is skipped.
 
 ### What the checklist means
 
@@ -230,13 +256,20 @@ are wrong*. When a claim is genuinely invented the separation is stark:
 measured against a real source, true claims scored 0.94 and 0.75 and planted
 ones 0.07 and below.
 
+**The opening paragraph and Trends are listed separately.** Both draw on the
+whole week at once: on several stories, and on counts this pipeline computed
+rather than on any article. The checker compares one claim to one source at a
+time, so a sentence spanning four stories is borne out by none of them. On
+the first live run, eight of eleven findings were of that kind, which buried
+the three that mattered. They are still read back — against the same sources
+plus the theme counts, so a misread number is still caught — and printed
+under their own heading, to be read rather than treated as findings.
+
 ### Cost
 
-To be measured on the first live run. Estimated from the single-story
-article it replaces ($0.16 for 9,400 tokens in): six stories with up to
-three write-ups each puts roughly 40,000 tokens in front of Claude Opus 5,
-so $0.30–0.40 per report, plus a few cents of Jev for the selection and
-several hundred claim checks.
+Measured on the first live run, 21 September 2026: **$0.285** — 10,001 tokens
+in and 9,416 out on Claude Opus 5 — plus a few cents of Jev for judging 26
+stories and checking 56 claims. About $1.30 a month.
 
 ## Required secrets
 

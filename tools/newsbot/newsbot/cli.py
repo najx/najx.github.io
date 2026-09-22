@@ -198,12 +198,12 @@ def cmd_weekly(args: argparse.Namespace) -> int:
 
     store = Store(repo_root())
     now = datetime.now(timezone.utc)
-    week_id, period, _, _ = weekly.week_of(now)
+    week_id, period, start, end = weekly.week_of(now, args.days)
     _say(f"report {week_id}: {period}")
 
     entries = list(weekly.load_archives(store.archive, now, days=args.days))
     if not entries:
-        _say(f"no archives in the last {args.days} days — run collect first")
+        _say(f"no archives covering {period} — run collect first")
         return 1
 
     resolve = None
@@ -211,20 +211,39 @@ def cmd_weekly(args: argparse.Namespace) -> int:
         from .judge import resolve_band
         resolve = lambda items: resolve_band(items, CLUSTER_BAND_LOW, CLUSTER_CERTAIN)
     stories = weekly.merge(entries, resolve=resolve)
-    current = weekly.this_week(stories, now, days=args.days)
-    previous = weekly.last_week(stories, now, days=args.days)
+    # Windowed on the days the title names, not on the last seven days from
+    # now: the two differ on every weekday, and a manual mid-week run put
+    # stories from after the labelled week into it.
+    current = weekly.in_week(stories, start, end)
+    previous = weekly.week_before(stories, start, days=args.days)
     _say(f"{len(entries)} archive entries -> {len(stories)} stories, "
          f"{len(current)} this week, {len(previous)} last week")
 
     _backfill(current)
 
     covered = store.load_state().get("covered", [])
+    # What the blog has already put out — articles and earlier reports. The
+    # week's own file is skipped, so a second run for the same week does not
+    # read what the first one wrote and find all its stories already covered.
+    published = weekly.published_coverage(store.root, skip=week_id)
+    _say(f"already published: {len(published[0])} cited links, "
+         f"{len(published[1])} titles")
+    if _have_jev():
+        # A rewritten headline scores below the overlap threshold even when
+        # it reports the same event, so the band is put to Jev, exactly as
+        # the daily clustering does. The URLs it returns join the cited ones.
+        from .judge import same_story
+        matched = weekly.already_published(current, published[1], same_story)
+        if matched:
+            _say(f"{len(matched)} stories Jev says the blog already reported")
+            published = (published[0] | matched, published[1])
     exclude: set[str] = set()
     texts: dict[str, dict[str, str]] = {}
     selection = None
     for _ in range(4):
         selection = weekly.select(current, now, covered=covered, previous=previous,
-                                  sections=args.stories, exclude=frozenset(exclude))
+                                  sections=args.stories, exclude=frozenset(exclude),
+                                  published=published)
         if args.dry_run:
             break
         missing = []
@@ -276,18 +295,26 @@ def cmd_weekly(args: argparse.Namespace) -> int:
     _say(f"drafted {len(draft.markdown.split())} words, "
          f"{draft.input_tokens} in / {draft.output_tokens} out, ${draft.cost_usd:.3f}")
 
+    report = render.parse_draft(draft.markdown)
+
     # The checker reads exactly what the writer read: the fetched articles
-    # for the sections, and the headline plus feed summary for the also-list.
+    # for the sections, the headline plus feed summary for the also-list, and
+    # the theme counts, which are the Trends section's only source of fact
+    # and come from this pipeline rather than from any article.
     checkable = {url: text for texts_ in texts.values() for url, text in texts_.items()}
     for s in selection.also:
         checkable[s.item.url] = f"{s.item.title}\n\n{s.item.summary}"
-    checks = verify.Report() if args.no_verify else verify.verify(draft.markdown, checkable)
+    checkable[THEME_COUNTS] = _theme_counts_text(selection.table)
+    # The parsed body, not the raw draft: the TITLE and DESCRIPTION lines are
+    # instructions to this pipeline, and checking them against a news article
+    # reported the description itself as an unsupported claim.
+    checks = verify.Report() if args.no_verify else verify.verify(report.body, checkable)
     if checks.error:
         _say(f"citation check unavailable: {checks.error}")
     else:
-        _say(f"checked {checks.checked} claims, {len(checks.unsupported)} unsupported")
+        _say(f"checked {checks.checked} claims, {len(checks.unsupported)} unsupported, "
+             f"{len(checks.synthesis)} of the overview unmatched")
 
-    report = render.parse_draft(draft.markdown)
     out_root = Path(args.out) if args.out else store.root
     judge_models = {s.judgement.get("model") for s in selection.sections}
     path = render.write_report(
@@ -313,6 +340,12 @@ def cmd_weekly(args: argparse.Namespace) -> int:
         for f in checks.unsupported[:12]:
             _say(f"  [{f.best_support:.2f}] {f.sentence[:100]}")
 
+    if checks.synthesis:
+        _say("\nopening and Trends, drawing on the week rather than on one "
+             "source — read, do not treat as findings:")
+        for f in checks.synthesis[:8]:
+            _say(f"  [{f.best_support:.2f}] {f.sentence[:100]}")
+
     if args.checks_out:
         # A machine-readable sibling of the log above, so the workflow can
         # build the PR's review checklist without scraping stderr.
@@ -324,6 +357,11 @@ def cmd_weekly(args: argparse.Namespace) -> int:
                  "source": f.best_source}
                 for f in checks.unsupported
             ],
+            "synthesis": [
+                {"sentence": f.sentence, "support": round(f.best_support, 3),
+                 "source": f.best_source}
+                for f in checks.synthesis
+            ],
             "sections": [s.item.title for s in selection.sections],
             "post": str(path),
         }
@@ -331,6 +369,21 @@ def cmd_weekly(args: argparse.Namespace) -> int:
             json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
         _say(f"wrote {args.checks_out}")
     return 0
+
+
+# The key the theme counts are filed under in the checker's sources. Not a
+# URL: it is this pipeline's own arithmetic, and it is shown as its own line
+# in the report rather than linked.
+THEME_COUNTS = "the week's theme counts, computed by the pipeline"
+
+
+def _theme_counts_text(rows) -> str:
+    lines = ["The number of stories collected this week under each theme, "
+             "and under the same theme the week before."]
+    for _, display, now_c, then_c in rows:
+        last = f"{then_c} last week" if then_c is not None else "no count for last week"
+        lines.append(f"{display}: {now_c} stories this week, {last}.")
+    return "\n".join(lines)
 
 
 def _model_name(model_id: str) -> str:

@@ -441,6 +441,26 @@ SAME_STORY = Noul(
 SAME_STORY_THRESHOLD = 0.75
 
 
+def same_story(headline_a: str, headline_b: str) -> bool:
+    """Do these two headlines report one and the same event?
+
+    One request. Used both by `resolve_band`, to settle the day's clustering,
+    and by the weekly run, to compare a candidate against the headlines the
+    blog has already written from.
+    """
+    try:
+        with TypeSafeClient() as client:
+            r = client.system_one(
+                state={"headline_a": headline_a, "headline_b": headline_b},
+                questions={"same_story": SAME_STORY},
+                model=MODEL,
+            )
+        return r.answers["same_story"].noul >= SAME_STORY_THRESHOLD
+    except TypeSafeAPIError as exc:
+        log.warning("same_story failed: %s", exc)
+        return False
+
+
 def resolve_band(
     stories: list[Item],
     band_low: float,
