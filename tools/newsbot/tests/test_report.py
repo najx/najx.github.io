@@ -251,6 +251,13 @@ class TestSentences:
         got = sentences("Revenue doubled to $4.2 billion. It lasted 14 hours.")
         assert got == ["Revenue doubled to $4.2 billion.", "It lasted 14 hours."]
 
+    def test_a_sentence_ending_on_a_closing_quote_is_still_a_sentence_end(self):
+        got = sentences('He posted that AI needs "a STRONG PRESIDENT." Nick Reese called '
+                        'the positions "wobbly and inconsistent." The order still stands today.')
+        assert got == ['He posted that AI needs "a STRONG PRESIDENT."',
+                       'Nick Reese called the positions "wobbly and inconsistent."',
+                       "The order still stands today."]
+
     def test_also_this_week_bullets_are_checked(self):
         got = sentences("## Also this week\n\n- Runway wants AI video to stream as "
                         "you prompt it. (The Decoder)\n")
@@ -308,6 +315,9 @@ class TestSplitSynthesis:
         from newsbot import verify as verify_mod
 
         class FakeClient:
+            def __init__(self, **kwargs):
+                pass
+
             def __enter__(self):
                 return self
 
@@ -391,6 +401,9 @@ class TestVerifyReportsTheServedVersion:
         from newsbot import verify as verify_mod
 
         class FakeClient:
+            def __init__(self, **kwargs):
+                pass
+
             def __enter__(self):
                 return self
 
@@ -408,3 +421,174 @@ class TestVerifyReportsTheServedVersion:
             "The outage began on Tuesday morning at the data centre.",
             {"https://src": "source text"})
         assert report.checked == 1 and report.model == "jev-1.14"
+
+
+class TestPassages:
+    def test_a_short_source_is_one_passage(self):
+        from newsbot.verify import passages
+        assert passages("A short article.\n\nTwo paragraphs.") == ["A short article.\n\nTwo paragraphs."]
+
+    def test_every_paragraph_lands_in_a_passage_no_longer_than_the_size(self):
+        from newsbot.verify import passages
+        paras = [f"Paragraph {n} says something specific about event {n}." * 3 for n in range(40)]
+        text = "\n\n".join(paras)
+        out = passages(text, size=600)
+        assert len(out) > 1
+        assert all(len(p) <= 600 for p in out)
+        for para in paras:
+            assert any(para in p for p in out), para[:30]
+
+    def test_a_paragraph_longer_than_the_size_is_cut_at_sentence_ends(self):
+        from newsbot.verify import passages
+        text = " ".join(f"Sentence number {n} ends here." for n in range(60))
+        out = passages(text, size=200)
+        assert all(len(p) <= 200 for p in out)
+        assert all(p.endswith(".") for p in out)
+        assert " ".join(out).count("Sentence number") == 60
+
+    def test_the_paragraph_that_closed_a_passage_opens_the_next(self):
+        """A claim drawn from two neighbouring paragraphs must meet both in
+        one passage, so a short closing paragraph is carried over."""
+        from newsbot.verify import passages
+        paras = ["A" * 100, "B" * 100, "C" * 100, "D" * 100]
+        out = passages("\n\n".join(paras), size=340)
+        assert out[0] == "\n\n".join(paras[:3])
+        assert out[1] == "\n\n".join(paras[2:])
+        # A closing paragraph too long to carry cheaply is not carried.
+        long = ["A" * 150, "B" * 150, "C" * 150]
+        out = passages("\n\n".join(long), size=340)
+        assert out == ["\n\n".join(long[:2]), long[2]]
+
+
+def _recording_client(support):
+    """A Jev stand-in that records every (claim, passage) pair it is asked."""
+    asked = []
+
+    class FakeClient:
+        def __init__(self, **kwargs):
+            pass
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *exc):
+            return False
+
+        def system_one(self, **kwargs):
+            state = kwargs["state"]
+            if "sentence" in state:
+                p = 0.9
+            else:
+                asked.append((state["claim"], state["passage"]))
+                p = support(state["claim"], state["passage"])
+            return SystemOneResponse(model="jev-1.14", usage=Usage(),
+                                     answers={"q": NoulAnswer(type="noul", noul=p)})
+
+    return FakeClient, asked
+
+
+TWO_STORIES = ("The week in one line.\n\n"
+               "## First story heading\n\nAlpha announced a thing on Monday.\n\n"
+               "## Second story heading\n\nBeta shipped a product on Tuesday.\n\n"
+               "## Also this week\n\n- Gamma raised money from investors. (Wire)\n")
+SOURCES = {"https://a": "Alpha announced a thing on Monday.",
+           "https://b": "Beta shipped a product on Tuesday.",
+           "https://g": "Gamma raised money from investors."}
+
+
+class TestScoping:
+    def test_each_section_is_read_against_its_own_sources(self, monkeypatch):
+        from newsbot import verify as verify_mod
+        FakeClient, asked = _recording_client(lambda c, p: 0.9 if c[:5] in p else 0.1)
+        monkeypatch.setattr(verify_mod, "TypeSafeClient", FakeClient)
+        report = verify_mod.verify(TWO_STORIES, SOURCES,
+                                   sections=[["https://a"], ["https://b"]], also=["https://g"])
+        pairs = {(c.split()[0], p.split()[0]) for c, p in asked}
+        # Story sentences meet their own source only; the also-line its item.
+        assert ("Alpha", "Beta") not in pairs and ("Beta", "Alpha") not in pairs
+        assert ("Gamma", "Alpha") not in pairs and ("Gamma", "Beta") not in pairs
+        assert ("Alpha", "Alpha") in pairs and ("Beta", "Beta") in pairs and ("Gamma", "Gamma") in pairs
+        # The overview is read against everything.
+        assert {("The", "Alpha"), ("The", "Beta"), ("The", "Gamma")} <= pairs
+        assert report.unsupported == [] and len(report.synthesis) == 1
+
+    def test_a_plan_that_does_not_match_the_draft_falls_back_to_every_source(self, monkeypatch):
+        from newsbot import verify as verify_mod
+        FakeClient, asked = _recording_client(lambda c, p: 0.9)
+        monkeypatch.setattr(verify_mod, "TypeSafeClient", FakeClient)
+        verify_mod.verify(TWO_STORIES, SOURCES, sections=[["https://a"]], also=["https://g"])
+        pairs = {(c.split()[0], p.split()[0]) for c, p in asked}
+        assert ("Alpha", "Beta") in pairs and ("Beta", "Alpha") in pairs
+
+    def test_a_long_source_is_put_to_jev_passage_by_passage(self, monkeypatch):
+        from newsbot import verify as verify_mod
+        long_source = "\n\n".join(f"Paragraph {n} of the article." * 20 for n in range(30))
+        FakeClient, asked = _recording_client(lambda c, p: 0.1)
+        monkeypatch.setattr(verify_mod, "TypeSafeClient", FakeClient)
+        verify_mod.verify("## Story\n\nAlpha announced a thing on Monday.\n",
+                          {"https://a": long_source})
+        assert len(asked) > 1
+        assert all(len(p) <= verify_mod.PASSAGE_CHARS for _, p in asked)
+
+
+class TestSecondReader:
+    def test_what_the_second_reader_finds_and_proves_leaves_the_findings(self, monkeypatch):
+        from newsbot import verify as verify_mod
+        from newsbot.verify import Opinion
+        FakeClient, _ = _recording_client(lambda c, p: 0.1)   # Jev supports nothing
+        monkeypatch.setattr(verify_mod, "TypeSafeClient", FakeClient)
+        given = {}
+
+        def recheck(weak):
+            for claim, scope in weak:
+                given[claim] = scope
+            return {
+                "Alpha announced a thing on Monday.": Opinion(
+                    supported=True, excerpt="announced a thing on Monday", source="https://a",
+                    found=True, model="claude-haiku-4-5-20251001"),
+                "Beta shipped a product on Tuesday.": Opinion(
+                    supported=True, excerpt="not in the text at all", found=False,
+                    note="quoted a passage not found", model="claude-haiku-4-5-20251001"),
+                "Gamma raised money from investors.": Opinion(
+                    supported=False, note="the summary names no investors",
+                    model="claude-haiku-4-5-20251001"),
+            }
+
+        report = verify_mod.verify(TWO_STORIES, SOURCES, sections=[["https://a"], ["https://b"]],
+                                   also=["https://g"], recheck=recheck)
+        # Only the story sections and the also-list go to the second reader,
+        # each with the sources its section was written from.
+        assert set(given) == {"Alpha announced a thing on Monday.",
+                              "Beta shipped a product on Tuesday.",
+                              "Gamma raised money from investors."}
+        assert list(given["Alpha announced a thing on Monday."]) == ["https://a"]
+        assert [f.sentence for f in report.reconsidered] == ["Alpha announced a thing on Monday."]
+        assert [f.sentence for f in report.unsupported] == [
+            "Beta shipped a product on Tuesday.", "Gamma raised money from investors."]
+        assert report.recheck_model == "claude-haiku-4-5-20251001"
+        assert report.unsupported[0].second.note.startswith("quoted a passage")
+
+    def test_without_a_second_reader_nothing_changes(self, monkeypatch):
+        from newsbot import verify as verify_mod
+        FakeClient, _ = _recording_client(lambda c, p: 0.1)
+        monkeypatch.setattr(verify_mod, "TypeSafeClient", FakeClient)
+        report = verify_mod.verify(TWO_STORIES, SOURCES)
+        assert len(report.unsupported) == 3 and report.reconsidered == []
+        assert report.recheck_model is None
+
+
+class TestDisclosureNamesTheSecondReader:
+    def test_the_second_reader_and_its_count_are_named(self):
+        text = disclosure("Claude Opus 5", 56, 4, "jev-1.13.0", "jev-1.13.0",
+                          recheck_model="Claude Haiku 4.5", reconsidered=7)
+        assert "Jev 1.13.0 (56 claims)" in text
+        assert "the 11 it could not place were re-read by Claude Haiku 4.5, which found 7" in text
+        assert "leaving 4 flagged for review" in text
+
+    def test_no_second_reader_keeps_the_old_sentence(self):
+        text = disclosure("Claude Opus 5", 56, 11, "jev-1.13.0", "jev-1.13.0")
+        assert "(56 claims, 11 flagged for review)" in text and "re-read" not in text
+
+    def test_nothing_flagged_means_nothing_to_say_about_the_second_reader(self):
+        text = disclosure("Claude Opus 5", 56, 0, None, None, recheck_model="Claude Haiku 4.5")
+        assert "(56 claims, 0 flagged for review)" in text and "re-read" not in text

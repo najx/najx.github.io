@@ -158,6 +158,23 @@ jobs:
                   for f in unsupported:
                       sentence = f["sentence"].replace("\n", " ").strip()
                       print(f"- [ ] [{f['support']:.2f}] {sentence}")
+                      # La note du second lecteur : où chercher, ou ce que les
+                      # sources disent à la place.
+                      if f.get("note"):
+                          print(f"  - Claude Haiku : {f['note'].replace(chr(10), ' ').strip()}")
+              # Ce que Jev n'a pas su placer mais que Claude Haiku a retrouvé,
+              # citation à l'appui, vérifiée dans le texte de la source. À lire,
+              # pas à cocher : l'extrait est là pour être comparé à la phrase.
+              reconsidered = data.get("reconsidered", [])
+              if reconsidered:
+                  print()
+                  print("### Signalées par Jev, retrouvées par Claude Haiku (extrait vérifié)")
+                  print()
+                  for f in reconsidered:
+                      sentence = f["sentence"].replace("\n", " ").strip()
+                      excerpt = (f.get("excerpt") or "").replace("\n", " ").strip()
+                      print(f"- [{f['support']:.2f}] {sentence}")
+                      print(f"  - « {excerpt} » — {f.get('source') or '?'}")
               # L'ouverture et « Trends » portent sur la semaine entière, donc
               # sur plusieurs sources à la fois : aucune source prise isolément
               # ne les étaye, et les compter comme des anomalies enterrait les

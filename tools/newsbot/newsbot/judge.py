@@ -27,17 +27,22 @@ from __future__ import annotations
 
 import concurrent.futures as cf
 import logging
+import threading
+import time
 from dataclasses import dataclass, field
 
 from typesafe_sdk import (
     Choice,
     Noul,
     NoulCriteria,
+    RetryPolicy,
     Score,
+    SystemOneResponse,
     TypeSafeAPIError,
     TypeSafeClient,
 )
 
+from .meter import Meter
 from .models import Item
 
 log = logging.getLogger(__name__)
@@ -45,10 +50,59 @@ log = logging.getLogger(__name__)
 MODEL = "jev-latest"
 MAX_WORKERS = 12
 
+# List price on docs.typesafe.ai/models: $0.042 per million input tokens,
+# output free. Every call site adds its response here; the CLI prints it.
+JEV = Meter("Jev", usd_per_mtok_in=0.042)
+
+# The published ceiling is 1,200 requests a minute, "adjusting dynamically".
+# The citation check now sends a claim against every passage of every source
+# it was written from — several hundred requests a run — and twelve workers
+# at ~100 ms a call would push six times that ceiling. One shared bucket keeps
+# every pool under it, and a longer retry ladder absorbs a 429 that gets
+# through anyway. The SDK default is two retries and a five-second cap.
+REQUESTS_PER_SECOND = 15.0
+RETRY = RetryPolicy(max_retries=5, backoff_max=10.0)
+
+
+class Throttle:
+    """A pacing lock shared by every thread that talks to Jev."""
+
+    def __init__(self, per_second: float):
+        self.interval = 1.0 / per_second
+        self._next = 0.0
+        self._lock = threading.Lock()
+
+    def wait(self) -> None:
+        with self._lock:
+            now = time.monotonic()
+            slot = max(now, self._next)
+            self._next = slot + self.interval
+        if slot > now:
+            time.sleep(slot - now)
+
+
+THROTTLE = Throttle(REQUESTS_PER_SECOND)
+
+
+def client() -> TypeSafeClient:
+    return TypeSafeClient(retry=RETRY)
+
+
+def ask(client: TypeSafeClient, state: dict, questions: dict) -> SystemOneResponse:
+    """One paced, metered request. Every Jev call in the package goes through here."""
+    THROTTLE.wait()
+    response = client.system_one(state=state, questions=questions, model=MODEL)
+    usage = getattr(response, "usage", None)
+    JEV.add(getattr(usage, "input_tokens", 0), getattr(usage, "output_tokens", 0))
+    return response
+
+
 # The name of this question set. Archives written under an earlier rubric
 # carry a different value or none, and weekly.py refuses to rank them
 # alongside these: a 0.7 under one set of questions is not a 0.7 under another.
-RUBRIC = "weekly-1"
+# weekly-2 added the `news_report` genre; a story_type answered without that
+# option is not comparable with one answered with it.
+RUBRIC = "weekly-2"
 
 # The eight themes of the weekly report, in the order the theme table prints
 # them. A Choice label is what Jev returns; the display name is for readers.
@@ -235,7 +289,13 @@ QUESTIONS = {
             "attack on one succeeded, or that a model did damage, is "
             "reporting an incident, not writing an analysis feature; pick "
             "analysis_feature only when the item surveys a trend, a debate, "
-            "or an industry rather than reporting one new development. When "
+            "or an industry rather than reporting one new development. An "
+            "outlet reporting one new development that is none of the "
+            "above - a deal, a loan, a lawsuit, a settlement, a delayed "
+            "listing, a company blocking or suing another, a survey's "
+            "headline finding - is a news report: the thing reported is what "
+            "a company or a person did, not a release, not a government act, "
+            "not a system failing. When "
             "two labels seem to fit, pick the one matching the bulk of the "
             "item rather than its opening or its closing: an incident report "
             "that ends with a call for regulation is still an incident "
@@ -277,6 +337,15 @@ QUESTIONS = {
                 "A government, court, regulator, or politician did or "
                 "proposed something, or the item covers the argument over "
                 "such a decision."
+            ),
+            "news_report": (
+                "An outlet reports one new development that is not a "
+                "release, a government act, an incident, or a research "
+                "result: a company raised, borrowed, or paid money, made or "
+                "delayed a listing, struck or ended a deal, sued or settled, "
+                "blocked or dropped another company's product, changed its "
+                "leadership, or a survey reported what people do, reported "
+                "for what happened rather than argued or analysed."
             ),
             "digest": (
                 "A newsletter issue, link roundup, or periodical summary that "
@@ -449,12 +518,9 @@ def same_story(headline_a: str, headline_b: str) -> bool:
     blog has already written from.
     """
     try:
-        with TypeSafeClient() as client:
-            r = client.system_one(
-                state={"headline_a": headline_a, "headline_b": headline_b},
-                questions={"same_story": SAME_STORY},
-                model=MODEL,
-            )
+        with client() as c:
+            r = ask(c, {"headline_a": headline_a, "headline_b": headline_b},
+                    {"same_story": SAME_STORY})
         return r.answers["same_story"].noul >= SAME_STORY_THRESHOLD
     except TypeSafeAPIError as exc:
         log.warning("same_story failed: %s", exc)
@@ -485,18 +551,12 @@ def resolve_band(
     if not candidates:
         return stories
 
-    def ask(pair):
+    def same(c, pair):
         i, j = pair
         try:
-            with TypeSafeClient() as client:
-                r = client.system_one(
-                    state={
-                        "headline_a": stories[i].title,
-                        "headline_b": stories[j].title,
-                    },
-                    questions={"same_story": SAME_STORY},
-                    model=MODEL,
-                )
+            r = ask(c, {"headline_a": stories[i].title,
+                        "headline_b": stories[j].title},
+                    {"same_story": SAME_STORY})
             return pair, r.answers["same_story"].noul
         except TypeSafeAPIError as exc:
             log.warning("same_story failed: %s", exc)
@@ -511,8 +571,8 @@ def resolve_band(
         return i
 
     merged = 0
-    with cf.ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
-        for (i, j), verdict in pool.map(ask, candidates):
+    with client() as c, cf.ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
+        for (i, j), verdict in pool.map(lambda pair: same(c, pair), candidates):
             if verdict >= SAME_STORY_THRESHOLD:
                 parent[find(j)] = find(i)
                 merged += 1
@@ -554,6 +614,12 @@ SIGNIFICANCE_VALUE = {0: 0.00, 1: 0.15, 2: 0.45, 3: 0.80, 4: 1.00}
 # gives it less to tell than a release, a decision, or an incident.
 GENRE_WEIGHT = {
     "incident": 1.00,
+    # A plain report of a company's move - a loan, a settlement, a block -
+    # is exactly what a general reader picks up a digest for. It sat
+    # unlabelled before weekly-2 and landed in `notice` or `policy_report`
+    # at random; the week SoftBank borrowed $11bn for OpenAI, the story was
+    # weighted as a personnel note.
+    "news_report": 0.95,
     "product_release": 0.90,
     "policy_report": 0.90,
     "analysis_feature": 0.70,
@@ -644,6 +710,9 @@ def assess(item: Item, answers: dict) -> Assessment:
         "informative": round(answers["state_is_informative"].noul, 4),
         "injection": round(answers["injection_present"].noul, 4),
         "significance": round(significance, 4),
+        # The most probable level, for comparing with a hand label; the
+        # expectation above is what the ranking uses.
+        "significance_level": max(sig_p, key=sig_p.get),
         "significance_top": round(sig_p.get(3, 0.0) + sig_p.get(4, 0.0), 4),
         "confidence": round(confidence, 4),
         "accessibility": round(answers["accessibility"].score, 3),
@@ -674,9 +743,7 @@ def assess(item: Item, answers: dict) -> Assessment:
 def score_one(client: TypeSafeClient, item: Item, lede: str = "") -> Assessment:
     """One request, all seven questions batched into it."""
     try:
-        response = client.system_one(
-            state=build_state(item, lede), questions=QUESTIONS, model=MODEL
-        )
+        response = ask(client, build_state(item, lede), QUESTIONS)
     except TypeSafeAPIError as exc:
         log.warning("%s: %s", item.title[:50], exc)
         return Assessment(item=item, error=f"{type(exc).__name__}: {exc}")
@@ -697,10 +764,10 @@ def score_all(items: list[Item], ledes: dict[str, str] | None = None) -> list[As
     """
     ledes = ledes or {}
     out: list[Assessment] = []
-    with TypeSafeClient() as client:
+    with client() as c:
         with cf.ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
             futures = {
-                pool.submit(score_one, client, i, ledes.get(i.url, "")): i for i in items
+                pool.submit(score_one, c, i, ledes.get(i.url, "")): i for i in items
             }
             for future in cf.as_completed(futures):
                 out.append(future.result())

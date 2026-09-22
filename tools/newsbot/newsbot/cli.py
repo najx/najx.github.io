@@ -5,6 +5,7 @@
     newsbot collect --dry-run  same, but print instead of writing
     newsbot weekly             plan, draft, check and write the week's report
     newsbot weekly --dry-run   print the plan and stop before drafting
+    newsbot eval               judge the labelled set and print the agreement
 """
 
 from __future__ import annotations
@@ -40,6 +41,23 @@ def _say(msg: str) -> None:
 
 def _have_jev() -> bool:
     return bool(os.environ.get("TYPESAFE_API_KEY"))
+
+
+def _have_claude() -> bool:
+    return bool(os.environ.get("ANTHROPIC_API_KEY"))
+
+
+def _say_usage() -> None:
+    """One line per model that was asked anything this run."""
+    from .judge import JEV
+    if JEV.requests:
+        _say(JEV.summary())
+    try:
+        from .recheck import HAIKU
+    except ImportError:  # anthropic not installed: nothing was asked of it
+        return
+    if HAIKU.requests:
+        _say(HAIKU.summary())
 
 
 # --- probe ------------------------------------------------------------------
@@ -119,6 +137,8 @@ def cmd_collect(args: argparse.Namespace) -> int:
     _say(f"{len(items)} entries -> {len(fresh)} within {args.window}h "
          f"-> {len(distinct)} distinct -> {len(stories)} stories "
          f"({len(failures)} feeds failed)")
+
+    _say_usage()
 
     if args.dry_run:
         ranked = sorted(stories, key=lambda i: -(scores.get(i.url, {}).get("score") or 0.0))
@@ -305,15 +325,31 @@ def cmd_weekly(args: argparse.Namespace) -> int:
     for s in selection.also:
         checkable[s.item.url] = f"{s.item.title}\n\n{s.item.summary}"
     checkable[THEME_COUNTS] = _theme_counts_text(selection.table)
+    # Each story section is read against the sources it was written from,
+    # in the order the writer was given them; the also-list against its
+    # items' headline and summary; the overview against everything.
+    section_urls = [list(texts[s.item.url]) for s in selection.sections]
+    also_urls = [s.item.url for s in selection.also]
+    # What Jev cannot place is re-read by Claude Haiku, which has to quote
+    # the passage it found. Without a key the Jev pass stands alone.
+    recheck_hook = None
+    if not args.no_recheck and _have_claude():
+        from .recheck import second_opinions
+        recheck_hook = second_opinions
     # The parsed body, not the raw draft: the TITLE and DESCRIPTION lines are
     # instructions to this pipeline, and checking them against a news article
     # reported the description itself as an unsupported claim.
-    checks = verify.Report() if args.no_verify else verify.verify(report.body, checkable)
+    checks = (verify.Report() if args.no_verify
+              else verify.verify(report.body, checkable, sections=section_urls,
+                                 also=also_urls, recheck=recheck_hook))
     if checks.error:
         _say(f"citation check unavailable: {checks.error}")
     else:
-        _say(f"checked {checks.checked} claims, {len(checks.unsupported)} unsupported, "
-             f"{len(checks.synthesis)} of the overview unmatched")
+        _say(f"checked {checks.checked} claims, {len(checks.unsupported)} unsupported"
+             + (f" ({len(checks.reconsidered)} more flagged by Jev were found by the "
+                f"second reader)" if checks.reconsidered else "")
+             + f", {len(checks.synthesis)} of the overview unmatched")
+    _say_usage()
 
     out_root = Path(args.out) if args.out else store.root
     judge_models = {s.judgement.get("model") for s in selection.sections}
@@ -321,7 +357,9 @@ def cmd_weekly(args: argparse.Namespace) -> int:
         out_root, report, now, week_id, period, _model_name(draft.model),
         checks.checked, len(checks.unsupported), rows=selection.table,
         judge_model=judge_models.pop() if len(judge_models) == 1 else None,
-        verify_model=checks.model)
+        verify_model=checks.model,
+        recheck_model=_model_name(checks.recheck_model) if checks.recheck_model else None,
+        reconsidered=len(checks.reconsidered))
     _say(f"wrote {path}")
 
     # Only when the report lands in the site itself. `--out` is a preview,
@@ -339,6 +377,14 @@ def cmd_weekly(args: argparse.Namespace) -> int:
         _say("\nclaims the sources do not bear out:")
         for f in checks.unsupported[:12]:
             _say(f"  [{f.best_support:.2f}] {f.sentence[:100]}")
+            if f.second is not None and (f.second.note or f.second.error):
+                _say(f"         second reader: {f.second.error or f.second.note}")
+
+    if checks.reconsidered:
+        _say("\nflagged by Jev, found in the sources by the second reader:")
+        for f in checks.reconsidered[:12]:
+            _say(f"  [{f.best_support:.2f}] {f.sentence[:100]}")
+            _say(f"         “{f.second.excerpt[:100]}” — {f.second.source}")
 
     if checks.synthesis:
         _say("\nopening and Trends, drawing on the week rather than on one "
@@ -354,8 +400,15 @@ def cmd_weekly(args: argparse.Namespace) -> int:
             "checked": checks.checked,
             "unsupported": [
                 {"sentence": f.sentence, "support": round(f.best_support, 3),
-                 "source": f.best_source}
+                 "source": f.best_source,
+                 "note": (f.second.error or f.second.note) if f.second else None}
                 for f in checks.unsupported
+            ],
+            "reconsidered": [
+                {"sentence": f.sentence, "support": round(f.best_support, 3),
+                 "source": f.second.source, "excerpt": f.second.excerpt,
+                 "note": f.second.note}
+                for f in checks.reconsidered
             ],
             "synthesis": [
                 {"sentence": f.sentence, "support": round(f.best_support, 3),
@@ -387,7 +440,43 @@ def _theme_counts_text(rows) -> str:
 
 
 def _model_name(model_id: str) -> str:
-    return {"claude-opus-5": "Claude Opus 5"}.get(model_id, model_id)
+    """The name the disclosure prints for a Claude model id the API returned."""
+    for prefix, name in (("claude-opus-5", "Claude Opus 5"),
+                         ("claude-haiku-4-5", "Claude Haiku 4.5")):
+        if model_id.startswith(prefix):
+            return name
+    return model_id
+
+
+# --- eval -------------------------------------------------------------------
+
+def cmd_eval(args: argparse.Namespace) -> int:
+    from . import evaluate
+
+    if not _have_jev():
+        _say("TYPESAFE_API_KEY is not set; nothing can be judged.")
+        return 1
+    path = Path(args.set) if args.set else (
+        repo_root() / "tools" / "newsbot" / "eval" / "headlines.jsonl")
+    labelled = evaluate.load_set(path)
+    _say(f"{len(labelled)} labelled items from {path}")
+
+    from .judge import RUBRIC, score_all
+
+    summary = evaluate.run(labelled, score_all)
+    print(f"rubric {RUBRIC}\n" + evaluate.report(summary))
+    _say_usage()
+    if args.json:
+        Path(args.json).write_text(
+            json.dumps({"rubric": RUBRIC, **summary.as_dict()}, indent=2,
+                       ensure_ascii=False) + "\n", encoding="utf-8")
+        _say(f"wrote {args.json}")
+    if args.min_agreement is not None:
+        low = summary.below(args.min_agreement)
+        if low:
+            _say(f"under {args.min_agreement:.0%}: {', '.join(low)}")
+            return 1
+    return 0
 
 
 # --- entry point ------------------------------------------------------------
@@ -422,7 +511,16 @@ def main(argv: list[str] | None = None) -> int:
                         help="skip the Jev citation check")
     weekly.add_argument("--checks-out",
                         help="also write the citation check as JSON to this path")
+    weekly.add_argument("--no-recheck", action="store_true",
+                        help="skip the Claude Haiku second reading of what Jev flagged")
     weekly.set_defaults(func=cmd_weekly)
+
+    ev = sub.add_parser("eval", help="judge the labelled set and print the agreement")
+    ev.add_argument("--set", help="JSONL file (default: tools/newsbot/eval/headlines.jsonl)")
+    ev.add_argument("--json", help="also write the tally as JSON to this path")
+    ev.add_argument("--min-agreement", type=float,
+                    help="exit 1 if any question's agreement is under this rate")
+    ev.set_defaults(func=cmd_eval)
 
     args = parser.parse_args(argv)
     _setup_logging(args.verbose)

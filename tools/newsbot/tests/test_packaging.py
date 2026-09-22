@@ -13,8 +13,8 @@ from pathlib import Path
 
 import pytest
 
-MODULES = ["cli", "fetch", "judge", "models", "normalize", "render",
-           "sources", "store", "verify", "weekly", "write"]
+MODULES = ["cli", "evaluate", "fetch", "judge", "meter", "models", "normalize",
+           "recheck", "render", "sources", "store", "verify", "weekly", "write"]
 
 
 @pytest.mark.parametrize("name", MODULES)
@@ -43,7 +43,8 @@ def test_every_third_party_import_is_declared():
                         seen.add(top)
     stdlib = {"__future__", "concurrent", "dataclasses", "datetime", "hashlib",
               "html", "json", "logging", "os", "pathlib", "re", "secrets",
-              "sys", "typing", "unicodedata", "urllib", "argparse", "newsbot"}
+              "sys", "threading", "time", "typing", "unicodedata", "urllib",
+              "argparse", "newsbot"}
     third_party = seen - stdlib
     missing = third_party - modules
     assert not missing, f"imported but not declared in pyproject: {sorted(missing)}"

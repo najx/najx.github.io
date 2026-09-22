@@ -10,7 +10,8 @@ driven by two workflows under `.github/workflows/`.
 | when | what | writes |
 |---|---|---|
 | daily, 05:17 UTC | fetch every feed, window, deduplicate, cluster, judge with Jev | `.newsbot/archive/<date>.json` |
-| Sunday, 06:17 UTC | merge the week, rank, pick six stories, fetch their articles, draft with Claude, check with Jev, open a draft PR | `_ai_news/<week>.md`, `.newsbot/state.json`, on a branch — never `main` |
+| Sunday, 06:17 UTC | merge the week, rank, pick six stories, fetch their articles, draft with Claude, check with Jev then Claude Haiku, open a draft PR | `_ai_news/<week>.md`, `.newsbot/state.json`, on a branch — never `main` |
+| by hand | judge the calibration set with Jev, print the agreement question by question | a `judge-calibration` artifact |
 
 The home page renders the latest report at build time from the `_ai_news`
 collection: its title, its period, and its six section headings as anchors
@@ -64,12 +65,15 @@ newsbot -v collect --dry-run       # judge the day and print it, write nothing
 newsbot -v collect                 # write today's archive
 newsbot -v weekly --dry-run        # print the week's plan, draft nothing
 newsbot -v weekly --out /tmp/prev  # draft, check, write the report elsewhere
+newsbot -v eval                    # judge the labelled set, print the agreement
 ```
 
 `collect --window` changes how far back to look (48 hours by default).
 `weekly --days` is the width of the week (7), `--stories` the number of
-sections (6), `--no-verify` skips the citation check, and `--checks-out`
-writes the check as JSON for the workflow's checklist. `--out` writes the
+sections (6), `--no-verify` skips the citation check, `--no-recheck` skips
+the Claude Haiku second reading of what Jev flagged, and `--checks-out`
+writes the check as JSON for the workflow's checklist. Every run ends with
+one line per model naming the requests, the tokens and the list price. `--out` writes the
 report under another root and marks nothing as covered. Both workflows take
 their inputs as `workflow_dispatch` fields, and the weekly one has a
 `dry_run` checkbox that uploads the report as an artifact instead of opening
@@ -138,7 +142,7 @@ each level spells out its boundary cases rather than trusting a short phrase.
 | `public_significance` | Score 0-4 | how far beyond the AI industry the story reaches: from "not about AI" to "in the general news" |
 | `accessibility` | Score 0-3 | how much technical background a reader needs to follow it |
 | `theme` | Choice | one of the eight themes of the report (below) |
-| `story_type` | Choice | incident, engineering report, research, release, feature, essay, policy, digest, notice |
+| `story_type` | Choice | incident, news report, engineering report, research, release, feature, essay, policy, digest, notice |
 | `is_promo_or_admin` | Noul | event, hire, call for papers, housekeeping |
 | `state_is_informative` | Noul | do the fields say enough to know what this is about |
 | `injection_present` | Noul | is the text addressing whatever reads it |
@@ -156,11 +160,16 @@ distribution**, not from `.score`: the Score guide says neighbouring levels
 are not assumed adjacent, so a weighted position is meaningless when the mass
 splits between level 0 and level 4.
 
-Every judgement carries `rubric: "weekly-1"`, the name of this question set.
+Every judgement carries `rubric: "weekly-2"`, the name of this question set.
 The weekly run only ranks judgements under the current rubric; whatever the
 archives hold under an older one, or unjudged because the key was missing
 that day, is scored on the spot before selection. A change of questions
 therefore costs one run's worth of Jev calls, not a week of silence.
+`weekly-2` added `news_report` to `story_type`: a plain report of a
+company's move — a loan, a settlement, a delayed listing, one company
+blocking another — had no label under `weekly-1` and landed in `notice` or
+`policy_report` at random. The week SoftBank borrowed $11 billion for its
+OpenAI stake, the story was weighted as a personnel note.
 
 The eight themes: models & products, agents & assistants, safety &
 incidents, policy & regulation, business & money, research & science,
@@ -197,13 +206,21 @@ Six steps.
    also-list's headlines and feed summaries, and the theme counts. Each
    source arrives in a `<source>` element tagged with a per-run nonce, and
    only an element carrying that nonce is part of the instructions.
-6. **Check and render** (`verify.py`, `render.py`) — Jev reads every sentence
-   back against the texts the writer was given (for the also-list, the
-   headline and summary; for Trends, the theme counts), in two passes:
-   checkable claims first, then support. The report is rendered with the collection's front matter —
+6. **Check and render** (`verify.py`, `recheck.py`, `render.py`) — Jev reads
+   every sentence back against the texts the writer was given, in two
+   passes: checkable claims first, then support. Each story section is read
+   against the sources *that* story was written from, the also-list against
+   its items' headline and summary, and the overview against everything
+   plus the theme counts. Every source is cut into passages of about two
+   thousand characters and the claim is put to each one; the best passage
+   wins. Whatever Jev cannot place is re-read by Claude Haiku, which sees the
+   whole of the section's sources and must quote, word for word, the passage
+   it found; the quote is looked up in the source text before the verdict
+   counts. The report is rendered with the collection's front matter —
    `week`, `period`, the `stories` list of anchors the home page links to —
    the theme table inserted under *Trends* from the pipeline's own counts,
-   and the disclosure line naming the models that actually answered.
+   and the disclosure line naming the models that actually answered, the
+   second reader included.
 
 ### The report's shape
 
@@ -249,12 +266,21 @@ only this last one is skipped.
 
 ### What the checklist means
 
-The pull request opens as a draft with one checkbox per claim Jev could not
-find in the sources. Most flagged sentences are the writer's own framing
-rather than fabrications — read the list as *look at these*, not as *these
-are wrong*. When a claim is genuinely invented the separation is stark:
-measured against a real source, true claims scored 0.94 and 0.75 and planted
-ones 0.07 and below.
+The pull request opens as a draft with one checkbox per claim neither reader
+could find in the sources, each followed by Claude Haiku's one-line note:
+what the sources say instead, or what they do not say. Read the list as
+*look at these*, not as *these are wrong*; when a claim is genuinely
+invented the separation is stark — measured against a real source, true
+claims scored 0.94 and 0.75 and planted ones 0.07 and below.
+
+Under its own heading come the sentences Jev flagged that Claude Haiku
+found, with the passage it quoted and the source it is in. Those are
+bullets, not checkboxes: the quote is there to be compared with the
+sentence, and the quote has already been verified to exist in the source.
+The first live run under the old checker flagged the headline of the week —
+Trump's "AI Force" — at 0.12 because the claim was put against an entire
+article at once; passages and the second reader exist so that kind of line
+never reaches the checklist again.
 
 **The opening paragraph and Trends are listed separately.** Both draw on the
 whole week at once: on several stories, and on counts this pipeline computed
@@ -267,9 +293,50 @@ under their own heading, to be read rather than treated as findings.
 
 ### Cost
 
-Measured on the first live run, 21 September 2026: **$0.285** — 10,001 tokens
-in and 9,416 out on Claude Opus 5 — plus a few cents of Jev for judging 26
-stories and checking 56 claims. About $1.30 a month.
+Every run prints one line per model: requests, tokens, and the cost at list
+price ($0.042 per million input tokens for Jev, output free; $5 in and $25
+out for Claude Opus 5; $1 in and $5 out for Claude Haiku 4.5). Measured on a
+dry run of the week of 14–20 September 2026, on 22 September:
+
+| step | requests | tokens | cost |
+|---|---|---|---|
+| draft, Claude Opus 5 | 1 | 15,310 in, 10,045 out | $0.328 |
+| judge and check, Jev | 572 | 494,919 in | $0.021 |
+| second reading, Claude Haiku 4.5 | 11 | 26,954 in, 2,454 out | $0.039 |
+| daily collection, Jev (79 stories) | 81 | 287,016 in | $0.012 |
+
+About $0.40 a report and $0.36 a month of collection: **under $2 a month**.
+The checker's 451 claim-passage pairs cost less than the old article-at-once
+check would have, because each section is now read against its own sources
+rather than all of them.
+
+## Measuring the judge
+
+The ranking weights in `judge.py` are editorial judgement, and until this
+existed the rubrics had never been scored against an answer key: the only way
+to know whether a change helped was to read the next report.
+[`tools/newsbot/eval/headlines.jsonl`](../tools/newsbot/eval/headlines.jsonl)
+holds real headlines from the archives — sixty-odd, one write-up per outlet
+per event — each with the answer the author expects from the seven
+questions, plus four made-up lines that carry an instruction to whatever
+reads the feed. Those four are the only test the injection gate has ever had
+against a positive; on the live feeds it has never fired.
+
+```bash
+newsbot -v eval                       # needs TYPESAFE_API_KEY; well under a cent
+newsbot eval --min-agreement 0.8      # exit 1 if any question is under 80%
+```
+
+The *AI news — judge calibration* workflow runs the same thing from GitHub,
+by hand, and uploads the tally. Run it before merging any change to a
+criterion in `judge.py`: a rubric change is what the set exists to measure.
+The tally reports exact agreement for the gate, the theme, the genre and the
+significance level, and agreement within one level for significance and
+accessibility, because neighbouring levels of the rubric are close calls by
+design. A disagreement is a question, not a verdict — read the item and fix
+whichever of the label or the criterion is wrong. How to label, and why the
+labels follow the three fields Jev sees rather than what the article is
+really about, is in [`tools/newsbot/eval/README.md`](../tools/newsbot/eval/README.md).
 
 ## Required secrets
 
@@ -277,7 +344,7 @@ stories and checking 56 claims. About $1.30 a month.
 |---|---|
 | `NEWSBOT_TOKEN` | fine-grained PAT, Contents: read and write. Commits the daily archive and opens the weekly pull request. |
 | `TYPESAFE_API_KEY` | the judging and the citation check. Optional for the daily run — an unscored day is scored on Sunday — required for the weekly report. |
-| `ANTHROPIC_API_KEY` | the weekly draft. |
+| `ANTHROPIC_API_KEY` | the weekly draft, and the second reading of the claims Jev flags. |
 
 Both workflows check for their secrets first and fail with an explanation
 rather than running and silently publishing nothing.
