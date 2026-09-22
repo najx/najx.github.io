@@ -167,22 +167,36 @@ def insert_table(body: str, rows) -> str:
 
 def disclosure(draft_model: str, checked: int, unsupported: int,
                judge_model: str | None = None,
-               verify_model: str | None = None) -> str:
+               verify_model: str | None = None,
+               recheck_model: str | None = None,
+               reconsidered: int = 0) -> str:
     """The line charter.md asks for: which model, and how it was used.
 
     `judge_model` and `verify_model` are the ids the API returned for the two
     Jev steps — selection and citation checking. They are separate runs, so
     they are named separately rather than assumed equal. An archive written
     before this field existed supplies neither, and the label falls back to
-    naming Jev without a version.
+    naming Jev without a version. `recheck_model` names the second reader
+    when one re-read what Jev flagged, and `reconsidered` is how many of
+    those it found in the sources; `unsupported` is what is left after it.
     """
-    checked_note = (
-        f"Every factual claim was checked back against those sources by "
-        f"{_jev_label(verify_model)} ({checked} claims, {unsupported} flagged "
-        f"for review)."
-        if checked
-        else "Citation checking did not run on this draft."
-    )
+    flagged = unsupported + reconsidered
+    if checked and recheck_model and flagged:
+        checked_note = (
+            f"Every factual claim was checked back against those sources by "
+            f"{_jev_label(verify_model)} ({checked} claims); the {flagged} it "
+            f"could not place were re-read by {recheck_model}, which found "
+            f"{reconsidered} of them in the sources, leaving {unsupported} "
+            f"flagged for review."
+        )
+    elif checked:
+        checked_note = (
+            f"Every factual claim was checked back against those sources by "
+            f"{_jev_label(verify_model)} ({checked} claims, {unsupported} flagged "
+            f"for review)."
+        )
+    else:
+        checked_note = "Citation checking did not run on this draft."
     return (
         "---\n\n"
         f"*Drafted with {draft_model} from the sources listed above; the "
@@ -201,6 +215,7 @@ def render(report: Report, when: datetime, week_id: str, period: str,
            model: str, checked: int, unsupported: int,
            rows: list[tuple[str, str, int, int | None]] | None = None,
            judge_model: str | None = None, verify_model: str | None = None,
+           recheck_model: str | None = None, reconsidered: int = 0,
            lang: str = "en") -> str:
     body = insert_table(report.body, rows) if rows else report.body
     # json.dumps produces a valid YAML double-quoted scalar and escapes the
@@ -229,20 +244,22 @@ def render(report: Report, when: datetime, week_id: str, period: str,
         "ai_assisted: true\n"
         "---\n\n"
         f"{body.rstrip()}\n\n"
-        f"{disclosure(model, checked, unsupported, judge_model, verify_model)}"
+        f"{disclosure(model, checked, unsupported, judge_model, verify_model, recheck_model, reconsidered)}"
     )
 
 
 def write_report(root: Path, report: Report, when: datetime, week_id: str,
                  period: str, model: str, checked: int, unsupported: int,
                  rows=None, judge_model: str | None = None,
-                 verify_model: str | None = None) -> Path:
+                 verify_model: str | None = None,
+                 recheck_model: str | None = None, reconsidered: int = 0) -> Path:
     """_ai_news/<week id>.md — one file per week, the collection layout."""
     directory = root / REPORTS_DIR
     directory.mkdir(parents=True, exist_ok=True)
     path = directory / f"{week_id}.md"
     path.write_text(
         render(report, when, week_id, period, model, checked, unsupported,
-               rows=rows, judge_model=judge_model, verify_model=verify_model),
+               rows=rows, judge_model=judge_model, verify_model=verify_model,
+               recheck_model=recheck_model, reconsidered=reconsidered),
         encoding="utf-8")
     return path

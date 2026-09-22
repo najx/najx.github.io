@@ -11,11 +11,14 @@ from typesafe_sdk import ChoiceAnswer, NoulAnswer, ScoreAnswer, SystemOneRespons
 
 from newsbot.judge import (
     GENRE_WEIGHT,
+    JEV,
     MODEL,
     QUESTIONS,
+    RETRY,
     RUBRIC,
     SIGNIFICANCE_VALUE,
     THEMES,
+    Throttle,
     as_record,
     assess,
     build_state,
@@ -229,3 +232,55 @@ class TestRecord:
         a = score_one(FakeClient(), item())
         assert a.model == "jev-1.14"
         assert as_record(a)["model"] == "jev-1.14"
+
+
+class TestNewsReport:
+    def test_a_plain_report_of_a_companys_move_has_a_label_and_a_weight(self):
+        assert "news_report" in QUESTIONS["story_type"].criteria
+        assert GENRE_WEIGHT["incident"] > GENRE_WEIGHT["news_report"] >= GENRE_WEIGHT["product_release"]
+        assert GENRE_WEIGHT["news_report"] > GENRE_WEIGHT["notice"]
+
+    def test_every_genre_jev_can_return_has_a_weight(self):
+        assert set(QUESTIONS["story_type"].criteria) == set(GENRE_WEIGHT)
+
+    def test_the_rubric_was_renamed_with_the_question_set(self):
+        """weekly.py refuses to rank judgements from different rubrics
+        together; a new option in story_type is a different question."""
+        assert RUBRIC != "weekly-1"
+
+
+class TestSignificanceLevel:
+    def test_the_most_probable_level_is_recorded_for_the_eval(self):
+        rec = as_record(assess(item(), answers(public_significance=score(
+            {0: 0.05, 1: 0.05, 2: 0.2, 3: 0.6, 4: 0.1}))))
+        assert rec["significance_level"] == 3
+
+
+class TestMeteringAndPacing:
+    def test_every_request_is_counted_with_its_tokens(self):
+        class FakeClient:
+            def system_one(self, **kwargs):
+                return SystemOneResponse(model="jev-1.14",
+                                         usage=Usage(input_tokens=120, output_tokens=12),
+                                         answers=answers())
+
+        JEV.reset()
+        score_one(FakeClient(), item())
+        score_one(FakeClient(), item("Another"))
+        assert JEV.requests == 2 and JEV.input_tokens == 240
+        assert JEV.cost_usd == pytest.approx(240 / 1e6 * 0.042)
+        assert "Jev: 2 requests, 240 tokens in" in JEV.summary()
+
+    def test_the_throttle_spaces_calls_out(self):
+        import time
+        t = Throttle(per_second=40)
+        start = time.monotonic()
+        for _ in range(5):
+            t.wait()
+        # Four intervals of 25 ms between five calls.
+        assert time.monotonic() - start >= 0.09
+
+    def test_the_retry_ladder_is_longer_than_the_sdk_default(self):
+        from typesafe_sdk import RetryPolicy
+        assert RETRY.max_retries > RetryPolicy().max_retries
+        assert RETRY.backoff_max > RetryPolicy().backoff_max
