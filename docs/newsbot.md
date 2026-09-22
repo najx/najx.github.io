@@ -295,13 +295,20 @@ under their own heading, to be read rather than treated as findings.
 
 Every run prints one line per model: requests, tokens, and the cost at list
 price ($0.042 per million input tokens for Jev, output free; $5 in and $25
-out for Claude Opus 5; $1 in and $5 out for Claude Haiku 4.5). The first live
-run, 21 September 2026, cost **$0.285** of Claude Opus 5 — 10,001 tokens in
-and 9,416 out — and, under the old article-at-once checker, an estimated
-$0.16 of Jev that was never metered. The passage-by-passage check sends the
-same source text in smaller pieces, so its Jev cost is of the same order; the
-second reader adds a few cents per run. The measured figures for the current
-pipeline are in the PR that introduced it, and in every run log since.
+out for Claude Opus 5; $1 in and $5 out for Claude Haiku 4.5). Measured on a
+dry run of the week of 14–20 September 2026, on 22 September:
+
+| step | requests | tokens | cost |
+|---|---|---|---|
+| draft, Claude Opus 5 | 1 | 15,310 in, 10,045 out | $0.328 |
+| judge and check, Jev | 572 | 494,919 in | $0.021 |
+| second reading, Claude Haiku 4.5 | 11 | 26,954 in, 2,454 out | $0.039 |
+| daily collection, Jev (79 stories) | 81 | 287,016 in | $0.012 |
+
+About $0.40 a report and $0.36 a month of collection: **under $2 a month**.
+The checker's 451 claim-passage pairs cost less than the old article-at-once
+check would have, because each section is now read against its own sources
+rather than all of them.
 
 ## Measuring the judge
 

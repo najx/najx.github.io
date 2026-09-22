@@ -308,8 +308,11 @@ def sentences(markdown: str) -> list[str]:
         # Not just [A-Z]: a sentence followed by one opening on a digit or a
         # quotation mark was being merged into its neighbour and answered
         # once. The lookbehind excludes a single capital before the period so
-        # "U.S. The" does not split inside the abbreviation.
-        for part in re.split(r"(?<=[.!?])\s+(?=[\"'“‘(\[]?[A-Z0-9])", line):
+        # "U.S. The" does not split inside the abbreviation. A sentence that
+        # ends on a closing quote mark — `... PRESIDENT." Nick Reese ...` —
+        # is a sentence end too; four of them ran together on a live run and
+        # reached the checklist as one unreadable finding.
+        for part in re.split(r"(?:(?<=[.!?])|(?<=[.!?][\"”’']))\s+(?=[\"'“‘(\[]?[A-Z0-9])", line):
             part = part.strip()
             # Only true fragments are dropped here. Length is not a claim
             # filter — that is what the IS_CLAIM pass is for, and a five-word

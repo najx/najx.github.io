@@ -251,6 +251,13 @@ class TestSentences:
         got = sentences("Revenue doubled to $4.2 billion. It lasted 14 hours.")
         assert got == ["Revenue doubled to $4.2 billion.", "It lasted 14 hours."]
 
+    def test_a_sentence_ending_on_a_closing_quote_is_still_a_sentence_end(self):
+        got = sentences('He posted that AI needs "a STRONG PRESIDENT." Nick Reese called '
+                        'the positions "wobbly and inconsistent." The order still stands today.')
+        assert got == ['He posted that AI needs "a STRONG PRESIDENT."',
+                       'Nick Reese called the positions "wobbly and inconsistent."',
+                       "The order still stands today."]
+
     def test_also_this_week_bullets_are_checked(self):
         got = sentences("## Also this week\n\n- Runway wants AI video to stream as "
                         "you prompt it. (The Decoder)\n")
