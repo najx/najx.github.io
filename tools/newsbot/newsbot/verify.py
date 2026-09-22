@@ -106,17 +106,56 @@ class Finding:
 class Report:
     checked: int = 0
     findings: list[Finding] = None
+    synthesis_findings: list[Finding] = None
     model: str | None = None    # the id the API says it actually served
     error: str | None = None
 
     def __post_init__(self):
         if self.findings is None:
             self.findings = []
+        if self.synthesis_findings is None:
+            self.synthesis_findings = []
+
+    @staticmethod
+    def _weakest(findings) -> list[Finding]:
+        return sorted((f for f in findings if not f.supported),
+                      key=lambda f: f.best_support)
 
     @property
     def unsupported(self) -> list[Finding]:
-        return sorted((f for f in self.findings if not f.supported),
-                      key=lambda f: f.best_support)
+        """Claims from the story sections no source bears out."""
+        return self._weakest(self.findings)
+
+    @property
+    def synthesis(self) -> list[Finding]:
+        """The same, for the opening paragraph and the Trends section."""
+        return self._weakest(self.synthesis_findings)
+
+
+# Headings whose prose draws on the whole week at once rather than on one
+# story's sources. Everything before the first heading — the opening
+# paragraph — is synthesis for the same reason.
+SYNTHESIS_HEADINGS = {"trends"}
+
+
+def split_synthesis(markdown: str) -> tuple[str, str]:
+    """(reported, synthesis): the story sections against the week's overview.
+
+    The opening paragraph and the Trends section draw on several stories at
+    once, and on counts the pipeline computed rather than on any article.
+    `verify` compares one claim to one source at a time, so asking it whether
+    a single source bears out a sentence spanning four of them answers no
+    every time — eight of eleven findings on a real run were of that kind,
+    which buries the ones that matter. They are still read back, against the
+    same sources plus the counts, and reported under their own heading.
+    """
+    chunks = re.split(r"(?m)^(?=##[ \t])", markdown)
+    reported, synthesis = [], []
+    for n, chunk in enumerate(chunks):
+        m = re.match(r"^##[ \t]+(.+?)[ \t]*$", chunk, re.M)
+        heading = m.group(1).rstrip(":").strip().lower() if m else ""
+        (synthesis if (n == 0 or heading in SYNTHESIS_HEADINGS) else reported).append(chunk)
+    return "".join(reported), "".join(synthesis)
 
 
 def sentences(markdown: str) -> list[str]:
@@ -126,6 +165,10 @@ def sentences(markdown: str) -> list[str]:
     body = re.split(r"(?mi)^\s*(?:#{1,6}\s*)?\**\s*sources\s*\**\s*:?\s*$",
                     markdown, maxsplit=1)[0]
     body = re.sub(r"```.*?```", " ", body, flags=re.S)
+    # The draft's own metadata lines are instructions to the pipeline, not
+    # prose. Checking "DESCRIPTION: ..." against a news article flagged the
+    # description of a real run as an unsupported claim.
+    body = re.sub(r"(?m)^\s*(?:TITLE|DESCRIPTION|TAG):.*$", "", body)
     out = []
     for line in body.splitlines():
         line = line.strip()
@@ -158,12 +201,22 @@ def sentences(markdown: str) -> list[str]:
 
 
 def verify(markdown: str, sources: dict[str, str]) -> Report:
-    """Which of the draft's factual claims the sources actually bear out."""
+    """Which of the draft's factual claims the sources actually bear out.
+
+    The story sections are answered against the sources they were written
+    from. The opening paragraph and Trends are answered too, against the same
+    sources plus whatever non-article material the caller passed (the week's
+    theme counts), but reported separately: a sentence spanning four stories
+    is not supported by any one of them, and calling that a finding hides the
+    real ones.
+    """
     if not sources:
         return Report(error="no source text was fetched; nothing to check against")
 
-    candidates = sentences(markdown)
-    if not candidates:
+    reported_md, synthesis_md = split_synthesis(markdown)
+    candidates = sentences(reported_md)
+    synthesis_candidates = [s for s in sentences(synthesis_md) if s not in candidates]
+    if not candidates and not synthesis_candidates:
         return Report(error="no prose sentences found in the draft")
 
     try:
@@ -179,12 +232,18 @@ def verify(markdown: str, sources: dict[str, str]) -> Report:
                 return sentence, r.answers["q"].noul
 
             with cf.ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
-                claims = [s for s, p in pool.map(is_claim, candidates)
-                          if p >= CLAIM_THRESHOLD]
+                everything = candidates + synthesis_candidates
+                verdicts = dict(pool.map(is_claim, everything))
+            claims = [s for s in candidates if verdicts.get(s, 0.0) >= CLAIM_THRESHOLD]
+            synthesis_claims = [s for s in synthesis_candidates
+                                if verdicts.get(s, 0.0) >= CLAIM_THRESHOLD]
 
-            log.info("%d sentences, %d checkable claims", len(candidates), len(claims))
+            log.info("%d sentences, %d checkable claims (%d of them synthesis)",
+                     len(everything), len(claims) + len(synthesis_claims),
+                     len(synthesis_claims))
 
-            pairs = [(c, url, text[:SOURCE_CHARS]) for c in claims
+            pairs = [(c, url, text[:SOURCE_CHARS])
+                     for c in claims + synthesis_claims
                      for url, text in sources.items()]
 
             def support(pair):
@@ -194,7 +253,8 @@ def verify(markdown: str, sources: dict[str, str]) -> Report:
                 served.add(r.model)
                 return claim, url, r.answers["q"].noul
 
-            best: dict[str, tuple[float, str | None]] = {c: (0.0, None) for c in claims}
+            best: dict[str, tuple[float, str | None]] = {
+                c: (0.0, None) for c in claims + synthesis_claims}
             with cf.ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
                 for claim, url, p in pool.map(support, pairs):
                     if p > best[claim][0]:
@@ -202,10 +262,14 @@ def verify(markdown: str, sources: dict[str, str]) -> Report:
     except TypeSafeAPIError as exc:
         return Report(error=f"{type(exc).__name__}: {exc}")
 
+    def findings_for(keys):
+        return [Finding(sentence=c, best_support=best[c][0], best_source=best[c][1])
+                for c in keys]
+
     return Report(
-        checked=len(claims),
-        findings=[Finding(sentence=c, best_support=p, best_source=u)
-                  for c, (p, u) in best.items()],
+        checked=len(claims) + len(synthesis_claims),
+        findings=findings_for(claims),
+        synthesis_findings=findings_for(synthesis_claims),
         # Only when every call was answered by the same version is there one
         # version to name; a rollover mid-run leaves the label unversioned
         # rather than picking a winner.

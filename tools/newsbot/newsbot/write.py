@@ -27,6 +27,7 @@ MODEL = "claude-opus-5"
 # generation is real money.
 MAX_TOKENS = 24_000
 TARGET_WORDS = 1200
+MAX_WORDS = 1400
 SECTION_WORDS = (120, 200)
 
 # Thinking on (the default on this model) and effort high: the work is
@@ -195,10 +196,11 @@ def _user(brief: Brief, nonce: str) -> str:
     parts.append(f"""## What to write
 
 The report described in the output shape, about {TARGET_WORDS} words of prose
-in total. Every section is written from that story's sources only; every
-"Also this week" line from that item's headline and summary only. Where the
-sources disagree or leave something unestablished, say so plainly rather than
-smoothing it over.""")
+in total and never more than {MAX_WORDS}. Every section is written from that
+story's sources only; every "Also this week" line from that item's headline
+and summary only. Where the sources disagree or leave something
+unestablished, say so plainly rather than smoothing it over. Never write
+about this pipeline, the theme counts' provenance, or what you were given.""")
     return "\n".join(parts)
 
 

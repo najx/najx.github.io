@@ -21,8 +21,10 @@ not know what a context window is, and they should not need to.
     Sources:
     disclosure line                                (generated, not yours)
 
-About 1200 words of prose. A section that runs long is cut before a section
-that runs short is padded.
+About 1200 words of prose, and **1400 is the hard ceiling** — a first run
+came out at 1906 and read as three articles stapled together. A section that
+runs long is cut before a section that runs short is padded. Six sections of
+170 words, an opening of 90 and Trends of 180 is the whole budget.
 
 ## Voice
 
@@ -49,7 +51,8 @@ not have to: plain, exact, a little dry. Some markers:
 
 What this report does not do: exclamation marks, second-person coaching
 ("you should"), rhetorical questions, hedging every sentence, cheerleading
-for or against any company, and predictions.
+for or against any company, predictions, and any mention of how the report
+itself was assembled.
 
 ## The opening paragraph
 
@@ -72,6 +75,11 @@ trend, on what recurs across the week's stories: the same kind of event
 from several companies, a debate every outlet joined, a theme whose count
 rose. Cite the theme counts you were given as the evidence. Do not write
 a table; the pipeline inserts the real one under the heading.
+
+**Never mention the pipeline, the counts' provenance, or your own workings.**
+"The pipeline has no counts from last week to compare against" is a sentence
+about the machinery, and the reader did not come for it. When there is no
+previous week, write about this week and stop.
 
 ## Also this week
 

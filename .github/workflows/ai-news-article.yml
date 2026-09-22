@@ -158,10 +158,26 @@ jobs:
                   for f in unsupported:
                       sentence = f["sentence"].replace("\n", " ").strip()
                       print(f"- [ ] [{f['support']:.2f}] {sentence}")
+              # L'ouverture et « Trends » portent sur la semaine entière, donc
+              # sur plusieurs sources à la fois : aucune source prise isolément
+              # ne les étaye, et les compter comme des anomalies enterrait les
+              # vraies. À relire, pas à traiter comme des signalements.
+              synthesis = data.get("synthesis", [])
+              if synthesis:
+                  print()
+                  print("### Ouverture et Trends, à relire")
+                  print()
+                  for f in synthesis:
+                      sentence = f["sentence"].replace("\n", " ").strip()
+                      print(f"- [ ] [{f['support']:.2f}] {sentence}")
           PY
+            echo
+            echo "### Le reste"
+            echo
             echo "- [ ] Le tableau des thèmes sous « Trends » correspond au journal ci-dessous."
             echo "- [ ] Le bloc de divulgation en fin de rapport, que la charte impose."
             echo "- [ ] Les six titres de section lisibles sans bagage technique."
+            echo "- [ ] La longueur : 1400 mots au plus."
             echo
             echo "## Journal de la sélection et de la vérification"
             echo

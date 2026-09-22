@@ -113,12 +113,37 @@ class TestMerge:
 
 
 class TestWeeks:
-    def test_this_week_and_last_week_split_on_the_latest_write_up(self):
+    def test_the_two_weeks_split_on_the_latest_write_up(self):
+        _, _, start, end = weekly.week_of(NOW)
         current = story("New", days_ago=2)
         older = story("Old", days_ago=10)
         ancient = story("Ancient", days_ago=20)
-        assert weekly.this_week([current, older, ancient], NOW) == [current]
-        assert weekly.last_week([current, older, ancient], NOW) == [older]
+        assert weekly.in_week([current, older, ancient], start, end) == [current]
+        assert weekly.week_before([current, older, ancient], start) == [older]
+
+    @pytest.mark.parametrize("offset", range(8))
+    def test_the_window_is_always_the_days_the_title_names(self, offset):
+        """A Sunday run used to admit the Sunday before as well, and a manual
+        run on a Tuesday put Monday and Tuesday into a report whose title said
+        the week ended on Sunday."""
+        now = NOW + timedelta(days=offset)
+        _, _, start, end = weekly.week_of(now)
+        # `story` dates from NOW, so place each one by its distance from NOW.
+        on = lambda day: (NOW.date() - day).days
+        stories = [story("first day", days_ago=on(start)),
+                   story("last day", days_ago=on(end)),
+                   story("the day before", days_ago=on(start) + 1),
+                   story("the day after", days_ago=on(end) - 1)]
+        got = [s.item.title for s in weekly.in_week(stories, start, end)]
+        assert sorted(got) == ["first day", "last day"]
+
+    def test_the_two_windows_do_not_overlap_and_leave_no_gap(self):
+        _, _, start, end = weekly.week_of(NOW)
+        every_day = [story(f"day -{n}", days_ago=n) for n in range(15)]
+        this = {s.item.title for s in weekly.in_week(every_day, start, end)}
+        prev = {s.item.title for s in weekly.week_before(every_day, start)}
+        assert this & prev == set()
+        assert len(this) == 7 and len(prev) == 7
 
     def test_unscored_lists_what_the_current_rubric_never_judged(self):
         s = story("Scored")
@@ -290,6 +315,13 @@ class TestWeekOf:
     def test_a_saturday_run_names_the_previous_week(self):
         week_id, _, _, end = weekly.week_of(NOW - timedelta(days=1))
         assert week_id == "2026-w37" and end == date(2026, 9, 13)
+
+    def test_the_label_and_the_window_agree_on_every_weekday(self):
+        for offset in range(8):
+            now = NOW + timedelta(days=offset)
+            _, _, start, end = weekly.week_of(now)
+            assert (end - start).days == weekly.WINDOW_DAYS - 1
+            assert end.weekday() == 6, now
 
     def test_period_labels_across_a_month_and_a_year(self):
         assert weekly.period_label(date(2026, 9, 28), date(2026, 10, 4)) == \

@@ -178,10 +178,13 @@ Six steps.
    + 0.10·freshness)`. Corroboration is outlets out of four, recurrence days
    seen out of three, freshness a four-day half-life. A story one outlet ran
    once still ranks; the multiplier bottoms out at 0.55.
-3. **Select** — six sections, at most two per theme, each clearing: judged
-   under the current rubric, not gated, score ≥ 0.30, informative state, no
-   injection suspicion, accessibility ≥ 1.5 of 3, and not covered by a
-   section in the last 21 days (`state.json`). What misses a section may
+3. **Select** — the stories published inside the days the title names, never
+   the last seven days counted from the run: a Sunday run admitted the Sunday
+   before as well, and a manual run mid-week put stories from after the
+   labelled week into it. Then six sections, at most two per theme, each
+   clearing: judged under the current rubric, not gated, score ≥ 0.30,
+   informative state, no injection suspicion, accessibility ≥ 1.5 of 3, and
+   not covered by a section in the last 21 days (`state.json`). What misses a section may
    still get a line under *Also this week*: same clauses, a lower floor,
    and no accessibility clause, so the technical items land there. Fewer
    than three sections is a quiet week: the run stops and says so.
@@ -196,8 +199,8 @@ Six steps.
    only an element carrying that nonce is part of the instructions.
 6. **Check and render** (`verify.py`, `render.py`) — Jev reads every sentence
    back against the texts the writer was given (for the also-list, the
-   headline and summary), in two passes: checkable claims first, then
-   support. The report is rendered with the collection's front matter —
+   headline and summary; for Trends, the theme counts), in two passes:
+   checkable claims first, then support. The report is rendered with the collection's front matter —
    `week`, `period`, the `stories` list of anchors the home page links to —
    the theme table inserted under *Trends* from the pipeline's own counts,
    and the disclosure line naming the models that actually answered.
@@ -230,13 +233,20 @@ are wrong*. When a claim is genuinely invented the separation is stark:
 measured against a real source, true claims scored 0.94 and 0.75 and planted
 ones 0.07 and below.
 
+**The opening paragraph and Trends are listed separately.** Both draw on the
+whole week at once: on several stories, and on counts this pipeline computed
+rather than on any article. The checker compares one claim to one source at a
+time, so a sentence spanning four stories is borne out by none of them. On
+the first live run, eight of eleven findings were of that kind, which buried
+the three that mattered. They are still read back — against the same sources
+plus the theme counts, so a misread number is still caught — and printed
+under their own heading, to be read rather than treated as findings.
+
 ### Cost
 
-To be measured on the first live run. Estimated from the single-story
-article it replaces ($0.16 for 9,400 tokens in): six stories with up to
-three write-ups each puts roughly 40,000 tokens in front of Claude Opus 5,
-so $0.30–0.40 per report, plus a few cents of Jev for the selection and
-several hundred claim checks.
+Measured on the first live run, 21 September 2026: **$0.285** — 10,001 tokens
+in and 9,416 out on Claude Opus 5 — plus a few cents of Jev for judging 26
+stories and checking 56 claims. About $1.30 a month.
 
 ## Required secrets
 

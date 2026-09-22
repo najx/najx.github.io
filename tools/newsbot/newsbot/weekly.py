@@ -16,7 +16,7 @@ from __future__ import annotations
 import json
 import logging
 from dataclasses import dataclass, field
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, time, timedelta, timezone
 from pathlib import Path
 from typing import Callable
 
@@ -112,9 +112,12 @@ def load_archives(archive_dir: Path, now: datetime, days: int = WINDOW_DAYS):
     """Every entry of the archives covering this week and the one before.
 
     Yields (archive day, item, judgement). Two weeks, because the theme table
-    compares this week's count with last week's.
+    compares this week's count with last week's. Reaching back from the
+    labelled week's start, not from `now`, because a run late in the week
+    would otherwise drop the very days its own report is about.
     """
-    cutoff = now - timedelta(days=2 * days + 1)
+    _, _, start, _ = week_of(now, days)
+    cutoff = datetime.combine(start, time.min, tzinfo=timezone.utc) - timedelta(days=days + 1)
     for path in sorted(archive_dir.glob("*.json")):
         try:
             day = datetime.strptime(path.stem, "%Y-%m-%d").replace(tzinfo=timezone.utc)
@@ -190,15 +193,27 @@ def merge(entries, resolve: Callable[[list[Item]], list[Item]] | None = None) ->
     return stories
 
 
-def this_week(stories: list[Story], now: datetime, days: int = WINDOW_DAYS) -> list[Story]:
-    """Stories with a write-up published inside the window."""
-    cutoff = now - timedelta(days=days)
-    return [s for s in stories if (s.published_last or s.item.published) >= cutoff]
+def _bounds(start: date, end: date) -> tuple[datetime, datetime]:
+    """The instants a day range spans, inclusive of both ends."""
+    return (datetime.combine(start, time.min, tzinfo=timezone.utc),
+            datetime.combine(end, time.max, tzinfo=timezone.utc))
 
 
-def last_week(stories: list[Story], now: datetime, days: int = WINDOW_DAYS) -> list[Story]:
-    lo, hi = now - timedelta(days=2 * days), now - timedelta(days=days)
-    return [s for s in stories if lo <= (s.published_last or s.item.published) < hi]
+def in_week(stories: list[Story], start: date, end: date) -> list[Story]:
+    """Stories whose latest write-up falls inside the days the report names.
+
+    Windowed on the labelled week, never on `now - 7 days`. The two are not
+    the same: a Sunday run admitted the previous Sunday as well, and a manual
+    run on a Tuesday put stories from Monday and Tuesday into a report whose
+    title said the week ended on Sunday.
+    """
+    lo, hi = _bounds(start, end)
+    return [s for s in stories if lo <= (s.published_last or s.item.published) <= hi]
+
+
+def week_before(stories: list[Story], start: date, days: int = WINDOW_DAYS) -> list[Story]:
+    """The same, for the week ending the day before `start`."""
+    return in_week(stories, start - timedelta(days=days), start - timedelta(days=1))
 
 
 def unscored(stories: list[Story]) -> list[Story]:
@@ -357,18 +372,19 @@ def select(stories: list[Story], now: datetime, covered: list[dict] | None = Non
 
 # --- Naming the week --------------------------------------------------------
 
-def week_of(now: datetime) -> tuple[str, str, date, date]:
+def week_of(now: datetime, days: int = WINDOW_DAYS) -> tuple[str, str, date, date]:
     """(week id, period label, first day, last day) for the report run at `now`.
 
     The report is named after the ISO week ending on the most recent Sunday,
     today included. A run on a Sunday morning labels the week that ends that
     day; a manual run on a Tuesday still labels the last complete week rather
-    than the one just started.
+    than the one just started. `in_week` then windows the stories on exactly
+    these two days, so the contents always match the title.
     """
     end = now.date()
     if end.weekday() != 6:
         end -= timedelta(days=end.weekday() + 1)
-    start = end - timedelta(days=6)
+    start = end - timedelta(days=days - 1)
     year, week, _ = end.isocalendar()
     return f"{year}-w{week:02d}", period_label(start, end), start, end
 
