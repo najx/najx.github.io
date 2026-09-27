@@ -14,12 +14,12 @@ comments: false
 </div>
 {%- assign reports = site.ai_news | sort: "date" | reverse -%}
 {%- for report in reports -%}
+  {%- assign report_number = report.title | split: '#' | last | split: ':' | first | strip -%}
   <article class="post-item">
     <h3 class="post-item-title">
-      <a href="{{ report.url }}">{{ report.title | escape }}</a>
+      <a href="{{ report.url }}">AI Weekly <strong>#{{ report_number | escape }}</strong></a>
     </h3>
     <div class="post-item-tags">
-      <span class="post-tag">{{ report.week }}</span>
       <span class="post-tag">{{ report.period | escape }}</span>
     </div>
   </article>
