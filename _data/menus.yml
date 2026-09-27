@@ -7,10 +7,6 @@ header:
     url: /ai-news/
     external: false
 
-  - title: /blog
-    url: /blog/
-    external: false
-
   - title: /search
     url: /search/
     external: false
