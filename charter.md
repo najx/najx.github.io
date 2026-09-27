@@ -30,4 +30,4 @@ I also use artificial intelligence at several levels:
 - **Writing** — AI helps me draft and refine articles.
 - **Organization** — AI may helps me in structuring some articles and resources.
 
-Accordingly, whenever an article has been written with the assistance of an AI, I mention the specific model used and how it has been used.
+Articles written with the assistance of AI are marked as such and reviewed before publication.

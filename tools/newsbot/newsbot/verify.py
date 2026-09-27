@@ -398,7 +398,7 @@ def verify(markdown: str, sources: dict[str, str],
     try:
         with TypeSafeClient(retry=RETRY) as client:
             # The id we send is the floating alias; r.model is the version
-            # that answered, and the disclosure must name that one.
+            # that answered and is kept with the check results.
             served: set[str] = set()
 
             def is_claim(c: _Candidate):

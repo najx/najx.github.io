@@ -232,6 +232,11 @@
 }
 
 // Home page: the weekly report is the parent of its linked story sections.
+.weekly-report {
+  display: block;
+  margin-top: 60px;
+}
+
 .weekly-report-root {
   position: relative;
   border-top: 1px solid $light;

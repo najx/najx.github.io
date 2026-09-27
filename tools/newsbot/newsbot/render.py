@@ -1,10 +1,7 @@
 """Turning a draft into a report this site will build.
 
 The front matter has to match what _layouts/post.html, the home page and the
-/ai-news index expect, and `ai_assisted: true` is not optional: charter.md
-promises that any AI-assisted piece says so and names the model. The theme
-already renders the banner from that flag, and the disclosure line below
-names the models.
+/ai-news index expect. `ai_assisted: true` makes the theme show its AI banner.
 """
 
 from __future__ import annotations
@@ -15,26 +12,10 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
-from .judge import MODEL as JEV_MODEL
-
 REPORTS_DIR = "_ai_news"
 
 # Headings that are parts of the report rather than stories.
 FIXED_HEADINGS = {"trends", "also this week", "sources"}
-
-
-def _jev_label(model_id: str | None = None) -> str:
-    """How to name, in prose, the Jev that actually answered.
-
-    `model_id` is what the API itself returned in `SystemOneResponse.model`
-    for the call being disclosed. Only a version found in that id is printed:
-    the id we *send* is the floating alias `judge.MODEL`, and writing a
-    version we merely believe is current is how the disclosure became false
-    in the first place. An alias, or nothing at all, names no version.
-    """
-    ident = (model_id or JEV_MODEL).strip()
-    m = re.fullmatch(r"jev[-_](\d[\w.]*)", ident, re.IGNORECASE)
-    return f"Jev {m.group(1)}" if m else "Jev"
 
 
 @dataclass
@@ -75,17 +56,9 @@ def parse_draft(markdown: str) -> Report:
 
 
 def _strip_model_written_disclosure(body: str) -> str:
-    """Drop a trailing "Drafted with ..." paragraph the model wrote itself.
-
-    style.md tells the model not to write one — `render()` appends the real
-    disclosure, naming the actual model, after the body — but a draft cannot
-    be trusted to always comply, and a model does not reliably know its own
-    name. Belt and suspenders: if the last paragraph starts with "Drafted
-    with", it is dropped here before the generated block is added, along with
-    a lone trailing `---` rule left behind once that paragraph is gone.
-    """
+    """Drop a trailing model attribution, including its separator, if present."""
     paragraphs = re.split(r"\n\s*\n", body)
-    if paragraphs and paragraphs[-1].strip().startswith("Drafted with"):
+    if paragraphs and re.match(r"^\*?Drafted with\b", paragraphs[-1].strip()):
         paragraphs.pop()
         if paragraphs and paragraphs[-1].strip() == "---":
             paragraphs.pop()
@@ -165,57 +138,13 @@ def insert_table(body: str, rows) -> str:
 
 # --- The file ---------------------------------------------------------------
 
-def disclosure(draft_model: str, checked: int, unsupported: int,
-               judge_model: str | None = None,
-               verify_model: str | None = None,
-               recheck_model: str | None = None,
-               reconsidered: int = 0) -> str:
-    """The line charter.md asks for: which model, and how it was used.
-
-    `judge_model` and `verify_model` are the ids the API returned for the two
-    Jev steps — selection and citation checking. They are separate runs, so
-    they are named separately rather than assumed equal. An archive written
-    before this field existed supplies neither, and the label falls back to
-    naming Jev without a version. `recheck_model` names the second reader
-    when one re-read what Jev flagged, and `reconsidered` is how many of
-    those it found in the sources; `unsupported` is what is left after it.
-    """
-    flagged = unsupported + reconsidered
-    if checked and recheck_model and flagged:
-        checked_note = (
-            f"Every factual claim was checked back against those sources by "
-            f"{_jev_label(verify_model)} ({checked} claims); the {flagged} it "
-            f"could not place were re-read by {recheck_model}, which found "
-            f"{reconsidered} of them in the sources, leaving {unsupported} "
-            f"flagged for review."
-        )
-    elif checked:
-        checked_note = (
-            f"Every factual claim was checked back against those sources by "
-            f"{_jev_label(verify_model)} ({checked} claims, {unsupported} flagged "
-            f"for review)."
-        )
-    else:
-        checked_note = "Citation checking did not run on this draft."
-    return (
-        "---\n\n"
-        f"*Drafted with {draft_model} from the sources listed above; the "
-        f"stories were selected from a week of collected headlines by "
-        f"{_jev_label(judge_model)}. "
-        f"{checked_note} Reviewed and edited before publication.*\n"
-    )
-
-
 def _stamp(when: datetime) -> str:
     stamp = when.strftime("%Y-%m-%d %H:%M:%S %z")
     return stamp[:-2] + ":" + stamp[-2:] if stamp[-5] in "+-" else stamp
 
 
 def render(report: Report, when: datetime, week_id: str, period: str,
-           model: str, checked: int, unsupported: int,
            rows: list[tuple[str, str, int, int | None]] | None = None,
-           judge_model: str | None = None, verify_model: str | None = None,
-           recheck_model: str | None = None, reconsidered: int = 0,
            lang: str = "en") -> str:
     body = insert_table(report.body, rows) if rows else report.body
     # json.dumps produces a valid YAML double-quoted scalar and escapes the
@@ -243,23 +172,17 @@ def render(report: Report, when: datetime, week_id: str, period: str,
         f"lang: {lang}\n"
         "ai_assisted: true\n"
         "---\n\n"
-        f"{body.rstrip()}\n\n"
-        f"{disclosure(model, checked, unsupported, judge_model, verify_model, recheck_model, reconsidered)}"
+        f"{body.rstrip()}\n"
     )
 
 
 def write_report(root: Path, report: Report, when: datetime, week_id: str,
-                 period: str, model: str, checked: int, unsupported: int,
-                 rows=None, judge_model: str | None = None,
-                 verify_model: str | None = None,
-                 recheck_model: str | None = None, reconsidered: int = 0) -> Path:
+                 period: str, rows=None) -> Path:
     """_ai_news/<week id>.md — one file per week, the collection layout."""
     directory = root / REPORTS_DIR
     directory.mkdir(parents=True, exist_ok=True)
     path = directory / f"{week_id}.md"
     path.write_text(
-        render(report, when, week_id, period, model, checked, unsupported,
-               rows=rows, judge_model=judge_model, verify_model=verify_model,
-               recheck_model=recheck_model, reconsidered=reconsidered),
+        render(report, when, week_id, period, rows=rows),
         encoding="utf-8")
     return path

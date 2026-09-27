@@ -13,10 +13,6 @@ home: true
 {%- assign report = site.ai_news | sort: "date" | last -%}
 {%- if report -%}
   {%- assign report_number = report.title | split: '#' | last | split: ':' | first | strip -%}
-  <div class="year-header">
-    <h2><a href="/ai-news/">/ai-news</a></h2>
-    <span class="number-of-posts">(Week {{ report.week | split: '-w' | last }})</span>
-  </div>
   <section class="weekly-report" aria-label="Latest AI Weekly report">
     <article class="post-item weekly-report-root">
       <h3 class="post-item-title">
@@ -38,12 +34,12 @@ home: true
   </section>
 {%- endif -%}
 
-{%- comment -%} The three latest articles; the heading links to the full archive. {%- endcomment -%}
+{%- comment -%} The five latest articles; the heading links to the full archive. {%- endcomment -%}
 <div class="year-header">
   <h2><a href="/blog/">/blog</a></h2>
   <span class="number-of-posts">({{ site.posts.size }})</span>
 </div>
-{%- for post in site.posts limit: 3 -%}
+{%- for post in site.posts limit: 5 -%}
   <article class="post-item">
     <h3 class="post-item-title">
       <a href="{{ post.url }}">{{ post.title | escape | language_emoji: post.lang }}</a>

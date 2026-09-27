@@ -352,14 +352,8 @@ def cmd_weekly(args: argparse.Namespace) -> int:
     _say_usage()
 
     out_root = Path(args.out) if args.out else store.root
-    judge_models = {s.judgement.get("model") for s in selection.sections}
     path = render.write_report(
-        out_root, report, now, week_id, period, _model_name(draft.model),
-        checks.checked, len(checks.unsupported), rows=selection.table,
-        judge_model=judge_models.pop() if len(judge_models) == 1 else None,
-        verify_model=checks.model,
-        recheck_model=_model_name(checks.recheck_model) if checks.recheck_model else None,
-        reconsidered=len(checks.reconsidered))
+        out_root, report, now, week_id, period, rows=selection.table)
     _say(f"wrote {path}")
 
     # Only when the report lands in the site itself. `--out` is a preview,
@@ -437,15 +431,6 @@ def _theme_counts_text(rows) -> str:
         last = f"{then_c} last week" if then_c is not None else "no count for last week"
         lines.append(f"{display}: {now_c} stories this week, {last}.")
     return "\n".join(lines)
-
-
-def _model_name(model_id: str) -> str:
-    """The name the disclosure prints for a Claude model id the API returned."""
-    for prefix, name in (("claude-opus-5", "Claude Opus 5"),
-                         ("claude-haiku-4-5", "Claude Haiku 4.5")):
-        if model_id.startswith(prefix):
-            return name
-    return model_id
 
 
 # --- eval -------------------------------------------------------------------
