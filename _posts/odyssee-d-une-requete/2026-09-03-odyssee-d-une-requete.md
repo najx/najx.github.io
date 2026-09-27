@@ -9,6 +9,7 @@ description: >-
   Un voyage chronologique à travers la pile complète, du clavier au pixel :
   matériel, système d'exploitation, DNS, TCP, TLS, HTTP, routage, serveurs et moteur de rendu.
 lang: fr
+published: false
 comments: false
 ai_assisted: true
 ---
