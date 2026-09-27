@@ -231,6 +231,70 @@
   }
 }
 
+// Home page: the weekly report is the parent of its linked story sections.
+.weekly-report-root {
+  position: relative;
+  border-top: 1px solid $light;
+  padding-top: 8px;
+  padding-bottom: 8px;
+
+  .post-item-title {
+    font-weight: 700;
+
+    a {
+      color: $black;
+    }
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    left: 4px;
+    bottom: -4px;
+    width: 8px;
+    height: 8px;
+    border: 1px solid rgba(192, 57, 43, 0.55);
+    border-radius: 50%;
+    background: $white;
+    z-index: 1;
+  }
+}
+
+.weekly-report-children {
+  margin-left: 8px;
+
+  .weekly-report-child {
+    position: relative;
+    border-top: 0;
+    padding: 7px 0 7px 24px;
+
+    &::before,
+    &::after {
+      content: "";
+      position: absolute;
+      border-color: rgba(192, 57, 43, 0.55);
+    }
+
+    &::before {
+      top: 0;
+      bottom: 0;
+      left: 0;
+      border-left: 1px solid;
+    }
+
+    &::after {
+      top: 50%;
+      left: 0;
+      width: 16px;
+      border-top: 1px solid;
+    }
+
+    &:last-child::before {
+      bottom: 50%;
+    }
+  }
+}
+
 // AI Assisted Banner
 .ai-assisted-banner {
   margin-bottom: 1.5em;

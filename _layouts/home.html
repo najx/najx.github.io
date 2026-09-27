@@ -14,23 +14,27 @@ home: true
 {%- if report -%}
   <div class="year-header">
     <h2><a href="/ai-news/">/ai-news</a></h2>
-    <span class="number-of-posts">({{ report.week }})</span>
+    <span class="number-of-posts">({{ report.week | replace: '-w', ' week ' }})</span>
   </div>
-  <article class="post-item">
-    <h3 class="post-item-title">
-      <a href="{{ report.url }}">{{ report.title | escape }}</a>
-    </h3>
-    <div class="post-item-tags">
-      <span class="post-tag">{{ report.period | escape }}</span>
-    </div>
-  </article>
-  {%- for story in report.stories -%}
-    <article class="post-item">
+  <section class="weekly-report" aria-label="Latest AI Weekly report">
+    <article class="post-item weekly-report-root">
       <h3 class="post-item-title">
-        <a href="{{ report.url }}#{{ story.id | escape }}">{{ story.title | escape }}</a>
+        <a href="{{ report.url }}">{{ report.title | split: ':' | first | escape }}</a>
       </h3>
+      <div class="post-item-tags">
+        <span class="post-tag">{{ report.period | escape }}</span>
+      </div>
     </article>
-  {%- endfor -%}
+    <div class="weekly-report-children">
+      {%- for story in report.stories -%}
+        <article class="post-item weekly-report-child">
+          <h3 class="post-item-title">
+            <a href="{{ report.url }}#{{ story.id | escape }}">{{ story.title | escape }}</a>
+          </h3>
+        </article>
+      {%- endfor -%}
+    </div>
+  </section>
 {%- endif -%}
 
 {%- comment -%} The three latest articles; the heading links to the full archive. {%- endcomment -%}
