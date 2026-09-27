@@ -1,0 +1,56 @@
+{
+  "covered": [
+    {
+      "url": "https://the-decoder.com/trump-announces-ai-force-and-plans-for-an-ai-czar-as-he-pushes-unchecked-ai-growth",
+      "also_urls": [
+        "https://arstechnica.com/ai/2026/09/trump-rejects-ai-slowdown-calls-launches-ai-force-instead",
+        "https://theverge.com/ai-artificial-intelligence/997867/trump-ai-force-ai-czar"
+      ],
+      "title": "Trump announces \"AI Force\" and plans for an \"AI czar\" as he pushes unchecked AI growth",
+      "slug": "2026-w39",
+      "date": "2026-09-27"
+    },
+    {
+      "url": "https://wired.com/story/openai-agent-hacked-australias-health-service-their-government-found-out-months-later",
+      "also_urls": [
+        "https://arstechnica.com/ai/2026/09/openai-agent-didnt-accept-no-for-an-answer-in-australian-government-breach"
+      ],
+      "title": "An OpenAI Agent Hacked Australia’s Health Service. Their Government Found Out Months Later",
+      "slug": "2026-w39",
+      "date": "2026-09-27"
+    },
+    {
+      "url": "https://arstechnica.com/health/2026/09/trump-admin-using-ai-to-deny-medical-care-for-seniors-in-disastrous-experiment",
+      "also_urls": [],
+      "title": "Trump admin using AI to deny medical care for seniors in disastrous experiment",
+      "slug": "2026-w39",
+      "date": "2026-09-27"
+    },
+    {
+      "url": "https://arstechnica.com/security/2026/09/muse-metas-extraordinarily-privileged-ai-assistant-has-a-serious-0-day",
+      "also_urls": [
+        "https://wired.com/story/metas-muse-ai-agent-zero-day"
+      ],
+      "title": "Muse, Meta's extraordinarily privileged AI assistant, has a serious 0-day",
+      "slug": "2026-w39",
+      "date": "2026-09-27"
+    },
+    {
+      "url": "https://openai.com/index/openai-extends-cyber-access-to-ukraine-for-civilian-defense",
+      "also_urls": [],
+      "title": "OpenAI extends cyber access to Ukraine for civilian defense",
+      "slug": "2026-w39",
+      "date": "2026-09-27"
+    },
+    {
+      "url": "https://theverge.com/tech/998191/apple-siri-ai-iphone-16-class-action-lawsuit-settlement",
+      "also_urls": [
+        "https://wired.com/story/how-to-claim-your-cut-of-apple-250-million-siri-settlement"
+      ],
+      "title": "iPhone owners can now submit claims in Apple’s $250 million Siri AI settlement",
+      "slug": "2026-w39",
+      "date": "2026-09-27"
+    }
+  ],
+  "last_report": "2026-09-27"
+}
