@@ -15,7 +15,7 @@ home: true
   {%- assign report_number = report.title | split: '#' | last | split: ':' | first | strip -%}
   <div class="year-header">
     <h2><a href="/ai-news/">/ai-news</a></h2>
-    <span class="number-of-posts">({{ report.week | replace: '-w', ' week ' }})</span>
+    <span class="number-of-posts">(Week {{ report.week | split: '-w' | last }})</span>
   </div>
   <section class="weekly-report" aria-label="Latest AI Weekly report">
     <article class="post-item weekly-report-root">
