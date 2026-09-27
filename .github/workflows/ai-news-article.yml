@@ -121,6 +121,28 @@ jobs:
           week=$(basename "$report" .md)
           branch="feat/ai-weekly-$week"
 
+          # A previous run may have pushed the report before PR creation
+          # failed. Reuse that branch without replacing its reviewed content.
+          if git ls-remote --exit-code --heads origin "$branch" >/dev/null; then
+            if gh pr view "$branch" --json url --jq .url; then
+              echo "::notice::The weekly pull request already exists."
+              exit 0
+            fi
+            {
+              echo "Rapport hebdomadaire $week. **Cette PR reste en brouillon jusqu'à relecture.**"
+              echo
+              echo "Cette branche a été créée par une exécution précédente dont l'ouverture de PR a échoué."
+              echo "Relire le rapport et vérifier ses citations avant de passer la PR en Ready for review."
+            } > body.md
+            gh pr create --draft --base main --head "$branch" \
+              --title "AI Weekly $week" --body-file body.md
+            exit 0
+          fi
+
+          python3 -m newsbot.pr_body --week "$week" \
+            --run-url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
+            --checks checks.json --log run.log --out body.md
+
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b "$branch"
@@ -134,74 +156,5 @@ jobs:
           À relire avant publication."
           git push -u origin "$branch"
 
-          {
-            echo "Rapport hebdomadaire $week. **Rien n'est publié tant que cette PR n'est pas mergée et sortie de l'état brouillon.**"
-            echo
-            echo "## À cocher avant de passer la PR en \"Ready for review\""
-            echo
-            # The checklist is built from checks.json, the citation checker's
-            # own machine-readable output — not by scraping run.log.
-            python3 - <<'PY'
-          import json, pathlib
-
-          path = pathlib.Path("checks.json")
-          if not path.exists():
-              print("- [ ] Vérification des citations indisponible : relire le rapport "
-                    "en entier avant de sortir du brouillon (voir le journal ci-dessous).")
-          else:
-              data = json.loads(path.read_text(encoding="utf-8"))
-              unsupported = data.get("unsupported", [])
-              if not unsupported:
-                  print(f"- [ ] Aucune affirmation non étayée sur {data.get('checked', 0)} "
-                        "vérifiées par Jev — à confirmer en relisant le rapport.")
-              else:
-                  for f in unsupported:
-                      sentence = f["sentence"].replace("\n", " ").strip()
-                      print(f"- [ ] [{f['support']:.2f}] {sentence}")
-                      # La note du second lecteur : où chercher, ou ce que les
-                      # sources disent à la place.
-                      if f.get("note"):
-                          print(f"  - Claude Haiku : {f['note'].replace(chr(10), ' ').strip()}")
-              # Ce que Jev n'a pas su placer mais que Claude Haiku a retrouvé,
-              # citation à l'appui, vérifiée dans le texte de la source. À lire,
-              # pas à cocher : l'extrait est là pour être comparé à la phrase.
-              reconsidered = data.get("reconsidered", [])
-              if reconsidered:
-                  print()
-                  print("### Signalées par Jev, retrouvées par Claude Haiku (extrait vérifié)")
-                  print()
-                  for f in reconsidered:
-                      sentence = f["sentence"].replace("\n", " ").strip()
-                      excerpt = (f.get("excerpt") or "").replace("\n", " ").strip()
-                      print(f"- [{f['support']:.2f}] {sentence}")
-                      print(f"  - « {excerpt} » — {f.get('source') or '?'}")
-              # L'ouverture et « Trends » portent sur la semaine entière, donc
-              # sur plusieurs sources à la fois : aucune source prise isolément
-              # ne les étaye, et les compter comme des anomalies enterrait les
-              # vraies. À relire, pas à traiter comme des signalements.
-              synthesis = data.get("synthesis", [])
-              if synthesis:
-                  print()
-                  print("### Ouverture et Trends, à relire")
-                  print()
-                  for f in synthesis:
-                      sentence = f["sentence"].replace("\n", " ").strip()
-                      print(f"- [ ] [{f['support']:.2f}] {sentence}")
-          PY
-            echo
-            echo "### Le reste"
-            echo
-            echo "- [ ] Le tableau des thèmes sous « Trends » correspond au journal ci-dessous."
-            echo "- [ ] Le bloc de divulgation en fin de rapport, que la charte impose."
-            echo "- [ ] Les six titres de section lisibles sans bagage technique."
-            echo
-            echo "## Journal de la sélection et de la vérification"
-            echo
-            # A long fence, and backticks stripped from the log: a headline
-            # containing ``` would otherwise close the block early.
-            echo '~~~~'
-            tr -d '`' < run.log
-            echo '~~~~'
-          } > body.md
           gh pr create --draft --base main --head "$branch" \
             --title "AI Weekly $week" --body-file body.md
