@@ -266,7 +266,11 @@
   .weekly-report-child {
     position: relative;
     border-top: 0;
-    padding: 7px 0 7px 24px;
+    padding: 3px 0 3px 24px;
+
+    .post-item-title {
+      line-height: 1.55;
+    }
 
     &::before,
     &::after {
