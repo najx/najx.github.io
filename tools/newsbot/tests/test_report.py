@@ -1,11 +1,10 @@
 """Tests for the report: parsing the draft, anchors, the theme table, the
-file on disk, the disclosure, and the claim extraction the checker runs on it.
+file on disk, and the claim extraction the checker runs on it.
 
 Nothing here calls an API. The drafting step's own request is exercised
 against the live model in the workflow, not in the suite.
 """
 
-import re
 from datetime import datetime, timedelta, timezone
 
 import pytest
@@ -13,11 +12,8 @@ import yaml
 from typesafe_sdk import NoulAnswer, SystemOneResponse, Usage
 
 from newsbot import weekly, write
-from newsbot.judge import MODEL as JEV_MODEL
 from newsbot.models import Item
 from newsbot.render import (
-    _jev_label,
-    disclosure,
     heading_id,
     insert_table,
     parse_draft,
@@ -77,13 +73,11 @@ class TestParseDraft:
         assert r.body == "Body."
 
     def test_a_model_written_disclosure_paragraph_is_stripped(self):
-        """style.md tells the model not to write its own disclosure, but
-        render() cannot rely on that alone: a model does not reliably know
-        its own name (issue #23)."""
+        """A model attribution in the draft should not reach the article."""
         r = parse_draft(
             "TITLE: T\nDESCRIPTION: D.\n\nBody.\n\n---\n\nSources:\n\n"
             "- **A — B**: [a/b](https://a/b)\n\n"
-            "Drafted with Claude Opus 4.6 from the sources above.")
+            "*Drafted with Claude Opus 4.6 from the sources above.*")
         assert "Drafted with" not in r.body
         assert r.body.endswith("[a/b](https://a/b)")
 
@@ -153,13 +147,13 @@ class TestThemeTable:
 class TestRender:
     def rendered(self, **kw):
         return render(parse_draft(DRAFT), NOW, "2026-w38", "14 to 20 September 2026",
-                      "Claude Opus 5", 30, 1, rows=ROWS, **kw)
+                      rows=ROWS, **kw)
 
-    def test_the_charter_flag_and_disclosure_are_both_present(self):
-        out = self.rendered(judge_model="jev-1.14", verify_model="jev-1.14")
+    def test_the_ai_flag_is_present_without_a_model_attribution(self):
+        out = self.rendered()
         assert "ai_assisted: true" in out
-        assert "Claude Opus 5" in out and "Jev 1.14" in out
-        assert "30 claims, 1 flagged" in out
+        assert "Drafted with" not in out
+        assert out.rstrip().endswith("[theverge.com/a](https://www.theverge.com/a)")
 
     def test_front_matter_carries_the_report_keys_and_parses(self):
         head = yaml.safe_load(self.rendered().split("---\n")[1])
@@ -174,7 +168,7 @@ class TestRender:
     def test_a_one_word_heading_still_yields_a_string_id(self):
         """`no`, `off`, `yes` are YAML 1.1 booleans when left bare."""
         out = render(parse_draft("TITLE: T\nDESCRIPTION: D.\n\n## No\n\nBody.\n\n## Off\n\nMore."),
-                     NOW, "2026-w38", "p", "Claude Opus 5", 0, 0)
+                     NOW, "2026-w38", "p")
         head = yaml.safe_load(out.split("---\n")[1])
         assert [s["id"] for s in head["stories"]] == ["no", "off"]
 
@@ -194,44 +188,15 @@ class TestRender:
         draft = (f"{field}: {value}\n{other}\n\n## A \"quoted\" heading: yes\n\nBody."
                  if field == "TITLE"
                  else f"{other}\n{field}: {value}\n\n## A \"quoted\" heading: yes\n\nBody.")
-        out = render(parse_draft(draft), NOW, "2026-w38", "p", "Claude Opus 5", 0, 0)
+        out = render(parse_draft(draft), NOW, "2026-w38", "p")
         head = yaml.safe_load(out.split("---\n")[1])
         assert head["title" if field == "TITLE" else "description"] == value
         assert head["stories"][0]["title"] == 'A "quoted" heading: yes'
 
     def test_the_file_is_named_after_the_week_in_the_collection(self, tmp_path):
-        path = write_report(tmp_path, parse_draft(DRAFT), NOW, "2026-w38", "p",
-                            "Claude Opus 5", 0, 0)
+        path = write_report(tmp_path, parse_draft(DRAFT), NOW, "2026-w38", "p")
         assert path == tmp_path / "_ai_news" / "2026-w38.md"
-        assert "Citation checking did not run" in path.read_text(encoding="utf-8")
-
-
-class TestDisclosureNamesTheModelThatAnswered:
-    """charter.md promises the model actually used. The name therefore comes
-    from what the API returned, never from a version written into the prose."""
-
-    def test_the_served_version_is_what_gets_printed(self):
-        line = disclosure("Claude Opus 5", 26, 3, judge_model="jev-1.14",
-                          verify_model="jev-1.14")
-        assert line.count("Jev 1.14") == 2 and "1.13" not in line
-
-    def test_the_two_steps_are_named_separately(self):
-        line = disclosure("Claude Opus 5", 4, 0, judge_model="jev-1.13",
-                          verify_model="jev-1.14")
-        assert "headlines by Jev 1.13." in line
-        assert "against those sources by Jev 1.14" in line
-
-    def test_no_version_is_invented_when_none_was_served(self):
-        line = disclosure("Claude Opus 5", 4, 0)
-        assert "headlines by Jev." in line and not re.search(r"Jev \d", line)
-
-    def test_a_floating_alias_is_not_read_as_a_version(self):
-        assert _jev_label("jev-latest") == "Jev"
-        assert _jev_label("") == _jev_label(None) == _jev_label(JEV_MODEL)
-        assert _jev_label("jev-1.13") == "Jev 1.13"
-
-    def test_the_wording_speaks_of_stories_not_a_subject(self):
-        assert "the stories were selected" in disclosure("Claude Opus 5", 1, 0)
+        assert "Drafted with" not in path.read_text(encoding="utf-8")
 
 
 class TestSentences:
@@ -575,20 +540,3 @@ class TestSecondReader:
         report = verify_mod.verify(TWO_STORIES, SOURCES)
         assert len(report.unsupported) == 3 and report.reconsidered == []
         assert report.recheck_model is None
-
-
-class TestDisclosureNamesTheSecondReader:
-    def test_the_second_reader_and_its_count_are_named(self):
-        text = disclosure("Claude Opus 5", 56, 4, "jev-1.13.0", "jev-1.13.0",
-                          recheck_model="Claude Haiku 4.5", reconsidered=7)
-        assert "Jev 1.13.0 (56 claims)" in text
-        assert "the 11 it could not place were re-read by Claude Haiku 4.5, which found 7" in text
-        assert "leaving 4 flagged for review" in text
-
-    def test_no_second_reader_keeps_the_old_sentence(self):
-        text = disclosure("Claude Opus 5", 56, 11, "jev-1.13.0", "jev-1.13.0")
-        assert "(56 claims, 11 flagged for review)" in text and "re-read" not in text
-
-    def test_nothing_flagged_means_nothing_to_say_about_the_second_reader(self):
-        text = disclosure("Claude Opus 5", 56, 0, None, None, recheck_model="Claude Haiku 4.5")
-        assert "(56 claims, 0 flagged for review)" in text and "re-read" not in text

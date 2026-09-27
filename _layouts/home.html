@@ -12,33 +12,34 @@ home: true
 {%- endcomment -%}
 {%- assign report = site.ai_news | sort: "date" | last -%}
 {%- if report -%}
-  <div class="year-header">
-    <h2><a href="/ai-news/">/ai-news</a></h2>
-    <span class="number-of-posts">({{ report.week }})</span>
-  </div>
-  <article class="post-item">
-    <h3 class="post-item-title">
-      <a href="{{ report.url }}">{{ report.title | escape }}</a>
-    </h3>
-    <div class="post-item-tags">
-      <span class="post-tag">{{ report.period | escape }}</span>
-    </div>
-  </article>
-  {%- for story in report.stories -%}
-    <article class="post-item">
+  {%- assign report_number = report.title | split: '#' | last | split: ':' | first | strip -%}
+  <section class="weekly-report" aria-label="Latest AI Weekly report">
+    <article class="post-item weekly-report-root">
       <h3 class="post-item-title">
-        <a href="{{ report.url }}#{{ story.id | escape }}">{{ story.title | escape }}</a>
+        <a href="{{ report.url }}">AI Weekly article <strong>#{{ report_number | escape }}</strong></a>
       </h3>
+      <div class="post-item-tags">
+        <span class="post-tag">{{ report.period | escape }}</span>
+      </div>
     </article>
-  {%- endfor -%}
+    <div class="weekly-report-children">
+      {%- for story in report.stories -%}
+        <article class="post-item weekly-report-child">
+          <h3 class="post-item-title">
+            <a href="{{ report.url }}#{{ story.id | escape }}">{{ story.title | escape }}</a>
+          </h3>
+        </article>
+      {%- endfor -%}
+    </div>
+  </section>
 {%- endif -%}
 
-{%- comment -%} The three latest articles; the heading links to the full archive. {%- endcomment -%}
+{%- comment -%} The five latest articles; the heading links to the full archive. {%- endcomment -%}
 <div class="year-header">
   <h2><a href="/blog/">/blog</a></h2>
   <span class="number-of-posts">({{ site.posts.size }})</span>
 </div>
-{%- for post in site.posts limit: 3 -%}
+{%- for post in site.posts limit: 5 -%}
   <article class="post-item">
     <h3 class="post-item-title">
       <a href="{{ post.url }}">{{ post.title | escape | language_emoji: post.lang }}</a>

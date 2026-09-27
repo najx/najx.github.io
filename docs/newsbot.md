@@ -218,9 +218,9 @@ Six steps.
    it found; the quote is looked up in the source text before the verdict
    counts. The report is rendered with the collection's front matter —
    `week`, `period`, the `stories` list of anchors the home page links to —
-   the theme table inserted under *Trends* from the pipeline's own counts,
-   and the disclosure line naming the models that actually answered, the
-   second reader included.
+   and the theme table inserted under *Trends* from the pipeline's own counts.
+   The site marks the report as AI-assisted without appending a model
+   attribution to the article body.
 
 ### The report's shape
 

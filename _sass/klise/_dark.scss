@@ -180,6 +180,26 @@ body[data-theme="dark"] {
     }
   }
 
+  .weekly-report-root {
+    border-color: $dark-light;
+
+    .post-item-title a {
+      color: $dark-white;
+    }
+
+    &::after {
+      border-color: rgba(231, 76, 60, 0.65);
+      background: $dark-black;
+    }
+  }
+
+  .weekly-report-children .weekly-report-child {
+    &::before,
+    &::after {
+      border-color: rgba(231, 76, 60, 0.65);
+    }
+  }
+
   // Post Navigation
   .post-nav {
     border-color: $dark-light;

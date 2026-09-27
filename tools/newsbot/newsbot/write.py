@@ -127,7 +127,7 @@ front matter, nothing else before it. Its parts, in this order:
 5. A horizontal rule, then `Sources:` and one bullet per source you actually
    drew on, in the house format.
 
-Do not write a disclosure line; the pipeline appends one."""
+Do not write a disclosure line; end at the sources block."""
 
 
 def _attr(value: str) -> str:

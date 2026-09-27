@@ -748,8 +748,7 @@ def score_one(client: TypeSafeClient, item: Item, lede: str = "") -> Assessment:
         log.warning("%s: %s", item.title[:50], exc)
         return Assessment(item=item, error=f"{type(exc).__name__}: {exc}")
     # MODEL is the floating alias `jev-latest`; response.model is the version
-    # that answered. The weekly disclosure names the latter, so it is carried
-    # out of here and archived with the score.
+    # that answered, so it is archived with the score for provenance.
     a = assess(item, response.answers)
     a.model = response.model
     return a

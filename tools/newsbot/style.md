@@ -19,7 +19,6 @@ not know what a context window is, and they should not need to.
     ## Also this week                              (one line per item)
     ---
     Sources:
-    disclosure line                                (generated, not yours)
 
 **There is no word count, and no ceiling.** Give each story the length its
 sources warrant and stop there: a thin wire story does not need the room a
@@ -105,12 +104,9 @@ The display text is the URL without its scheme, shortened to the meaningful
 path. Every source listed must have been drawn on, and every fact in the
 report must trace to one of them.
 
-## AI disclosure
+## AI attribution
 
-`charter.md` commits to naming the model and how it was used, but the piece
-you draft does not include that line yourself. The pipeline appends it after
-your text, mechanically, using the actual model name it was run with — a
-name you have no reliable way to know from inside the draft. Do not write a
+The site's article layout marks AI-assisted pieces. Do not write a
 "Drafted with ..." sentence, or anything like it. End your draft at the
 sources block.
 
