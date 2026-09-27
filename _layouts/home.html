@@ -12,6 +12,7 @@ home: true
 {%- endcomment -%}
 {%- assign report = site.ai_news | sort: "date" | last -%}
 {%- if report -%}
+  {%- assign report_number = report.title | split: '#' | last | split: ':' | first | strip -%}
   <div class="year-header">
     <h2><a href="/ai-news/">/ai-news</a></h2>
     <span class="number-of-posts">({{ report.week | replace: '-w', ' week ' }})</span>
@@ -19,7 +20,7 @@ home: true
   <section class="weekly-report" aria-label="Latest AI Weekly report">
     <article class="post-item weekly-report-root">
       <h3 class="post-item-title">
-        <a href="{{ report.url }}">{{ report.title | split: ':' | first | escape }}</a>
+        <a href="{{ report.url }}">AI Weekly article <strong>#{{ report_number | escape }}</strong></a>
       </h3>
       <div class="post-item-tags">
         <span class="post-tag">{{ report.period | escape }}</span>
