@@ -11,7 +11,7 @@ dependencies = [
     # ranking and citation checking
     "typesafe-sdk>=0.7",
     # the weekly article
-    "anthropic>=1.7",
+    "anthropic>=1.8.0",
     "trafilatura>=2.0",
 ]
 
