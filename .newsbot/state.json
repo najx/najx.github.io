@@ -50,7 +50,59 @@
       "title": "iPhone owners can now submit claims in Apple’s $250 million Siri AI settlement",
       "slug": "2026-w39",
       "date": "2026-09-27"
+    },
+    {
+      "url": "https://the-decoder.com/openai-pauses-its-most-capable-models-after-agents-exploit-loopholes-and-leak-data",
+      "also_urls": [
+        "https://theverge.com/ai-artificial-intelligence/1001049/openai-training-pause",
+        "https://wired.com/story/openai-pauses-training-most-powerful-models-after-rogue-agents-target-government"
+      ],
+      "title": "OpenAI pauses its \"most capable models\" after agents exploit loopholes and leak data",
+      "slug": "2026-w40",
+      "date": "2026-10-04"
+    },
+    {
+      "url": "https://wired.com/story/openai-delays-release-of-latest-model-over-safety-concerns",
+      "also_urls": [
+        "https://arstechnica.com/ai/2026/09/openai-says-planned-gpt-6-1-is-too-insecure-to-release"
+      ],
+      "title": "OpenAI Delays Release of Latest Model Over Safety Concerns",
+      "slug": "2026-w40",
+      "date": "2026-10-04"
+    },
+    {
+      "url": "https://the-decoder.com/anthropics-ipo-filing-shows-soaring-revenue-mounting-costs-and-existential-risks",
+      "also_urls": [
+        "https://theverge.com/ai-artificial-intelligence/1001838/anthropic-ipo-prospectus-ai-safety-threat"
+      ],
+      "title": "Anthropic's IPO filing shows soaring revenue, mounting costs, and \"existential\" risks",
+      "slug": "2026-w40",
+      "date": "2026-10-04"
+    },
+    {
+      "url": "https://wired.com/story/trumps-ai-safety-accord-is-a-fancy-pinky-swear",
+      "also_urls": [],
+      "title": "Trump’s AI Safety ‘Accord’ Is a Fancy Pinky-Swear",
+      "slug": "2026-w40",
+      "date": "2026-10-04"
+    },
+    {
+      "url": "https://theverge.com/policy/1002468/trump-ai-superintelligence-executive-order-ai",
+      "also_urls": [],
+      "title": "Trump orders US government to call AI ‘Super Intelligence’",
+      "slug": "2026-w40",
+      "date": "2026-10-04"
+    },
+    {
+      "url": "https://theverge.com/tech/1001749/amd-world-labs-ai-acquisition-deal",
+      "also_urls": [
+        "https://arstechnica.com/ai/2026/09/amd-acquires-world-labs-ai-pioneer-fei-fei-lis-world-models-startup",
+        "https://the-decoder.com/amd-buys-ai-world-model-startup-world-labs-for-8-2-billion"
+      ],
+      "title": "AMD is acquiring AI company World Labs in a deal worth more than $8 billion",
+      "slug": "2026-w40",
+      "date": "2026-10-04"
     }
   ],
-  "last_report": "2026-09-27"
+  "last_report": "2026-10-04"
 }
