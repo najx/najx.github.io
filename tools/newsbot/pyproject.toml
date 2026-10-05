@@ -9,7 +9,7 @@ dependencies = [
     "PyYAML>=6.0",
     "requests>=2.31",
     # ranking and citation checking
-    "typesafe-sdk>=0.7",
+    "typesafe-sdk>=0.7.2",
     # the weekly article
     "anthropic>=1.8.0",
     "trafilatura>=2.0",
