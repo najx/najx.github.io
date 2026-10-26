@@ -5,4 +5,4 @@
 # d'installer le paquet avec --no-build-isolation, donc sans aucun
 # téléchargement non vérifié.
 # À garder aligné sur [build-system].requires de pyproject.toml.
-setuptools>=68
+setuptools>=84.2.1
