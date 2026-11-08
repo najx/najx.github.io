@@ -7,7 +7,7 @@ dependencies = [
     # collection
     "feedparser>=6.0.14",
     "PyYAML>=6.0",
-    "requests>=2.31",
+    "requests>=2.34.2",
     # ranking and citation checking
     "typesafe-sdk>=0.7.5",
     # the weekly article
