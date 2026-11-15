@@ -56,14 +56,13 @@ jobs:
           python-version: "3.12"
 
       - name: Install newsbot
-        # Verrou à hashes : rien ne s'installe qui ne soit exactement l'archive
-        # compilée dans tools/newsbot/requirements.txt. --no-build-isolation
-        # parce que setuptools y figure aussi, donc pip n'a plus rien à aller
-        # chercher sans vérification.
+        # Le verrou à hashes contient les dépendances de construction.
+        # Les dépendances d'exécution sont installées depuis les métadonnées du
+        # paquet, déclarées dans tools/newsbot/pyproject.toml.
         run: |
           set -euo pipefail
           pip install --require-hashes --no-deps -r tools/newsbot/requirements.txt
-          pip install --no-deps --no-build-isolation ./tools/newsbot
+          pip install --no-build-isolation ./tools/newsbot
 
       - name: Collect
         env:
