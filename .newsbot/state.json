@@ -234,7 +234,52 @@
       "title": "Disney found a way to buy Character.AI without buying its lawsuits",
       "slug": "2026-w43",
       "date": "2026-10-25"
+    },
+    {
+      "url": "https://arstechnica.com/features/2026/11/faa-expands-ai-advice-to-manage-air-traffic-congestion-across-entire-us-airspace",
+      "also_urls": [],
+      "title": "FAA expands AI advice to manage air traffic congestion across entire US airspace",
+      "slug": "2026-w46",
+      "date": "2026-11-15"
+    },
+    {
+      "url": "https://the-decoder.com/anthropic-ceo-amodei-admits-theres-a-huge-uncertainty-in-whats-going-to-happen-next-year-days-before-a-record-ipo",
+      "also_urls": [],
+      "title": "Anthropic CEO Amodei admits \"there's a huge uncertainty in what's going to happen next year\" days before a record IPO",
+      "slug": "2026-w46",
+      "date": "2026-11-15"
+    },
+    {
+      "url": "https://arstechnica.com/tech-policy/2026/11/lawsuit-man-introduced-his-wife-to-chatgpt-she-used-it-to-plan-his-murder",
+      "also_urls": [],
+      "title": "Lawsuit: Man introduced his wife to ChatGPT. She used it to plan his murder.",
+      "slug": "2026-w46",
+      "date": "2026-11-15"
+    },
+    {
+      "url": "https://wired.com/story/uncanny-valley-podcast-jensen-huang-is-out-will-nvidias-rivals-cash-in",
+      "also_urls": [
+        "https://latent.space/p/ainews-jensen-huang-resigns-after-33-years-leading-nvidia",
+        "https://the-decoder.com/jensen-huangs-ouster-likely-traces-back-to-nvidias-risky-business-practices-more-than-his-personal-life"
+      ],
+      "title": "Jensen Huang Is Out. Will Nvidia’s Rivals Cash In?",
+      "slug": "2026-w46",
+      "date": "2026-11-15"
+    },
+    {
+      "url": "https://arstechnica.com/tech-policy/2026/11/families-fight-to-keep-googles-disturbing-ai-off-school-issued-chromebooks",
+      "also_urls": [],
+      "title": "Google faces calls for AI moratoriums in schools after Gemini pilot backlash",
+      "slug": "2026-w46",
+      "date": "2026-11-15"
+    },
+    {
+      "url": "https://theregister.com/public-sector/2026/11/02/india-floats-ai-plan-under-which-the-model-travels-to-the-data-rather-than-the-data-travelling-to-the-model/5306872",
+      "also_urls": [],
+      "title": "India floats AI plan under which ‘The model travels to the data, rather than the data travelling to the model’",
+      "slug": "2026-w46",
+      "date": "2026-11-15"
     }
   ],
-  "last_report": "2026-10-25"
+  "last_report": "2026-11-15"
 }
