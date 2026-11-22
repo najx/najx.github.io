@@ -1,7 +1,7 @@
 ---
 title: "AI Agentic Engineering Days Zurich 26"
 date: 2026-11-20 10:00:00 +01:00
-modified: 2026-11-22 20:00:00 +01:00
+modified: 2026-11-22 20:10:00 +01:00
 tags: [AI 🤖]
 description: >-
   My recap of the Agentic Engineering Days conference: key ideas,
@@ -12,6 +12,11 @@ comments: true
 ---
 
 On 20 November 2026 I spent the day at the [Agentic Engineering Days](https://www.agenticdays.com/) in Zurich, held at the Marriott and organised by [letsboot.ch](https://www.letsboot.ch/). The programme was packed with 25-minute talks on building software with, and for, AI agents. I attended nine of them, spread over four rooms, and this post walks through the day in order.
+
+<figure>
+  <img src="/assets/img/12/badge.webp" alt="Attendee badge and lanyard for Agentic Engineering Days Zurich 2026, organised by letsboot.ch" width="1600" height="1200" loading="lazy" style="width:100%;height:auto;">
+  <figcaption>My badge for the day.</figcaption>
+</figure>
 
 Each section gives the session's time and room, the speaker, a summary of what the session set out to cover (based on the official abstract), and links to the speaker and to related material. None of the session pages listed slides or recordings when I wrote this, so I link to the session pages themselves.
 
@@ -46,6 +51,11 @@ More from Warren: his articles on [dev.to](https://dev.to/wparad).
 **10:20, Millennium.** [Manisha De](https://www.linkedin.com/in/manisha-de-58616483/), Product Owner at [Swisscom](https://www.swisscom.ch).
 
 Manisha presented an architectural evolution model built in hindsight from the recurring decisions and trade-offs her team met while prototyping and growing enterprise agentic systems. The model groups them into stages, so a team can see where its architecture stands and which engineering problems usually come next. The path she traced through Swisscom's work on knowledge management, product management and AI-assisted operations ran through: data readiness as the foundation for context engineering; quick prototyping of workflows in n8n; a rebuild of multi-agent systems on the Strands Agents SDK under enterprise constraints; a move from early vector-based RAG to a leaner "vectorless" approach; standardising agent capabilities with MCP; and finally re-implementing the same workflows with Kiro, GitHub Copilot and reusable agent skills to trade custom orchestration for a smaller footprint. Her argument is that orchestration, context engineering, interoperability and simplicity decide the success of these systems more than raw model capability.
+
+<figure>
+  <img src="/assets/img/12/session-2-evolving-architecture.webp" alt="Conference room with rows of empty chairs in the foreground and two screens showing the title slide Evolving Architecture for Agentic Systems by Manisha De, Swisscom, 20.11.2026" width="1200" height="1600" loading="lazy" style="width:100%;max-width:520px;height:auto;">
+  <figcaption>Manisha De's session (Swisscom), with the opening slide on the screens.</figcaption>
+</figure>
 
 <!-- TODO (Najim): your takeaway from this talk. -->
 
