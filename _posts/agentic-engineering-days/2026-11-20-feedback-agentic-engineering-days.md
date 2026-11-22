@@ -1,7 +1,7 @@
 ---
 title: "AI Agentic Engineering Days Zurich 26"
 date: 2026-11-20 10:00:00 +01:00
-modified: 2026-11-22 21:30:00 +01:00
+modified: 2026-11-22 21:40:00 +01:00
 tags: [AI 🤖]
 description: >-
   My recap of the Agentic Engineering Days conference: key ideas,
@@ -75,7 +75,7 @@ Related reading: AuthZed's tutorial [Building Agentic RAG with SpiceDB, LangChai
 
 Alessandra's starting point is to write a structured specification before any code is generated: what the system must do, how it behaves at the edges, and what "done" means. She presented AI-DLC, a lifecycle in three phases. In inception the AI proposes the architecture, in construction it generates and iterates on code from the spec, and in operations it monitors and patches. Humans steer at each gate between phases. The talk followed a real project built this way, showed where a good spec caught bugs that tests had missed, and showed when rewriting the spec is quicker than fixing the code. Attendees were promised practical rules for writing specs and a workflow to try on their next feature.
 
-**My take.** What I take from this talk is the AI-DLC method itself, which was very clearly explained. Even though the session leaned heavily on the Amazon stack, the method is harness-agnostic.
+**My take.** What I take from this talk is the AI-DLC method itself, which was very clearly explained. The session stayed focused on the method, and the method is harness-agnostic.
 
 Related reading: the AWS DevOps blog post [AI-Driven Development Life Cycle](https://aws.amazon.com/blogs/devops/ai-driven-development-life-cycle) and the open-source [aidlc-workflows](https://github.com/awslabs/aidlc-workflows) repository on GitHub.
 
@@ -125,7 +125,7 @@ A few themes came back from one session to the next, and a handful of talks stay
 
 - **Evolving an architecture, not just building one.** Manisha's talk was one of the two that impressed me most. It was a high-quality walk through how an architecture changed once the problems of a multi-agent setup appeared, and it ends with a smaller footprint rather than a bigger one. Aarno's platform talk meets it from the other side by treating agents like ordinary software to run.
 - **Security as a design input.** Sohan's session on authorization was the other one I liked most. The model inspired by Google's Zanzibar is very simple, and he presented it extremely well. The FSI fireside chat on sovereignty and compliance sits in the same family.
-- **Specification before code.** Alessandra's talk was good quality, even though it was very much centred on the Amazon stack. Warren's migration talk lists spec-driven development among its topics too, and it was the most useful field report of the day: the one I would like as many people as possible to be able to access.
+- **Specification before code.** Alessandra's talk was good quality and focused squarely on the AI-DLC method. Warren's migration talk lists spec-driven development among its topics too, and it was the most useful field report of the day: the one I would like as many people as possible to be able to access.
 - **Non-determinism needs new habits.** Susanna's practices (continuous evaluation, trace-level observability, prompts under review) and the Copilot measurement talk both ask how to know whether AI-assisted work is actually better.
 - **People stay in the loop.** Oleksandra's closing talk gave me real leads to explore professionally, on how a human supervises several harnesses without becoming the bottleneck.
 
