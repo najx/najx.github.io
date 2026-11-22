@@ -1,7 +1,7 @@
 ---
 title: "AI Agentic Engineering Days Zurich 26"
 date: 2026-11-20 10:00:00 +01:00
-modified: 2026-11-22 21:10:00 +01:00
+modified: 2026-11-22 21:15:00 +01:00
 tags: [AI 🤖]
 description: >-
   My recap of the Agentic Engineering Days conference: key ideas,
@@ -98,8 +98,6 @@ More from Aarno: his [slides on SlideShare](https://de.slideshare.net/AarnoAukia
 **14:20, Millennium.** [Susanna Wong](https://www.linkedin.com/in/susanna-wong-london/), Staff Engineer and Google Developer Expert at Typeform.
 
 Classic software engineering assumes that the same input gives the same output, so a change in behaviour can be traced back to a change in code. LLM systems break that assumption: behaviour emerges from prompts, retrieval, context, model choice and evaluation, a feature can regress while no business logic changes, and a prompt fix can introduce a new failure. Drawing on features being built at Typeform, including trade-offs, dead ends and unsolved problems, Susanna covered four practices: continuous evaluation rather than relying only on traditional test suites; trace-level observability rather than application logs alone; reviewing prompts and other AI artefacts as first-class engineering assets; and orchestrating systems that contain inherently non-deterministic parts. The talk is aimed at people already building LLM applications or about to start.
-
-<!-- TODO (Najim): your takeaway from this talk. -->
 
 ## 8. FSI transformation at scale: sovereignty, compliance & production realities
 
