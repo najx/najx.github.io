@@ -1,7 +1,7 @@
 ---
 title: "AI Agentic Engineering Days Zurich 26"
 date: 2026-11-20 10:00:00 +01:00
-modified: 2026-11-22 20:15:00 +01:00
+modified: 2026-11-22 20:20:00 +01:00
 tags: [AI 🤖]
 description: >-
   My recap of the Agentic Engineering Days conference: key ideas,
@@ -146,4 +146,4 @@ I will keep following the field and keep collecting real-world feedback. I want 
 
 ## Thank you
 
-First of all, a big thank you to my employer for giving me the opportunity to take part in this conference. Thank you as well to the team at [letsboot.ch](https://www.letsboot.ch/) for organising the day, and to all the speakers for sharing their experience and their lessons learned. And thank you for reading this far. If you were there too, or if you have your own take on any of these topics, I would love to hear it in the comments below.
+First of all, a big thank you to my employer, [Vaudoise Assurances](https://www.vaudoise.ch/), for giving me the opportunity to take part in this conference. Thank you as well to the team at [letsboot.ch](https://www.letsboot.ch/) for organising the day, and to all the speakers for sharing their experience and their lessons learned. And thank you for reading this far. If you were there too, or if you have your own take on any of these topics, I would love to hear it in the comments below.
