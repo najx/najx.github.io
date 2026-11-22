@@ -279,7 +279,51 @@
       "title": "India floats AI plan under which ‘The model travels to the data, rather than the data travelling to the model’",
       "slug": "2026-w46",
       "date": "2026-11-15"
+    },
+    {
+      "url": "https://theverge.com/policy/1038892/trump-foreign-data-centers-tax",
+      "also_urls": [],
+      "title": "Trump threatens ‘tremendous tax’ for moving AI data centers outside the US",
+      "slug": "2026-w47",
+      "date": "2026-11-22"
+    },
+    {
+      "url": "https://theverge.com/ai-artificial-intelligence/1035384/anthropic-ipo-trading-nasdaq",
+      "also_urls": [],
+      "title": "Anthropic starts trading on Wall Street",
+      "slug": "2026-w47",
+      "date": "2026-11-22"
+    },
+    {
+      "url": "https://theverge.com/ai-artificial-intelligence/1034815/california-openai-hugging-face-lawsuit",
+      "also_urls": [
+        "https://the-decoder.com/californias-attorney-general-sues-openai-over-rogue-ai-models-that-attacked-hugging-face"
+      ],
+      "title": "California sues OpenAI over rogue AI hacking incidents",
+      "slug": "2026-w47",
+      "date": "2026-11-22"
+    },
+    {
+      "url": "https://the-decoder.com/anthropics-81-3-billion-ipo-shatters-spacexs-record-as-rising-rates-and-political-headwinds-shake-the-sector",
+      "also_urls": [],
+      "title": "Anthropic's $81.3 billion IPO shatters SpaceX's record as rising rates and political headwinds shake the sector",
+      "slug": "2026-w47",
+      "date": "2026-11-22"
+    },
+    {
+      "url": "https://arstechnica.com/tech-policy/2026/11/traumatized-teens-sue-school-cops-after-doritos-bag-triggers-ai-gun-alert",
+      "also_urls": [],
+      "title": "Traumatized teens sue school, cops after Doritos bag triggers AI gun alert",
+      "slug": "2026-w47",
+      "date": "2026-11-22"
+    },
+    {
+      "url": "https://the-decoder.com/reports-of-ai-generated-child-sexual-abuse-material-have-surged-more-than-8400-percent-in-two-years",
+      "also_urls": [],
+      "title": "Reports of AI-generated child sexual abuse material have surged more than 8,400 percent in two years",
+      "slug": "2026-w47",
+      "date": "2026-11-22"
     }
   ],
-  "last_report": "2026-11-15"
+  "last_report": "2026-11-22"
 }
