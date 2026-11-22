@@ -1,7 +1,7 @@
 ---
 title: "AI Agentic Engineering Days Zurich 26"
 date: 2026-11-20 10:00:00 +01:00
-modified: 2026-11-22 21:05:00 +01:00
+modified: 2026-11-22 21:10:00 +01:00
 tags: [AI 🤖]
 description: >-
   My recap of the Agentic Engineering Days conference: key ideas,
@@ -92,8 +92,6 @@ Leaders who have rolled out an AI coding assistant eventually ask whether it act
 Once agents leave a laptop for production, a different set of questions appears: where do they run, how are they observed, how do they reach tools and secrets, how is cost kept in check, and how do you recover from failures? Aarno mapped the building blocks of an agent platform: Kubernetes-based inference with open models, API gateways, tool access, observability, safety boundaries and lifecycle operations. The session lists Kubernetes, vLLM, LiteLLM, Kubeflow and OpenShift among its technologies. The stated aim is to show what it takes to run agents like real software, without the hype.
 
 More from Aarno: his [slides on SlideShare](https://de.slideshare.net/AarnoAukia/presentations).
-
-<!-- TODO (Najim): your takeaway from this talk. -->
 
 ## 7. When software stops being deterministic
 
