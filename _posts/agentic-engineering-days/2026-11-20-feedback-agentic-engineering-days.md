@@ -1,7 +1,7 @@
 ---
 title: "AI Agentic Engineering Days Zurich 26"
 date: 2026-11-20 10:00:00 +01:00
-modified: 2026-11-22 16:25:00 +01:00
+modified: 2026-11-22 16:30:00 +01:00
 tags: [AI 🤖]
 description: >-
   My recap of the Agentic Engineering Days conference: key ideas,
@@ -123,7 +123,7 @@ A few themes came back from one session to the next, and a handful of talks stay
 
 ### Questions that remain
 
-I understand why adopting AI matters to stay ahead. Still, a few questions stay open for me, and they are more philosophical than technical: return on investment, and governance. A human-centred system still seems utopian to me, for economic and governance reasons.
+I understand why adopting AI matters to stay ahead. Still, a few questions stay open for me, and they are more philosophical than technical: return on investment, and governance.
 
 ### What I take away
 
