@@ -1,7 +1,7 @@
 ---
 title: "AI Agentic Engineering Days Zurich 26"
 date: 2026-11-20 10:00:00 +01:00
-modified: 2026-11-22 20:50:00 +01:00
+modified: 2026-11-22 20:55:00 +01:00
 tags: [AI 🤖]
 description: >-
   My recap of the Agentic Engineering Days conference: key ideas,
@@ -65,9 +65,9 @@ Manisha presented an architectural evolution model built in hindsight from the r
 
 Before enterprises can roll out agentic RAG widely, they need to guarantee that an agent only retrieves data the person asking is allowed to see. Sohan's talk went into fine-grained authorization to get there. He covered Google's Zanzibar model and its relationship-based access control (ReBAC), how such a system works internally, and how to apply it to agentic RAG with pre-filtering and post-filtering of results. He also briefly looked at how OpenAI handles authorization at scale for ChatGPT Apps. The session included a live coding demo with open-source tools: Weaviate, LangChain and SpiceDB.
 
-Related reading: AuthZed's tutorial [Building Agentic RAG with SpiceDB, LangChain & Weaviate](https://authzed.com/docs/spicedb/tutorials/agentic-rag), and Sohan's [blog](http://sohan.co).
+**My take.** The way Sohan presented it is what made it click. The comparison with Google's Zanzibar model makes the approach easy to grasp, and the solution is genuinely useful while being incredibly simple and ingenious.
 
-<!-- TODO (Najim): your takeaway from this talk. -->
+Related reading: AuthZed's tutorial [Building Agentic RAG with SpiceDB, LangChain & Weaviate](https://authzed.com/docs/spicedb/tutorials/agentic-rag), and Sohan's [blog](http://sohan.co).
 
 ## 4. Specs first, code later (or how I build software in the AI-DLC era)
 
