@@ -1,14 +1,14 @@
 ---
 title: "AI Agentic Engineering Days Zurich 26"
 date: 2026-11-20 10:00:00 +01:00
-modified: 2026-11-22 16:20:00 +01:00
+modified: 2026-11-22 16:25:00 +01:00
 tags: [AI 🤖]
 description: >-
   My recap of the Agentic Engineering Days conference: key ideas,
   presented practices, and the lessons I took away.
 lang: en
 published: false
-comments: false
+comments: true
 ---
 
 On 20 November 2026 I spent the day at the [Agentic Engineering Days](https://www.agenticdays.com/) in Zurich, held at the Marriott and organised by letsboot.ch. The programme was packed with 25-minute talks on building software with, and for, AI agents. I attended nine of them, spread over four rooms, and this post walks through the day in order.
