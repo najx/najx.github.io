@@ -1,7 +1,7 @@
 ---
 title: "AI Agentic Engineering Days Zurich 26"
 date: 2026-11-20 10:00:00 +01:00
-modified: 2026-11-22 21:00:00 +01:00
+modified: 2026-11-22 21:05:00 +01:00
 tags: [AI 🤖]
 description: >-
   My recap of the Agentic Engineering Days conference: key ideas,
@@ -84,8 +84,6 @@ Related reading: the AWS DevOps blog post [AI-Driven Development Life Cycle](htt
 **13:00, Studio 6.** [Yuliya Khadasevich](https://www.linkedin.com/in/yulkhadas/), Engineering Manager and Microsoft MVP at Eneco, and [Liuba Gonta](https://www.linkedin.com/in/liuba-gonta), IT consultant, GitHub trainer and Microsoft MCT at [Xebia](https://xebia.com).
 
 Leaders who have rolled out an AI coding assistant eventually ask whether it actually helps. Yuliya and Liuba framed this as a familiar measurement problem, comparable to earlier shifts such as Agile, DevOps and CI/CD. They covered how to reason about the impact of GenAI assistants across the whole software development life cycle using existing frameworks such as DORA and SPACE, and how Copilot's own tool-level metrics can add context. Their position is that generated lines of code are the wrong yardstick, and that Copilot metrics are most useful for understanding adoption and improving enablement, provided they are interpreted correctly. The talk targets architects, engineering leaders and senior developers.
-
-<!-- TODO (Najim): your takeaway from this talk. -->
 
 ## 6. Agents need platforms too: running LLM and agent workloads the cloud-native way
 
