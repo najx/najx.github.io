@@ -1,7 +1,7 @@
 ---
 title: "AI Agentic Engineering Days Zurich 26"
 date: 2026-11-20 10:00:00 +01:00
-modified: 2026-11-22 20:45:00 +01:00
+modified: 2026-11-22 20:50:00 +01:00
 tags: [AI 🤖]
 description: >-
   My recap of the Agentic Engineering Days conference: key ideas,
@@ -57,7 +57,7 @@ Manisha presented an architectural evolution model built in hindsight from the r
   <figcaption>Manisha De's session (Swisscom), with the opening slide on the screens.</figcaption>
 </figure>
 
-<!-- TODO (Najim): your takeaway from this talk. -->
+**My take.** What I liked is that every stage came with its own lesson and, above all, with the reason behind it. The overall message was clear: start with a single agent, and only consider a multi-agent setup if it makes sense. The same why-first logic ran through the next steps: the move from vector RAG to vectorless RAG, then MCP, then Kiro and GitHub Copilot.
 
 ## 3. Building authorization for agentic RAG systems
 
