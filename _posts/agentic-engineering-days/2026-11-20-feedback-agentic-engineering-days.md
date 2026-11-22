@@ -1,7 +1,7 @@
 ---
 title: "AI Agentic Engineering Days Zurich 26"
 date: 2026-11-20 10:00:00 +01:00
-modified: 2026-11-22 20:55:00 +01:00
+modified: 2026-11-22 21:00:00 +01:00
 tags: [AI 🤖]
 description: >-
   My recap of the Agentic Engineering Days conference: key ideas,
@@ -75,9 +75,9 @@ Related reading: AuthZed's tutorial [Building Agentic RAG with SpiceDB, LangChai
 
 Alessandra's starting point is to write a structured specification before any code is generated: what the system must do, how it behaves at the edges, and what "done" means. She presented AI-DLC, a lifecycle in three phases. In inception the AI proposes the architecture, in construction it generates and iterates on code from the spec, and in operations it monitors and patches. Humans steer at each gate between phases. The talk followed a real project built this way, showed where a good spec caught bugs that tests had missed, and showed when rewriting the spec is quicker than fixing the code. Attendees were promised practical rules for writing specs and a workflow to try on their next feature.
 
-Related reading: the AWS DevOps blog post [AI-Driven Development Life Cycle](https://aws.amazon.com/blogs/devops/ai-driven-development-life-cycle) and the open-source [aidlc-workflows](https://github.com/awslabs/aidlc-workflows) repository on GitHub.
+**My take.** What I take from this talk is the AI-DLC method itself, which was very clearly explained. Even though the session leaned heavily on the Amazon stack, the method is harness-agnostic.
 
-<!-- TODO (Najim): your takeaway from this talk. -->
+Related reading: the AWS DevOps blog post [AI-Driven Development Life Cycle](https://aws.amazon.com/blogs/devops/ai-driven-development-life-cycle) and the open-source [aidlc-workflows](https://github.com/awslabs/aidlc-workflows) repository on GitHub.
 
 ## 5. We rolled out GitHub Copilot… how do we prove it helps?
 
