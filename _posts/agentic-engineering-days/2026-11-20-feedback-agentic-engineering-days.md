@@ -1,7 +1,7 @@
 ---
 title: "AI Agentic Engineering Days Zurich 26"
 date: 2026-11-20 10:00:00 +01:00
-modified: 2026-11-22 21:20:00 +01:00
+modified: 2026-11-22 21:25:00 +01:00
 tags: [AI 🤖]
 description: >-
   My recap of the Agentic Engineering Days conference: key ideas,
@@ -115,9 +115,9 @@ The last session of the day started from a very practical annoyance. "Human in t
 
 **About Omnigent.** Omnigent is an open-source meta-harness from Databricks, currently in alpha. A harness is the layer a tool such as Claude Code or Codex wraps around a model. Omnigent sits one level above and puts several of them (Claude Code, Codex, Cursor, Pi, or custom agents defined in YAML) behind a common interface, so you can swap them or mix them in one session, for instance by having one agent review another's work. Its controls are enforced at that layer rather than through prompts: cost policies track each session's spend and can pause the agent for confirmation, approval policies make it stop before risky actions (for example, a human must approve a `git push` after a package download), and a sandbox keeps credentials such as a GitHub token out of the agent's reach. For sharing, a live session can be opened to teammates by URL so they can follow the agent, comment on files and send commands, and the same session is reachable from the web, mobile or an API. This summary comes from the project's public documentation, not from the talk itself.
 
-Related reading: Databricks' announcement [Introducing Omnigent](https://www.databricks.com/blog/introducing-omnigent-meta-harness-combine-control-and-share-your-agents) and the [omnigent repository](https://github.com/omnigent-ai/omnigent) on GitHub.
+**My take.** It was a really engaging and interesting talk to end the day on. It gave me a concrete tool to test, with several harnesses combined, cost limits and approval policies, and a live session shared with a colleague, and new ideas to bring back to the company.
 
-<!-- TODO (Najim): your takeaway from this talk. -->
+Related reading: Databricks' announcement [Introducing Omnigent](https://www.databricks.com/blog/introducing-omnigent-meta-harness-combine-control-and-share-your-agents) and the [omnigent repository](https://github.com/omnigent-ai/omnigent) on GitHub.
 
 ## Threads running through the day
 
