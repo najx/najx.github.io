@@ -1,7 +1,7 @@
 ---
 title: "AI Agentic Engineering Days Zurich 26"
 date: 2026-11-20 10:00:00 +01:00
-modified: 2026-11-22 20:40:00 +01:00
+modified: 2026-11-22 20:45:00 +01:00
 tags: [AI 🤖]
 description: >-
   My recap of the Agentic Engineering Days conference: key ideas,
@@ -42,9 +42,9 @@ Each section gives the session's time and room, the speaker, a summary of what t
 
 The day opened with a very concrete use case: a one-off migration of about 100 components in a managed authentication system that runs in production. Each framework had to be upgraded to its latest version without lowering test coverage and without breaking anything for customers. Warren shared how an LLM-assisted approach to this deceptively simple but surprisingly hard job played out: what matched the team's expectations, what surprised them, and what it meant for developer experience, efficiency and quality. He also addressed what both AI skeptics and AI optimists tend to get wrong. The abstract stresses that the talk is not tied to any particular model or technology, and files it under lessons learned and anti-patterns as well as spec-driven and agentic software development.
 
-More from Warren: his articles on [dev.to](https://dev.to/wparad).
+**My take.** Warren does a good job of deconstructing the idea that LLMs can magically do everything, especially when the job is a complex architecture where every step of a change or a migration calls for real expertise. It never turns into gratuitous criticism. The point is to show, intelligently, where LLMs genuinely help and where they have to be handled with care, above all when you do not master what is being done.
 
-<!-- TODO (Najim): your takeaway from this talk. -->
+More from Warren: his articles on [dev.to](https://dev.to/wparad).
 
 ## 2. Beyond prompts & models: evolving architecture for agentic systems
 
