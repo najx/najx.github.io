@@ -8,6 +8,14 @@ layout: default
 comments: false
 ---
 
+{%- comment -%}
+  /ai-news — weekly reports drafted by tools/newsbot and merged after review.
+  Rendered at build time from the _ai_news collection. The latest report is
+  featured first as a tree of its headlines; earlier reports follow as
+  collapsible rows (native <details>, no JavaScript). No outbound links here:
+  the headlines are anchors into the report itself, and the report's Sources
+  block is where the outlets get their links.
+{%- endcomment -%}
 <div class="year-header">
   <h2>/ai-news</h2>
   <span class="number-of-posts">({{ site.ai_news.size }})</span>
@@ -15,12 +23,66 @@ comments: false
 {%- assign reports = site.ai_news | sort: "date" | reverse -%}
 {%- for report in reports -%}
   {%- assign report_number = report.title | split: '#' | last | split: ':' | first | strip -%}
-  <article class="post-item">
-    <h3 class="post-item-title">
-      <a href="{{ report.url }}">AI Weekly <strong>#{{ report_number | escape }}</strong></a>
-    </h3>
-    <div class="post-item-tags">
-      <span class="post-tag">{{ report.period | escape }}</span>
-    </div>
-  </article>
+
+  {%- if forloop.first -%}
+    <section class="weekly-report" aria-label="Latest AI Weekly report">
+      <article class="post-item weekly-report-root">
+        <h3 class="post-item-title">
+          <a href="{{ report.url }}">AI Weekly article <strong>#{{ report_number | escape }}</strong></a>
+        </h3>
+        <div class="post-item-tags">
+          <span class="post-tag">{{ report.period | escape }}</span>
+        </div>
+      </article>
+      <div class="weekly-report-children">
+        {%- for story in report.stories -%}
+          <article class="post-item weekly-report-child">
+            <h3 class="post-item-title">
+              <a href="{{ report.url }}#{{ story.id | escape }}">{{ story.title | escape }}</a>
+            </h3>
+          </article>
+        {%- endfor -%}
+      </div>
+    </section>
+  {%- else -%}
+    {%- if forloop.index == 2 -%}
+      <div class="year-header">
+        <h2>Earlier</h2>
+        <span class="number-of-posts">({{ site.ai_news.size | minus: 1 }})</span>
+      </div>
+    {%- endif -%}
+
+    {%- if report.stories and report.stories.size > 0 -%}
+      <details class="weekly-report-archive">
+        <summary class="post-item weekly-report-root">
+          <h3 class="post-item-title">
+            <a href="{{ report.url }}">AI Weekly <strong>#{{ report_number | escape }}</strong></a>
+          </h3>
+          <div class="post-item-tags">
+            <span class="post-tag">{{ report.period | escape }}</span>
+            <span class="weekly-report-toggle" aria-hidden="true"></span>
+          </div>
+        </summary>
+        <div class="weekly-report-children">
+          {%- for story in report.stories -%}
+            <article class="post-item weekly-report-child">
+              <h3 class="post-item-title">
+                <a href="{{ report.url }}#{{ story.id | escape }}">{{ story.title | escape }}</a>
+              </h3>
+            </article>
+          {%- endfor -%}
+        </div>
+      </details>
+    {%- else -%}
+      {%- comment -%} A report without a stories list has nothing to unfold: plain row. {%- endcomment -%}
+      <article class="post-item">
+        <h3 class="post-item-title">
+          <a href="{{ report.url }}">AI Weekly <strong>#{{ report_number | escape }}</strong></a>
+        </h3>
+        <div class="post-item-tags">
+          <span class="post-tag">{{ report.period | escape }}</span>
+        </div>
+      </article>
+    {%- endif -%}
+  {%- endif -%}
 {%- endfor -%}

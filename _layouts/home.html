@@ -3,37 +3,6 @@ layout: default
 home: true
 ---
 
-{%- comment -%}
-  /ai-news — the latest weekly report, drafted by tools/newsbot and merged
-  after review. Rendered at build time from the _ai_news collection. No
-  outbound links here: the headlines are anchors into the report itself, and
-  the report's Sources block is where the outlets get their links. If the
-  collection is empty the section simply disappears.
-{%- endcomment -%}
-{%- assign report = site.ai_news | sort: "date" | last -%}
-{%- if report -%}
-  {%- assign report_number = report.title | split: '#' | last | split: ':' | first | strip -%}
-  <section class="weekly-report" aria-label="Latest AI Weekly report">
-    <article class="post-item weekly-report-root">
-      <h3 class="post-item-title">
-        <a href="{{ report.url }}">AI Weekly article <strong>#{{ report_number | escape }}</strong></a>
-      </h3>
-      <div class="post-item-tags">
-        <span class="post-tag">{{ report.period | escape }}</span>
-      </div>
-    </article>
-    <div class="weekly-report-children">
-      {%- for story in report.stories -%}
-        <article class="post-item weekly-report-child">
-          <h3 class="post-item-title">
-            <a href="{{ report.url }}#{{ story.id | escape }}">{{ story.title | escape }}</a>
-          </h3>
-        </article>
-      {%- endfor -%}
-    </div>
-  </section>
-{%- endif -%}
-
 {%- comment -%} Show the complete blog archive, grouped by year as on /blog/. {%- endcomment -%}
 {%- assign grouped_posts = site.posts | group_by_exp: "post", "post.date | date: '%Y'" -%}
 {%- for year_group in grouped_posts -%}
