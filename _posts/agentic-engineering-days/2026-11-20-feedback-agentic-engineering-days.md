@@ -1,7 +1,7 @@
 ---
 title: "AI Agentic Engineering Days Zurich 26"
 date: 2026-11-20 10:00:00 +01:00
-modified: 2026-11-22 21:15:00 +01:00
+modified: 2026-11-22 21:20:00 +01:00
 tags: [AI 🤖]
 description: >-
   My recap of the Agentic Engineering Days conference: key ideas,
@@ -105,7 +105,7 @@ Classic software engineering assumes that the same input gives the same output, 
 
 This one was a fireside chat rather than a classic talk. The question: can financial institutions realistically become "AI-native" given data sovereignty requirements, evolving compliance rules and complex production environments? The two speakers drew on lessons from neo-banks, digital insurers and MGAs, and discussed how sovereignty, compliance and production constraints can be turned into structural guardrails for AI innovation instead of obstacles.
 
-<!-- TODO (Najim): your takeaway from this talk. -->
+**My take.** I found this one very interesting. One of the speakers talked about the Target Operating Model, the description of how an organisation intends to run to deliver its strategy across people, processes, technology and data, and about defining the governance around that model. I remain quite perplexed, though, about the likelihood of financial institutions becoming fully AI-native.
 
 ## 9. Human-in-the-loop is you: working with multiple coding agents
 
