@@ -1,13 +1,13 @@
 ---
 title: "AI Agentic Engineering Days Zurich 26"
 date: 2026-11-20 10:00:00 +01:00
-modified: 2026-11-22 21:25:00 +01:00
+modified: 2026-11-22 21:30:00 +01:00
 tags: [AI 🤖]
 description: >-
   My recap of the Agentic Engineering Days conference: key ideas,
   presented practices, and the lessons I took away.
 lang: en
-published: false
+published: true
 comments: true
 ---
 
