@@ -1,7 +1,7 @@
 ---
 title: "AI Agentic Engineering Days Zurich 26"
 date: 2026-11-20 10:00:00 +01:00
-modified: 2026-11-22 20:35:00 +01:00
+modified: 2026-11-22 20:40:00 +01:00
 tags: [AI 🤖]
 description: >-
   My recap of the Agentic Engineering Days conference: key ideas,
@@ -18,9 +18,9 @@ On 20 November 2026 I spent the day at the [Agentic Engineering Days](https://ww
   <figcaption>My badge for the day.</figcaption>
 </figure>
 
-Each section gives the session's time and room, the speaker, a summary of what the session set out to cover (based on the official abstract), and links to the speaker and to related material. None of the session pages listed slides or recordings when I wrote this, so I link to the session pages themselves.
+I went for two reasons. It was a good opportunity to see how agentic architecture patterns are actually put in place inside companies, and a way to build up my skills on the broader questions around AI agents.
 
-<!-- TODO (Najim): add one or two sentences on why you went, what you were hoping to take away, and your general impression of the day. -->
+Each section gives the session's time and room, the speaker, a summary of what the session set out to cover (based on the official abstract), and links to the speaker and to related material. None of the session pages listed slides or recordings when I wrote this, so I link to the session pages themselves.
 
 ## The day at a glance
 
