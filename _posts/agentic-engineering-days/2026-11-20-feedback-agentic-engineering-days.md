@@ -1,7 +1,7 @@
 ---
 title: "AI Agentic Engineering Days Zurich 26"
 date: 2026-11-20 10:00:00 +01:00
-modified: 2026-11-22 15:30:00 +01:00
+modified: 2026-11-22 16:15:00 +01:00
 tags: [AI 🤖]
 description: >-
   My recap of the Agentic Engineering Days conference: key ideas,
@@ -114,15 +114,21 @@ The last session of the day started from a very practical annoyance. "Human in t
 
 ## Threads running through the day
 
-Looking at the programme as a whole, a few themes come back from one session to the next:
+A few themes came back from one session to the next, and a handful of talks stayed with me more than the others.
 
-- **Specification before code.** Warren's migration talk lists spec-driven development among its topics, and Alessandra builds a whole lifecycle around writing the spec first.
-- **Simplicity over orchestration.** Manisha's evolution model ends with a smaller footprint, and Aarno's platform talk starts from running agents like ordinary software.
+- **Evolving an architecture, not just building one.** Manisha's talk was one of the two that impressed me most. It was a high-quality walk through how an architecture changed once the problems of a multi-agent setup appeared, and it ends with a smaller footprint rather than a bigger one. Aarno's platform talk meets it from the other side by treating agents like ordinary software to run.
+- **Security as a design input.** Sohan's session on authorization was the other one I liked most. The model inspired by Google's Zanzibar is very simple, and he presented it extremely well. The FSI fireside chat on sovereignty and compliance sits in the same family.
+- **Specification before code.** Alessandra's talk was good quality, even though it was very much centred on the Amazon stack. Warren's migration talk lists spec-driven development among its topics too, and it was the most useful field report of the day: the one I would like as many people as possible to be able to access.
 - **Non-determinism needs new habits.** Susanna's practices (continuous evaluation, trace-level observability, prompts under review) and the Copilot measurement talk both ask how to know whether AI-assisted work is actually better.
-- **Security and compliance are design inputs.** Sohan on authorization for RAG, and the FSI fireside chat on sovereignty and compliance.
-- **People stay in the loop.** Oleksandra's talk closes the day on how a human supervises several agents without becoming the bottleneck.
+- **People stay in the loop.** Oleksandra's closing talk gave me real leads to explore professionally, on how a human supervises several agents without becoming the bottleneck.
 
-<!-- TODO (Najim): your own conclusions: what you will try at work, what surprised you, which talk you would recommend. -->
+### Questions that remain
+
+I understand why adopting AI matters to stay ahead. Still, a few questions stay open for me, and they are more philosophical than technical: return on investment, and governance. A human-centred system still seems utopian to me, for economic and governance reasons.
+
+### What I take away
+
+I will keep following the field and keep collecting real-world feedback. I want to bring agentic AI into scenarios where it truly adds value, without putting all my eggs in one basket. Above all, I want to keep a full grasp of how it works and of what it produces.
 
 ## Links
 
