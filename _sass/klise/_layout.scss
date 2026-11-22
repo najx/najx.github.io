@@ -231,10 +231,15 @@
   }
 }
 
-// Home page: the weekly report is the parent of its linked story sections.
+// /ai-news page: the weekly report is the parent of its linked story sections.
 .weekly-report {
   display: block;
   margin-top: 60px;
+}
+
+// Directly under the page header the featured report needs less air.
+.year-header + .weekly-report {
+  margin-top: 20px;
 }
 
 .weekly-report-root {
@@ -301,6 +306,60 @@
     &:last-child::before {
       bottom: 50%;
     }
+  }
+}
+
+// Earlier weekly reports: a collapsible row that unfolds into the same tree.
+// The title link still opens the report; clicking anywhere else on the row
+// (or pressing Enter/Space on it) toggles the headlines.
+.weekly-report-archive {
+  display: block;
+
+  &[open] {
+    padding-bottom: 8px;
+  }
+
+  > summary.weekly-report-root {
+    cursor: pointer;
+    list-style: none;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+
+    // The tree node only appears once there is a tree to hang from it.
+    &::after {
+      display: none;
+    }
+
+    &:focus-visible {
+      outline: 1px dashed rgba(192, 57, 43, 0.55);
+      outline-offset: 2px;
+    }
+  }
+
+  &[open] > summary.weekly-report-root::after {
+    display: block;
+  }
+
+  .weekly-report-toggle {
+    align-self: center;
+    flex-shrink: 0;
+    width: 7px;
+    height: 7px;
+    margin: 0 2px 2px 6px;
+    border-right: 1px solid rgba(192, 57, 43, 0.55);
+    border-bottom: 1px solid rgba(192, 57, 43, 0.55);
+    transform: rotate(-45deg);
+    transition: transform 0.15s ease;
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
+  }
+
+  &[open] .weekly-report-toggle {
+    transform: rotate(45deg) translate(-1px, -1px);
   }
 }
 
