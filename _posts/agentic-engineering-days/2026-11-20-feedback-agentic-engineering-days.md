@@ -1,7 +1,7 @@
 ---
 title: "AI Agentic Engineering Days Zurich 26"
 date: 2026-11-20 10:00:00 +01:00
-modified: 2026-11-22 20:20:00 +01:00
+modified: 2026-11-22 20:35:00 +01:00
 tags: [AI 🤖]
 description: >-
   My recap of the Agentic Engineering Days conference: key ideas,
@@ -119,6 +119,10 @@ This one was a fireside chat rather than a classic talk. The question: can finan
 
 The last session of the day started from a very practical annoyance. "Human in the loop" is supposed to mean a person making judgement calls, but with several coding agents open at once it often means pasting the same bug report into different chat windows, re-explaining context, and losing track of which agent tried which fix. Oleksandra asked whether a meta-harness could help by combining several agents into one workflow, by replacing constant manual supervision with spend caps and approval policies, and by sharing a live session so a teammate can review or co-drive. The session announces Claude Code, Codex and Omnigent as the main tools, a live demo, lessons learned and a verdict on whether the approach holds up.
 
+**About Omnigent.** Omnigent is an open-source meta-harness from Databricks, currently in alpha. A harness is the layer a tool such as Claude Code or Codex wraps around a model. Omnigent sits one level above and puts several of them (Claude Code, Codex, Cursor, Pi, or custom agents defined in YAML) behind a common interface, so you can swap them or mix them in one session, for instance by having one agent review another's work. Its controls are enforced at that layer rather than through prompts: cost policies track each session's spend and can pause the agent for confirmation, approval policies make it stop before risky actions (for example, a human must approve a `git push` after a package download), and a sandbox keeps credentials such as a GitHub token out of the agent's reach. For sharing, a live session can be opened to teammates by URL so they can follow the agent, comment on files and send commands, and the same session is reachable from the web, mobile or an API. This summary comes from the project's public documentation, not from the talk itself.
+
+Related reading: Databricks' announcement [Introducing Omnigent](https://www.databricks.com/blog/introducing-omnigent-meta-harness-combine-control-and-share-your-agents) and the [omnigent repository](https://github.com/omnigent-ai/omnigent) on GitHub.
+
 <!-- TODO (Najim): your takeaway from this talk. -->
 
 ## Threads running through the day
@@ -129,7 +133,7 @@ A few themes came back from one session to the next, and a handful of talks stay
 - **Security as a design input.** Sohan's session on authorization was the other one I liked most. The model inspired by Google's Zanzibar is very simple, and he presented it extremely well. The FSI fireside chat on sovereignty and compliance sits in the same family.
 - **Specification before code.** Alessandra's talk was good quality, even though it was very much centred on the Amazon stack. Warren's migration talk lists spec-driven development among its topics too, and it was the most useful field report of the day: the one I would like as many people as possible to be able to access.
 - **Non-determinism needs new habits.** Susanna's practices (continuous evaluation, trace-level observability, prompts under review) and the Copilot measurement talk both ask how to know whether AI-assisted work is actually better.
-- **People stay in the loop.** Oleksandra's closing talk gave me real leads to explore professionally, on how a human supervises several agents without becoming the bottleneck.
+- **People stay in the loop.** Oleksandra's closing talk gave me real leads to explore professionally, on how a human supervises several harnesses without becoming the bottleneck.
 
 ### Questions that remain
 
