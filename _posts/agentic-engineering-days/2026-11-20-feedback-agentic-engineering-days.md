@@ -1,7 +1,7 @@
 ---
 title: "AI Agentic Engineering Days Zurich 26"
 date: 2026-11-20 10:00:00 +01:00
-modified: 2026-11-22 16:35:00 +01:00
+modified: 2026-11-22 20:00:00 +01:00
 tags: [AI 🤖]
 description: >-
   My recap of the Agentic Engineering Days conference: key ideas,
@@ -133,3 +133,7 @@ I will keep following the field and keep collecting real-world feedback. I want 
 
 - Event: [Agentic Engineering Days](https://www.agenticdays.com/) and its [LinkedIn page](https://www.linkedin.com/company/agentic-days/)
 - Organiser: [letsboot.ch](https://www.letsboot.ch/)
+
+## Thank you
+
+A big thank you to the team at [letsboot.ch](https://www.letsboot.ch/) for organising the day, and to all the speakers for sharing their experience and their lessons learned. And thank you for reading this far. If you were there too, or if you have your own take on any of these topics, I would love to hear it in the comments below.
